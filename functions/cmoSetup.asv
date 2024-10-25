@@ -1,0 +1,17 @@
+function O = cmoSetup(sys,N,M)
+    % LTI system sys; number of outputs N; number of corrupted outputs M.
+    A = sys.A;
+    B = sys.B;
+    C = sys.C;
+
+    % number of uncorrupted sensor combinations
+    J = nchoosek(N,N-M);
+    P = nchoosek(N,N-2*M);
+    O = 0;
+
+    % Define observer Cs
+    CJ = zeros(N,)
+    for i = 0:1:N
+        
+    end
+end
