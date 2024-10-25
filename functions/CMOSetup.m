@@ -1,4 +1,4 @@
-function [Astar, Bstar] = CMOSetup(A,B,L,CJ,N)
+function [Astar, Bstar, Cstar] = CMOSetup(A,B,L,CJ,N)
 %     This function creates an A* matrix that combines all J observers into
 %     a single state space form.
     n = size(A,1);
@@ -18,5 +18,5 @@ function [Astar, Bstar] = CMOSetup(A,B,L,CJ,N)
     end
     
     Cstar = eye(n*N,n*N);
-    Cstar(1:n,1:n) 
+    Cstar(1:n,1:n) = zeros(n,n);
 end
