@@ -1,11 +1,54 @@
 clearvars; close all;
 
 % N: number of outputs
-N = 12;
-% M: number of corrupted outputs
-M = 5;
+N = 1;
+% M: maximum number of corrupted outputs
+M = floor((N-1)/2);
 
-% System definition
+% Noiseless system definition
 sys = invPendSetup('down');
-CJ = cmoSetup(sys,N,M);
+sysOCF = SISOtoOCF(sys);
+Abar = sysOCF.A;
+Bbar = sysOCF.B;
+n = size(Abar,1);
+
+% CJ is the bank of observers; each row is an observer
+CJ = CJSetup(sys,N,M);
+
+% Define a set e of eigenvalues from which n are randomly chosen to be the
+% eigenvalues of a single entry in LJ.
+eigenvalues = [-1 -2 -3 -4 -5 -6 -7 -8]*100;
+LJ = LJSetup(sys,CJ,N,eigenvalues); % TBD
+
+% Add noise/input
+... % TBD
+
+% Create state estimates
+[Astar, Bstar,Cstar] = CMOSetup(Abar,Bbar,LJ,CJ,N);
+sysStar = ss(Astar,Bstar,Cstar,0);
+
+% simulate system
+t = 0:0.05:10;
+u = zeros(1,size(t,2));
+x0 = zeros((N+1)*n,1);
+x0(1:n,1) = [0;0;0.3;.10];
+
+sol = lsim(sysStar,u,t,x0)';
+
+% create tiled plot
+
+for l = 1:1:n
+    % select subplot to edit
+    subplot(2,2,l)
+    % rows to be plotted are l, l + j*n,...,l + j*(N+1)
+    for j = 0:1:N
+        rowIdToPlot = l + j*n;
+        rowToPlot = sol(rowIdToPlot,:);
+        plot(t,rowToPlot)
+        hold on
+    end
+
+end
+
+
 

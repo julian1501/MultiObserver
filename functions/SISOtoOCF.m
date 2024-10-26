@@ -1,4 +1,4 @@
-function [Abar,Bbar,Cbar,Dbar] = SISOtoOCF(sys)
+function OCFsys = SISOtoOCF(sys)
 % This function rewrites the SISO system (A,B,C,D) into observable canonical
 % form (Abar, Bbar, Cbar, Dbar). It uses a similarity transformation T,
 % where T is the last column of the inverse of the observability matrix of
@@ -27,5 +27,7 @@ function [Abar,Bbar,Cbar,Dbar] = SISOtoOCF(sys)
     Bbar = T*B;
     Cbar = C*Tinv;
     Dbar = D;
+
+    OCFsys = ss(Abar,Bbar,Cbar,Dbar);
 
 end
