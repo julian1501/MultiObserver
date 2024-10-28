@@ -1,11 +1,8 @@
-function [sys,A,B,C,D] = invPendSetup(orientation)
-%   Orientation = 'up' or 'down'
-    clearvars -except orientation;
-    close all;
+function [sys,A,B,C,D] = invPendSetup(orientation,J)
     %% Dynamics
     % dynamic equations
     M = 5; % [kg] cart mass
-    d = 50; % [N/m/s] friction coefficient cart
+    d = 150; % [N/m/s] friction coefficient cart
     c = 40; % friction coefficient pendulum
     m = 1; % [kg] pendulum mass
     l = 2; % [m] pendulum length
@@ -28,7 +25,10 @@ function [sys,A,B,C,D] = invPendSetup(orientation)
     
     B = [0;       1/M;               0; b/(M*l)];
     
-    C = [1 0 0 0];
+    n = size(A,1);
+    C = zeros(J,n);
+    I = eye(n);
+    C(1:J,1:n) = I(1:J,1:n);
 
     sys = ss(A,B,C,0);
 

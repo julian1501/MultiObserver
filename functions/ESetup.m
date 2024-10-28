@@ -1,12 +1,13 @@
-function E = ESetup(B,LJ,N)
+function E = ESetup(Bstar,LJ,numObservers,sizeObserver)
     % This function defines the 'input-matrix' E based on the A,B and L
     % matrices of the system.
     
-    n = size(B,1);
-    k = size(B,2);
-    m = 1;
-    Esize1 = (N+1)*n;
-    Esize2 = k + N*m + n;
+    % n is the size of a single block in an observer
+    n = sizeObserver;
+    k = size(Bstar,2);
+    m = size(LJ,2);
+    Esize1 = (numObservers+1)*n;
+    Esize2 = k + numObservers*m + n;
     % Define the empty E matrix:
     %    Vertical: Esize1
     %    Horizontal: Number of inputs + (N x number of outputs per Cj) + n
@@ -14,23 +15,17 @@ function E = ESetup(B,LJ,N)
     %       a multiple output system is seen as a combination of different
     %       rows of CJ.
     E = zeros(Esize1,Esize2);
-
-    % Add B's to first column
-    for l = 1:1:(N+1)
-        rowStart = l*n-1;
-        rowEnd   = l*n-2+n;
-        colStart = 1;
-        colEnd   = k;
-        E(rowStart:rowEnd,colStart:colEnd) = B;
-    end
+    
+    % Add Bbar and Bbar to first column
+    E(:,1:k) = Bstar;
 
     % Add Lj's to central section
-    for l = 1:1:N
+    for l = 1:1:numObservers
         rowStart = l*n+1;
         rowEnd   = l*n+1 + n-1;
-        colStart = k + l*m;
-        colEnd   = k + l*m + m - 1;
-        E(rowStart:rowEnd,colStart:colEnd) = LJ(l);
+        colStart = k + (l-1)*m + 1;
+        colEnd   = k + (l-1)*m + m ;
+        E(rowStart:rowEnd,colStart:colEnd) = LJ((l-1)*n + 1:(l-1)*n + n ,:);
     end
 
     % Add In to right top slice

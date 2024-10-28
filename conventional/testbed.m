@@ -1,1 +1,5 @@
-subset = selectRandomSubset([1 2 3 4 5],3)
+A = [0 1 0 0; 0 0 2 1; 0 3 -2 0; 1 2 0 0];
+B = [1;0;1;0];
+C = [1 0 0 0; 0 0 1 0];
+D = [0;0];
+sBar = MIMOtoOCF(ss(A,B,C,D))

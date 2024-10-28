@@ -1,4 +1,4 @@
-function eta = etaSetup(u,N,n,m,k,noiseFactor,noisePower)
+function eta = etaSetup(u,N,n,m,noiseFactor,noisePower)
     % This function defines the composite input/noise vector eta: [u; v;
     % w]. Where u is input, vi is sensor noise and w is process noise.
     % Inputs:
@@ -12,7 +12,7 @@ function eta = etaSetup(u,N,n,m,k,noiseFactor,noisePower)
     v = noiseFactor*wgn(N*m,tsize,noisePower);
 
     % Generate an (n x tsize) process noise signal
-    w = zeros(n,tsize);
+    w = zeros(n*m,tsize);
 
     eta = [u;v;w];
 end
