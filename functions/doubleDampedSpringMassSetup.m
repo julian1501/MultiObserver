@@ -10,16 +10,13 @@ function [system,A,B,C,D] = doubleDampedSpringMassSetup(mass1,mass2,springConsta
         0;
         0;
         1/mass2];
-    n = size(A,1);
-    C = zeros(J,n);
-    I = eye(n);
-    if J < n
-        C(1:J,1:n) = I(1:J,1:n);
-    else
-        C(1:n,1:n) = I(1:n,1:n);
-    end
-    D = 0;
 
-    system = ss(A,B,C,D);
+    % C should contain all rows that are valid outputs
+    C = [1 0 0 0;
+         0 0 1 0;
+         1 0 1 0;
+         0 0 0 1];
+
+    system = ss(A,B,C,0);
 
 end
