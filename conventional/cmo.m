@@ -1,22 +1,24 @@
 clearvars; close all;
 fprintf('\n')
-% N: number of outputs
-N = 3;
-fprintf('The number of outputs is %3.0f: \n',N)
+% Number of outputs
+numOutputs = 4;
+fprintf('The number of outputs is %3.0f: \n',numOutputs)
 % M: maximum number of corrupted outputs
-M = floor((N-1)/2);
+M = floor((numOutputs-1)/2);
 if ~ M > 0
     error('M is 0')
-elseif ~ N > 2*M
+elseif ~ numOutputs > 2*M
     error('N is not larger then 2M.')
 end
 fprintf('The maximum allowable number of compromised outputs %3.0f: \n',M)
-sizeJObservers = N-M;
+sizeJObservers = numOutputs-M;
 fprintf('The size of each J observer is: %3.0f \n',sizeJObservers)
-sizePObservers = N-2*M;
+sizePObservers = numOutputs-2*M;
 fprintf('The size of each P observer is: %3.0f \n',sizePObservers)
-numObservers = nchoosek(N,sizeJObservers);
-fprintf('The number of observers is: %3.0f \n',numObservers)
+numJObservers = nchoosek(numOutputs,sizeJObservers);
+fprintf('The number of observers is: %3.0f \n',numJObservers)
+numPObservers = nchoosek(numOutputs,sizePObservers);
+fprintf('The number of observers is: %3.0f \n',numPObservers)
 
 
 % Noiseless system definition
@@ -28,27 +30,26 @@ sysB = sys.B;
 numOriginalInputs  = size(sysB,2);
 sysC = sys.C;
 numOriginalOutputs = size(sysC,1);
+% Combine original States Inputs and Outputs in an array
+numOriginalSIO = [numOriginalStates, numOriginalInputs, numOriginalOutputs];
 
-% Create a multi observer out of the system 'sys'
-cmoSystem = subSetCMOSetup(sys,sizeJObservers,N);
-Astar = cmoSystem.A;
-Bstar = cmoSystem.B;
-Cstar = cmoSystem.C;
-numCMOStates = size(Astar,1);
-numCMOInputs = size(Bstar,2);
-numCMOOutputs = size(Cstar,1);
 
-% simulate system
-t = 0:0.01:15;
-u = zeros(numOriginalInputs,size(t,2));
-eta = etaSetup(u,numObservers,numOriginalStates,sizeJObservers,0.01,0);
-% Initial condition is the first n elements of x0Options, xhat initial
-% conditions are always 0
-x0 = zeros(numCMOStates,1);
-x0Options = [0.3;-0.1;-0.2;0.15;0.18;0.1;-0.25;0.2];
-x0(1:numOriginalOutputs,1) = x0Options(1:numOriginalOutputs,1);
+% Define time series for simulation
+t = 0:0.01:5;
+    
+[cmoJSystem,solJ,t,numCMOStatesJ,numCMOInputsJ,numCMOOutputsJ] = cmoSolution(sys, ...
+                                                                             t, ...
+                                                                             numOutputs, ...
+                                                                             numJObservers, ...
+                                                                             sizeJObservers, ...
+                                                                             numOriginalSIO);
+[cmoPSystem,solP,t,numCMOStatesP,numCMOInputsP,numCMOOutputsP] = cmoSolution(sys, ...
+                                                                             t, ...
+                                                                             numOutputs, ...
+                                                                             numPObservers, ...
+                                                                             sizePObservers, ...
+                                                                             numOriginalSIO);
 
-sol = lsim(cmoSystem,eta,t,x0)';
 
 % Extract 'chosen' estimate from estimates throughout the simulation
 
@@ -63,16 +64,36 @@ numberOfRows = ceil(numOriginalStates/numberOfColumns);
 for l = 1:1:numOriginalStates
     % select subplot to edit
     fig = subplot(numberOfRows,numberOfColumns,l);
-    % rows to be plotted are l, l + j*n,...,l + j*(N+1)
-    for j = 0:1:numObservers
+    % rows of sysJ to be plotted are l, l + j*n,...,l + j*(N+1)
+    for j = 0:1:numJObservers
         rowIdToPlot = l + j*(numOriginalOutputs*sizeJObservers);
-        rowToPlot = sol(rowIdToPlot,:);
+        rowToPlot = solJ(rowIdToPlot,:);
         p = plot(t,rowToPlot);
+
         hold on
         if j == 0
             p.LineWidth = 2;
+            p.Color = 'black';
         elseif j > 0
             p.LineStyle = '--';
+            p.Color = 'red';
+        end
+        hold on
+    end
+
+    % rows of sysP to be plotted are l, l + j*n,...,l + j*(N+1)
+    for j = 0:1:numPObservers
+        rowIdToPlot = l + j*(numOriginalOutputs*sizePObservers);
+        rowToPlot = solP(rowIdToPlot,:);
+        p = plot(t,rowToPlot);
+
+        hold on
+        if j == 0
+            p.LineWidth = 2;
+            p.Color = 'black';
+        elseif j > 0
+            p.LineStyle = '--';
+            p.Color = 'blue';
         end
         hold on
     end

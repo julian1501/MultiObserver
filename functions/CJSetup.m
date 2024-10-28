@@ -1,29 +1,30 @@
-function CJ = CJSetup(sys,N,M)
-    % This function sets up the CJ vector, which contains all N observers
-    % of the multiobserver. All rows are an observer.
-    % LTI system sys; number of outputs N; number of corrupted outputs M.
-    A = sys.A;
-    B = sys.B;
-    C = sys.C;
-    n = size(A,1);
+function CJ = CJSetup(CN,sizeObserver,numOutputs,numObservers)
+    % This function sets up CJ, the C matrix with (N-M) sized sets J that
+    % form a single observer. So, every (N-M) rows form a single observer
+    % of the system.
+    
+    % Extract the number of states
+    numStates = size(CN,2);
 
-    % number of uncorrupted sensor combinations
-    J = nchoosek(N,N-M);
-    P = nchoosek(N,N-2*M);
+    % Define a list with all indices, so 1,2,...,N
+    outputList = 1:1:numOutputs;
+    
+    % Select the indices of the combinations of Cj's
+    CJIndices = nchoosek(outputList,sizeObserver);
+    
+    % Loop over the combinations and add them to the empty CJ
+    CJ = zeros(numObservers*sizeObserver,numStates);
+    for j = 1:1:numObservers
+        % In every j of CJ
+        selection = CJIndices(j,:);
+        for k = 1:1:sizeObserver
+            % in every row k of a Cj
 
-    % Define observer Cs
-    CJ = zeros(N,n);
-    j = 0;
-    % Loop over every N rows and add 1s.
-    for i = 1:1:N
-        
-        if j > n - 1
-            j = 1;
-        else
-            j = j + 1;
+            % Select first row of Cj
+            rowId = (j-1)*sizeObserver + k;
+            CNId = selection(k);
+            CJ(rowId,:) = CN(CNId,:);
         end
-        CJ(i,1) = 1;
-
     end
 
 end

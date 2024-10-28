@@ -1,88 +1,99 @@
 clearvars; close all;
-
-% N: number of outputs
-N = 5;
-fprintf('The number of outputs is %3.0f: \n',N)
+fprintf('\n')
+% Number of outputs
+numOutputs = 4;
+fprintf('The number of outputs is %3.0f: \n',numOutputs)
 % M: maximum number of corrupted outputs
-M = floor((N-1)/2);
+M = floor((numOutputs-1)/2);
+if ~ M > 0
+    error('M is 0')
+elseif ~ numOutputs > 2*M
+    error('N is not larger then 2M.')
+end
 fprintf('The maximum allowable number of compromised outputs %3.0f: \n',M)
-J = N-M;
-fprintf('The sise of each o')
-numObservers = nchoosek(N,J);
+sizeJObservers = numOutputs-M;
+fprintf('The size of each J observer is: %3.0f \n',sizeJObservers)
+sizePObservers = numOutputs-2*M;
+fprintf('The size of each P observer is: %3.0f \n',sizePObservers)
+numJObservers = nchoosek(numOutputs,sizeJObservers);
+fprintf('The number of observers is: %3.0f \n',numJObservers)
+numPObservers = nchoosek(numOutputs,sizePObservers);
+fprintf('The number of observers is: %3.0f \n',numPObservers)
 
 
 % Noiseless system definition
-% sys = invPendSetup('down');
-sys = dampedSpringMassSetup(0.2,5,0.5,J);
-A = sys.A;
-B = sys.B;
-sysOCF = MIMOtoOCF(sys);
-Abar = sysOCF.A;
-Bbar = sysOCF.B;
-Dbar = sysOCF.D;
-n = size(sys.A,1);
-k = size(sys.B,2);
-m = size(sys.C,1);
-
-% CN is the C matrix with all N outputs
-CN = CNSetup(sys,N);
-% CJ is the C matrix with all (N-M) sized sets J that form an observer, so
-% every (N-M) rows of CJ is a single observer
-CJ = CJSetup(CN,J,N,numObservers);
-% AJ = AJSetup(CJ,J)
+sys = dampedSpringMassSetup(0.2,5,0.5);
+% sys = doubleDampedSpringMassSetup(0.3,0.2,6,7,0.5,0.5);
+sysA = sys.A;
+numOriginalStates  = size(sysA,1);
+sysB = sys.B;
+numOriginalInputs  = size(sysB,2);
+sysC = sys.C;
+numOriginalOutputs = size(sysC,1);
+% Combine original States Inputs and Outputs in an array
+numOriginalSIO = [numOriginalStates, numOriginalInputs, numOriginalOutputs];
 
 
-% Define a set e of eigenvalues from which n are randomly chosen to be the
-% eigenvalues of a single entry in LJ.
-eigenvalues = [-1 -2 -3 -4 -5 -6 -7 -8]*100;
-[AJ,BJ,CJ,~,LJ] = systemJSetup(A,B,CJ,Dbar,numObservers,J,eigenvalues); % TBD
+% Define time series for simulation
+t = 0:0.01:5;
+    
+[cmoJSystem,solJ,t,numCMOStatesJ,numCMOInputsJ,numCMOOutputsJ] = cmoSolution(sys, ...
+                                                                             t, ...
+                                                                             numOutputs, ...
+                                                                             numJObservers, ...
+                                                                             sizeJObservers, ...
+                                                                             numOriginalSIO);
+[cmoPSystem,solP,t,numCMOStatesP,numCMOInputsP,numCMOOutputsP] = cmoSolution(sys, ...
+                                                                             t, ...
+                                                                             numOutputs, ...
+                                                                             numPObservers, ...
+                                                                             sizePObservers, ...
+                                                                             numOriginalSIO);
 
-% Create state estimates
-[Astar, Bstar,Cstar] = CMOSetup(Abar,Bbar,AJ,BJ,LJ,CJ,J,N);
-
-% Add noise/input matrix
-E = ESetup(Bstar,LJ,numObservers);
-
-% Create system combining noise and state estimators
-sysStar = ss(Astar,E,Cstar,0);
-
-
-
-% simulate system
-t = 0:0.05:5;
-u = zeros(k,size(t,2));
-eta = etaSetup(u,numObservers,n,m,0,0);
-% Initial condition is the first n elements of x0Options, xhat initial
-% conditions are always 0
-x0 = zeros((numObservers+1)*n*m,1);
-x0Options = [0.3;-0.1;-0.2;0.15;0.18;0.1;-0.25;0.2];
-x0(1:n*m,1) = x0Options(1:n*m,1);
-
-sol = lsim(sysStar,eta,t,x0)';
 
 % Extract 'chosen' estimate from estimates throughout the simulation
 
 %% Plots
+close all;
 % decide on what size grid should be used based on number of states in
 % system
-numberOfColumns = ceil(sqrt(n));
-numberOfRows = ceil(n/numberOfColumns);
+numberOfColumns = ceil(sqrt(numOriginalStates));
+numberOfRows = ceil(numOriginalStates/numberOfColumns);
 
 % create tiled plot
-
-for l = 1:1:n
+for l = 1:1:numOriginalStates
     % select subplot to edit
     fig = subplot(numberOfRows,numberOfColumns,l);
-    % rows to be plotted are l, l + j*n,...,l + j*(N+1)
-    for j = 0:1:N
-        rowIdToPlot = l + j*n;
-        rowToPlot = sol(rowIdToPlot,:);
+    % rows of sysJ to be plotted are l, l + j*n,...,l + j*(N+1)
+    for j = 0:1:numJObservers
+        rowIdToPlot = l + j*(numOriginalOutputs*sizeJObservers);
+        rowToPlot = solJ(rowIdToPlot,:);
         p = plot(t,rowToPlot);
+
         hold on
         if j == 0
             p.LineWidth = 2;
+            p.Color = 'black';
         elseif j > 0
             p.LineStyle = '--';
+            p.Color = 'red';
+        end
+        hold on
+    end
+
+    % rows of sysP to be plotted are l, l + j*n,...,l + j*(N+1)
+    for j = 0:1:numJObservers
+        rowIdToPlot = l + j*(numOriginalOutputs*sizeJObservers);
+        rowToPlot = solJ(rowIdToPlot,:);
+        p = plot(t,rowToPlot);
+
+        hold on
+        if j == 0
+            p.LineWidth = 2;
+            p.Color = 'black';
+        elseif j > 0
+            p.LineStyle = '--';
+            p.Color = 'red';
         end
         hold on
     end
