@@ -31,8 +31,13 @@ function [Astar, Bstar, Cstar] = systemStarSetup(Abar,Bbar,AJ,BJ,LJ,CJ,sizeObser
     CstarElement(:,1:numOriginalStates) = ones(1,numOriginalStates);
     
     Cstar = diag(repmat(CstarElement,1,AstarSize));
-    % remove rows that are filled with zeros
-    CstarZerosRemoved = Cstar(any(Cstar ~=0,2),:);
-    Cstar = CstarZerosRemoved;
-
+    CstarCopy = Cstar;
+    % Loop over Cstar and remove rows that are filled with zeros
+    indicesToPop = [];
+    for l = 1:1:size(Cstar,1)
+        if sum(CstarCopy(l,:)) == 0
+            Cstar(l,:) = [];
+        end
+    end
+    clear CstarCopy;
 end

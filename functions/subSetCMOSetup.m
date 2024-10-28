@@ -80,17 +80,15 @@ function [CMOsystem,Acmo,Bcmo,Ccmo,Dcmo] = subSetCMOSetup(inputSystem,sizeObserv
     % [ |  ]
     % [ Bn ]
     % Cstar is a combination of the identity matrices corresponding to the
-    % MIMO OCF form on the diagonal. For a system with 1 observer and 2
-    % outputs for example:
+    % MIMO OCF form on the diagonal. Then all the rows which only contain 
+    % zeros are removed For a system with 1 observer and 2 outputs for 
+    % example:
     % Cstar =
     % [1 0 0 0 0 0 0 0]
     % [0 1 0 0 0 0 0 0]
-    % [0 0 0 0 0 0 0 0]
-    % [0 0 0 0 0 0 0 0]
     % [0 0 0 0 1 0 0 0]
     % [0 0 0 0 0 1 0 0]
-    % [0 0 0 0 0 0 0 0]
-    % [0 0 0 0 0 0 0 0]
+
     [Astar, Bstar,Cstar] = systemStarSetup(AInputBar, ...
                                            BInputBar, ...
                                            AJ, ...

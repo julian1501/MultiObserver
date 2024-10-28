@@ -36,13 +36,14 @@ numOriginalSIO = [numOriginalStates, numOriginalInputs, numOriginalOutputs];
 
 % Define time series for simulation
 t = 0:0.01:5;
-    
+fprintf('Defining system with (%4.0f) J-sized (%3.0f) observers. \n',numJObservers,sizeJObservers)
 [cmoJSystem,solJ,t,numCMOStatesJ,numCMOInputsJ,numCMOOutputsJ] = cmoSolution(sys, ...
                                                                              t, ...
                                                                              numOutputs, ...
                                                                              numJObservers, ...
                                                                              sizeJObservers, ...
                                                                              numOriginalSIO);
+fprintf('Defining system with (%4.0f) P-sized (%3.0f) observers. \n',numPObservers,sizePObservers)
 [cmoPSystem,solP,t,numCMOStatesP,numCMOInputsP,numCMOOutputsP] = cmoSolution(sys, ...
                                                                              t, ...
                                                                              numOutputs, ...
@@ -66,7 +67,7 @@ for l = 1:1:numOriginalStates
     fig = subplot(numberOfRows,numberOfColumns,l);
     % rows of sysJ to be plotted are l, l + j*n,...,l + j*(N+1)
     for j = 0:1:numJObservers
-        rowIdToPlot = l + j*(numOriginalOutputs*sizeJObservers);
+        rowIdToPlot = l + j*(numOriginalOutputs);
         rowToPlot = solJ(rowIdToPlot,:);
         p = plot(t,rowToPlot);
 
@@ -83,7 +84,7 @@ for l = 1:1:numOriginalStates
 
     % rows of sysP to be plotted are l, l + j*n,...,l + j*(N+1)
     for j = 0:1:numPObservers
-        rowIdToPlot = l + j*(numOriginalOutputs*sizePObservers);
+        rowIdToPlot = l + j*(numOriginalOutputs);
         rowToPlot = solP(rowIdToPlot,:);
         p = plot(t,rowToPlot);
 
