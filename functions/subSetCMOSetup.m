@@ -1,4 +1,4 @@
-function [CMOsystem,Acmo,Bcmo,Ccmo,Dcmo] = subSetCMOSetup(inputSystem,sizeObserver,numOutputs)
+function [CMOsystem,Acmo,Bcmo,Ccmo,Dcmo,CJIndices] = subSetCMOSetup(inputSystem,sizeObserver,numOutputs)
     % This function sets up a conventional multi-observer (CMO) for the
     % inputSystem. Each observer in the bank of observers has
     % 'observerSize' outputs.
@@ -14,6 +14,8 @@ function [CMOsystem,Acmo,Bcmo,Ccmo,Dcmo] = subSetCMOSetup(inputSystem,sizeObserv
     CInput = inputSystem.C;
     DInput = inputSystem.D;
     sizeCInput = size(CInput);
+
+    
 
     % Check if system is stable, issue warning if system is unstable
     if isMatrixStable(AInput)
@@ -38,7 +40,15 @@ function [CMOsystem,Acmo,Bcmo,Ccmo,Dcmo] = subSetCMOSetup(inputSystem,sizeObserv
     inputSystemOCF = MIMOtoOCF(ss(inputSystem.A,inputSystem.B,paddedC,paddedD));
     AInputBar = inputSystemOCF.A;
     BInputBar = inputSystemOCF.B;
+    CInputBar = inputSystemOCF.C;
     DInputBar = inputSystemOCF.D;
+
+    disp('Abar: the basic system in OCF')
+    disp(AInputBar)
+    disp('Bbar: the basic system in OCF')
+    disp(BInputBar)
+    disp('Cbar: the basic system in OCF')
+    disp(CInputBar)
 
 
     % Calculate the number of observers that will be used: all combinations
@@ -50,7 +60,8 @@ function [CMOsystem,Acmo,Bcmo,Ccmo,Dcmo] = subSetCMOSetup(inputSystem,sizeObserv
     CN = CNSetup(inputSystem,numOutputs);
     % CJ is the C matrix with all observerSize sized sets J that form an observer, so
     % every observerSize rows of CJ is a single observer
-    CJ = CJSetup(CN,sizeObserver,numOutputs,numObservers);
+    fprintf('Finding indices for observers. \n')
+    [CJ,CJIndices] = CJSetup(CN,sizeObserver,numOutputs,numObservers);
 
     % Define a set of eigenvalues from which n (the number of original 
     % states) are randomly chosen to be the eigenvalues of a single entry
@@ -58,6 +69,7 @@ function [CMOsystem,Acmo,Bcmo,Ccmo,Dcmo] = subSetCMOSetup(inputSystem,sizeObserv
     eigenvalues = [-1 -2 -3 -4 -5 -6 -7 -8];
     % Set up the A,B,C and L matrices for each observer in the bank of
     % observers sized numObservers.
+    fprintf('Defining output injection matrices for each observer in the bank. \n')
     [AJ,BJ,CJ,~,LJ] = systemJSetup(AInput, ...
                                    BInput, ...
                                    CJ, ...
@@ -88,7 +100,8 @@ function [CMOsystem,Acmo,Bcmo,Ccmo,Dcmo] = subSetCMOSetup(inputSystem,sizeObserv
     % [0 1 0 0 0 0 0 0]
     % [0 0 0 0 1 0 0 0]
     % [0 0 0 0 0 1 0 0]
-
+    
+    fprintf('Combining all observers into a single state-space system. \n')
     [Astar, Bstar,Cstar] = systemStarSetup(AInputBar, ...
                                            BInputBar, ...
                                            AJ, ...

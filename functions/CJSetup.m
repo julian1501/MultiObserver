@@ -1,4 +1,4 @@
-function CJ = CJSetup(CN,sizeObserver,numOutputs,numObservers)
+function [CJ,CJIndices] = CJSetup(CN,sizeObserver,numOutputs,numObservers)
     % This function sets up CJ, the C matrix with (N-M) sized sets J that
     % form a single observer. So, every (N-M) rows form a single observer
     % of the system.

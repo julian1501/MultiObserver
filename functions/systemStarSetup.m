@@ -23,7 +23,6 @@ function [Astar, Bstar, Cstar] = systemStarSetup(Abar,Bbar,AJ,BJ,LJ,CJ,sizeObser
         End   = (l-1)*(numStates) + numStates;
         AJ(Start:End,Start:End) = AJ(Start:End,Start:End) + LC(Start:End,1:numStates);
     end
-    
     Astar = [Abar, zeros(size(Abar,1),size(AJ,2)); -LC, AJ];
     
     % Define an element of Cstar for each subsystem of Astar

@@ -1,5 +1,6 @@
-function [system,A,B,C,D] = dampedSpringMassSetup(mass,springConstant,dampingConstant)
+function [system,sysName,A,B,C,D] = dampedSpringMassSetup(mass,springConstant,dampingConstant)
     % This function sets up a damped mass spring system.
+    sysName = "Single mass-spring-damper";
 
     A = [0, 1; -springConstant/mass, -dampingConstant/mass];
     B = [0; 1/mass];

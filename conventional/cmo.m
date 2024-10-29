@@ -1,7 +1,7 @@
 clearvars; close all;
 fprintf('\n')
 % Number of outputs
-numOutputs = 4;
+numOutputs = 6;
 fprintf('The number of outputs is %3.0f: \n',numOutputs)
 % M: maximum number of corrupted outputs
 M = floor((numOutputs-1)/2);
@@ -21,9 +21,10 @@ numPObservers = nchoosek(numOutputs,sizePObservers);
 fprintf('The number of observers is: %3.0f \n',numPObservers)
 
 
+
 % Noiseless system definition
-sys = dampedSpringMassSetup(0.2,5,0.5);
-% sys = doubleDampedSpringMassSetup(0.3,0.2,6,7,0.5,0.5);
+[sys,sysName] = dampedSpringMassSetup(0.2,5,0.5);
+% [sys,sysName] = doubleDampedSpringMassSetup(0.3,0.2,6,7,0.5,0.5);
 sysA = sys.A;
 numOriginalStates  = size(sysA,1);
 sysB = sys.B;
@@ -33,27 +34,38 @@ numOriginalOutputs = size(sysC,1);
 % Combine original States Inputs and Outputs in an array
 numOriginalSIO = [numOriginalStates, numOriginalInputs, numOriginalOutputs];
 
+% define a dictionary that stores all info
+CMOdict = dictionary();
+CMOdict('numOutputs')           = numOutputs;
+CMOdict('M')                    = M;
+CMOdict('sizeJObservers')       = sizeJObservers;
+CMOdict('numJObservers')        = numJObservers;
+CMOdict('sizePObservers')       = sizePObservers;
+CMOdict('numPObservers')        = numPObservers;
+CMOdict('numOriginalStates')    = numOriginalStates;
+CMOdict('numOriginalInputs')    = numOriginalInputs;
+CMOdict('numOriginalOutputs')   = numOriginalOutputs;
+
 
 % Define time series for simulation
 t = 0:0.01:5;
-fprintf('Defining system with (%4.0f) J-sized (%3.0f) observers. \n',numJObservers,sizeJObservers)
-[cmoJSystem,solJ,t,numCMOStatesJ,numCMOInputsJ,numCMOOutputsJ] = cmoSolution(sys, ...
-                                                                             t, ...
-                                                                             numOutputs, ...
-                                                                             numJObservers, ...
-                                                                             sizeJObservers, ...
-                                                                             numOriginalSIO);
-fprintf('Defining system with (%4.0f) P-sized (%3.0f) observers. \n',numPObservers,sizePObservers)
-[cmoPSystem,solP,t,numCMOStatesP,numCMOInputsP,numCMOOutputsP] = cmoSolution(sys, ...
-                                                                             t, ...
-                                                                             numOutputs, ...
-                                                                             numPObservers, ...
-                                                                             sizePObservers, ...
-                                                                             numOriginalSIO);
+fprintf('\n Defining system with (%4.0f) J-sized (%3.0f) observers. \n',CMOdict('numJObservers'),CMOdict('sizeJObservers'))
+[cmoJSystem,solJ,solJIndices,CMOdict] = cmoSolution(sys, ...
+                                        t, ...
+                                        'J', ...
+                                        CMOdict);
+fprintf('\n Defining system with (%4.0f) P-sized (%3.0f) observers. \n',numPObservers,sizePObservers)
+[cmoPSystem,solP,solPIndices,CMOdict] = cmoSolution(sys, ...
+                                        t,  ...
+                                        'P', ...
+                                        CMOdict);
 
 
+fprintf('\n Extracting estimator solution.\n')
 % Extract 'chosen' estimate from estimates throughout the simulation
+solEst = selectEstimatorSolution(solJ,solP,solJIndices,solPIndices,CMOdict);
 
+fprintf('\n System solved.\n')
 %% Plots
 close all;
 % decide on what size grid should be used based on number of states in
@@ -61,10 +73,18 @@ close all;
 numberOfColumns = ceil(sqrt(numOriginalStates));
 numberOfRows = ceil(numOriginalStates/numberOfColumns);
 
+fig = figure();
+sgtitle(sysName);
+% Create entities to use in legend
+solLineWidth = 2; solColor = 'black';
+estJLineStyle = '--'; estJColor = 'red';
+estPLineStyle = '--'; estPColor = 'blue';
+
 % create tiled plot
 for l = 1:1:numOriginalStates
     % select subplot to edit
-    fig = subplot(numberOfRows,numberOfColumns,l);
+    subplot(numberOfRows,numberOfColumns,l);
+    
     % rows of sysJ to be plotted are l, l + j*n,...,l + j*(N+1)
     for j = 0:1:numJObservers
         rowIdToPlot = l + j*(numOriginalOutputs);
@@ -73,11 +93,13 @@ for l = 1:1:numOriginalStates
 
         hold on
         if j == 0
-            p.LineWidth = 2;
-            p.Color = 'black';
+            legend('AutoUpdate','on')
+            p.LineWidth = solLineWidth;
+            p.Color = solColor;
         elseif j > 0
-            p.LineStyle = '--';
-            p.Color = 'red';
+            legend('AutoUpdate','off')
+            p.LineStyle = estJLineStyle;
+            p.Color = estJColor;
         end
         hold on
     end
@@ -90,14 +112,22 @@ for l = 1:1:numOriginalStates
 
         hold on
         if j == 0
+            legend('AutoUpdate','on')
             p.LineWidth = 2;
             p.Color = 'black';
         elseif j > 0
+            legend('AutoUpdate','off')
             p.LineStyle = '--';
             p.Color = 'blue';
         end
         hold on
     end
+
+    % Plot the selected estimate
+    legend('AutoUpdate','on')
+    plot(t,solEst(l,:),LineStyle="-",Color='cyan',LineWidth=2);
+%     legend({'True response','J-sized estimators','P-sized estimators','Multi-observer'})
+    hold on;
     title(strcat('x',num2str(l)))
 
 end

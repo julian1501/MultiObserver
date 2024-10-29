@@ -1,0 +1,8 @@
+function solBestEstimate = selectBestEstimate(solJ,solP)
+    % This function selects the best estimate out of the J sized estimates
+    % Step 1:
+    %   Select PiJ, which is the largest deviation between the estimate
+    %   xhatJ(t) and any estimate that uses P outputs.
+    % Step 2:
+    %   Select Sigma(t)
+end
