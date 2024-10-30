@@ -1,4 +1,4 @@
-function [solEst,solIndices] = selectEstimatorSolution(solJ,solP,solJIndices,solPIndices,CMOdict)
+function [solEst,solError] = selectEstimatorSolution(solJ,solP,solJIndices,solPIndices,CMOdict)
     % This function selects an estimator from the estimators in solSet
     % based on the following procedure.
     % For each Set define PiSet to be the largest deviation between the
@@ -88,7 +88,9 @@ function [solEst,solIndices] = selectEstimatorSolution(solJ,solP,solJIndices,sol
         solEst(1:numStates,t) = BestEst;
         
     end
-
     
+    % get the error= x_true - x_cmo
+    % so subtract the solEst from top rows of solJ or solP
+    solError = solJ(1:numStates,:) - solEst;
 
 end

@@ -1,8 +1,9 @@
 clearvars; close all;
 fprintf('\n')
 % Number of outputs
-numOutputs = 6;
+numOutputs = 4;
 fprintf('The number of outputs is %3.0f: \n',numOutputs)
+
 % M: maximum number of corrupted outputs
 M = floor((numOutputs-1)/2);
 if ~ M > 0
@@ -63,7 +64,7 @@ fprintf('\n Defining system with (%4.0f) P-sized (%3.0f) observers. \n',numPObse
 
 fprintf('\n Extracting estimator solution.\n')
 % Extract 'chosen' estimate from estimates throughout the simulation
-solEst = selectEstimatorSolution(solJ,solP,solJIndices,solPIndices,CMOdict);
+[solEst, cmoError] = selectEstimatorSolution(solJ,solP,solJIndices,solPIndices,CMOdict);
 
 fprintf('\n System solved.\n')
 %% Plots
@@ -74,12 +75,12 @@ numberOfColumns = ceil(sqrt(numOriginalStates));
 numberOfRows = ceil(numOriginalStates/numberOfColumns);
 
 fig = figure();
-sgtitle(sysName);
+sgtitle({[char(sysName),' observed by a multi-observer with ', num2str(numOutputs),' outputs.'],[ 'So M=',num2str(M),',J=',num2str(sizeJObservers),' and P=',num2str(sizePObservers)]});
 % Create entities to use in legend
 solLineWidth = 2; solColor = 'black';
 estJLineStyle = '--'; estJColor = 'red';
 estPLineStyle = '--'; estPColor = 'blue';
-
+ 
 % create tiled plot
 for l = 1:1:numOriginalStates
     % select subplot to edit
@@ -126,9 +127,11 @@ for l = 1:1:numOriginalStates
     % Plot the selected estimate
     legend('AutoUpdate','on')
     plot(t,solEst(l,:),LineStyle="-",Color='cyan',LineWidth=2);
+    plot(t,cmoError(l,:),LineStyle="-",Color='#EDB120',LineWidth=1);
 %     legend({'True response','J-sized estimators','P-sized estimators','Multi-observer'})
     hold on;
     title(strcat('x',num2str(l)))
+    grid on;
 
 end
 
