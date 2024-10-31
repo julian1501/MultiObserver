@@ -1,25 +1,21 @@
 function [cmoSystem,sol,CJIndices,CMOdict] = cmoSolution(sys, t,setString,CMOdict)
-    % If t=0 the no solution will be provided. setString should be 'J' or
-    % 'P'.
+    % This function takes in 
+    %   sys: a state space system created by ss(A,B,C,D);
+    %   t: a time series
+    %   setString: a string that is either 'P' or 'J' indicating which set
+    %       is being set up
+    %   CMOdict: a dictionary that stores information about the CMO
 
     % Extract variables from the CMOdict
     numOutputs = CMOdict('numOutputs');
-    if setString == 'P'
-        numObservers = CMOdict('numPObservers');
-        sizeObservers = CMOdict('sizePObservers');
-    elseif setString == 'J'
-        numObservers = CMOdict('numJObservers');
-        sizeObservers = CMOdict('sizeJObservers');
-    else
-        error('SetString should be equal to J or P',setString)
-    end
+    [numObservers, numOutputsObserver] = selectObserverSpecs(setString,CMOdict);
     numOriginalStates  = CMOdict('numOriginalStates');
     numOriginalInputs  = CMOdict('numOriginalInputs');
     numOriginalOutputs = CMOdict('numOriginalOutputs');
 
     % Create a multi observer with sizeObserver-sized sets
     fprintf(['Setting up CMO system for ' setString ' sized sets. \n'])
-    [cmoSystem,~,~,~,~,CJIndices] = subSetCMOSetup(sys,sizeObservers,numOutputs);
+    [cmoSystem,~,~,~,~,CJIndices] = subSetCMOSetup(sys,setString,CMOdict);
     Astar = cmoSystem.A;
     Bstar = cmoSystem.B;
     Cstar = cmoSystem.C;
@@ -45,7 +41,7 @@ function [cmoSystem,sol,CJIndices,CMOdict] = cmoSolution(sys, t,setString,CMOdic
         fprintf(['System ' setString ' is being solved. \n'])
         % simulate system
         u = zeros(numOriginalInputs,size(t,2));
-        eta = etaSetup(u,numObservers,numOriginalStates,sizeObservers,0,0);
+        eta = etaSetup(u,0,0,setString,CMOdict);
         % Initial condition is the first n elements of x0Options, xhat initial
         % conditions are always 0
         x0 = zeros(numCMOStates,1);

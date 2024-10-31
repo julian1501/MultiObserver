@@ -1,37 +1,31 @@
-function [Astar, Bstar, Cstar] = systemStarSetup(Abar,Bbar,AJ,BJ,LJ,CJ,sizeObserver,numObservers,numOriginalStates)
+function [Astar, Bstar, Cstar] = systemStarSetup(A,B,AJ,BJ,LJ,CJ,setString,CMOdict)
 %     This function creates an block matrix A* that combines all J observers into
 %     a single state space form.
-    numStates = size(Abar,1);
-    numInputs = size(BJ,2);
-    numOutputs = size(CJ,1);
-    
+    numOriginalStates = CMOdict("numOriginalStates");
+    numOriginalInputs = CMOdict("numOriginalInputs");
+    numOriginalOutputs = CMOdict("numOriginalOutputs");
+    [numObservers, numOutputsObserver] = selectObserverSpecs(setString,CMOdict);
     
     % Nr = N + 1 because the original system does not count as one of the
     % outputs.
     AstarSize = numObservers + 1;    
     
     % Define Bstar
-    Bstar = [Bbar; BJ];
+    Bstar = [B; BJ];
+    LC = zeros(numOriginalStates*numObservers,numOriginalOutputs);
 
-    % Define LC as left row of Astar 
-    diagLC = LJ*CJ;
-    LC = diagLC(:,1:numStates);
-    
     % Add LjCj from Aj and place on the diagonal
     for l = 1:1:numObservers
-        Start = (l-1)*(numStates) + 1;
-        End   = (l-1)*(numStates) + numStates;
-        AJ(Start:End,Start:End) = AJ(Start:End,Start:End) + LC(Start:End,1:numStates);
+        Start = (l-1)*(numOriginalStates) + 1;
+        End   = (l-1)*(numOriginalStates) + numOriginalStates;
+        LCl = LJ(Start:End,:)*CJ(:,Start:End);
+        AJ(Start:End,Start:End) = AJ(Start:End,Start:End) + LCl;
+        LC(Start:End,:) = LCl;
     end
-    Astar = [Abar, zeros(size(Abar,1),size(AJ,2)); -LC, AJ];
+    Astar = [A, zeros(numOriginalStates,numOriginalStates*numObservers);
+            -LC, AJ];
     
     % Define an element of Cstar for each subsystem of Astar
-    CstarElement = zeros(1,numStates);
-    CstarElement(:,1:numOriginalStates) = ones(1,numOriginalStates);
-    
-    Cstar = diag(repmat(CstarElement,1,AstarSize));
-    % remove rows that are filled with zeros
-    CstarZerosRemoved = Cstar(any(Cstar ~=0,2),:);
-    Cstar = CstarZerosRemoved;
+    Cstar = eye(AstarSize*numOriginalStates);
 
 end

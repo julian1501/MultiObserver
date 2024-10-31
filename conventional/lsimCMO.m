@@ -1,7 +1,7 @@
 clearvars; close all;
 fprintf('\n')
 % Number of outputs
-numOutputs = 4;
+numOutputs = 6;
 fprintf('The number of outputs is %3.0f: \n',numOutputs)
 
 % M: maximum number of corrupted outputs
@@ -32,6 +32,10 @@ sysB = sys.B;
 numOriginalInputs  = size(sysB,2);
 sysC = sys.C;
 numOriginalOutputs = size(sysC,1);
+sysD = sys.D;
+if sysD ~= 0
+    error('Implementation for systems with D still needs work.')
+end
 % Combine original States Inputs and Outputs in an array
 numOriginalSIO = [numOriginalStates, numOriginalInputs, numOriginalOutputs];
 

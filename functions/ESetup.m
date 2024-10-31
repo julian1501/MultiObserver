@@ -1,13 +1,13 @@
-function E = ESetup(Bstar,LJ,numObservers,sizeObserver,numOriginalStates)
+function E = ESetup(Bstar,LJ,setString,CMOdict)
     % This function defines the 'input-matrix' E based on the A,B and L
     % matrices of the system.
-    numStatesObserver = sizeObserver*numOriginalStates;
+    numOriginalStates = CMOdict("numOriginalStates");
+    numOriginalInputs = CMOdict("numOriginalInputs");
+    numOriginalOutputs = CMOdict("numOriginalOutputs");
+    [numObservers, numOutputsObserver] = selectObserverSpecs(setString,CMOdict);
     
-    % n is the size of a single block in an observer
-    numInputs = size(Bstar,2);
-    numOutputs = size(LJ,2);
-    Esize1 = (numObservers+1)*numStatesObserver;
-    Esize2 = numInputs + numObservers*numOutputs + sizeObserver;
+    Esize1 = (numObservers+1)*numOriginalOutputs;
+    Esize2 = numOriginalInputs + numObservers*(numOutputsObserver + numOriginalOutputs) + numOriginalOutputs;
     % Define the empty E matrix:
     %    Vertical: Esize1
     %    Horizontal: Number of inputs + (N x number of outputs per Cj) + n
@@ -17,18 +17,21 @@ function E = ESetup(Bstar,LJ,numObservers,sizeObserver,numOriginalStates)
     E = zeros(Esize1,Esize2);
     
     % Add Bbar and Bbar to first column
-    E(:,1:numInputs) = Bstar;
-
+    E(:,1:numOriginalInputs) = Bstar;
+    
     % Add Lj's to central section
     for l = 1:1:numObservers
-        rowStart = l*numStatesObserver+1;
-        rowEnd   = l*numStatesObserver+1 + numStatesObserver-1;
-        colStart = numInputs + (l-1)*numOutputs + 1;
-        colEnd   = numInputs + (l-1)*numOutputs + numOutputs ;
-        E(rowStart:rowEnd,colStart:colEnd) = LJ((l-1)*numStatesObserver + 1:(l-1)*numStatesObserver + numStatesObserver ,:);
+        rowStart = l*numOriginalStates+1;
+        rowEnd   = l*numOriginalStates+1 + numOriginalStates-1;
+        colStart = numOriginalInputs + (l-1)*numOutputsObserver + 1;
+        colEnd   = numOriginalInputs + (l-1)*numOutputsObserver + numOutputsObserver;
+        E(rowStart:rowEnd,colStart:colEnd) = -LJ((l-1)*numOriginalStates + 1:(l-1)*numOriginalStates + numOriginalStates ,:);
     end
 
+    % Add -I to central part
+    E(numOriginalStates+1:end,numOriginalInputs+numObservers*numOutputsObserver+1:end-numOriginalStates) = -eye(numOriginalStates*numObservers);
+
     % Add In to right top slice
-    E(1:sizeObserver,end-sizeObserver+1:end) = eye(sizeObserver);
+    E(1:numOriginalStates,end-numOriginalStates+1:end) = eye(numOriginalStates);
 
 end
