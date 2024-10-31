@@ -5,10 +5,10 @@ function [numObservers,numOutputsObserver] = selectObserverSpecs(setString,CMOdi
 
     if setString == 'J'
         numObservers = CMOdict('numJObservers');
-        numOutputsObserver = CMOdict('sizeJObservers');
+        numOutputsObserver = CMOdict('numOutputsJObservers');
     elseif setString == 'P'
         numObservers = CMOdict('numPObservers');
-        numOutputsObserver = CMOdict('sizePObservers');
+        numOutputsObserver = CMOdict('numOutputsPObservers');
     else
         error('setString is not equal to P or J.',setString);
     end

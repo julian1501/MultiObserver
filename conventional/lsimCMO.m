@@ -1,8 +1,11 @@
 clearvars; close all;
 fprintf('\n')
 % Number of outputs
-numOutputs = 6;
+numOutputs = 3;
 fprintf('The number of outputs is %3.0f: \n',numOutputs)
+
+% Set solver: lsim or ode45
+solver = 'lsim';
 
 % M: maximum number of corrupted outputs
 M = floor((numOutputs-1)/2);
@@ -36,8 +39,6 @@ sysD = sys.D;
 if sysD ~= 0
     error('Implementation for systems with D still needs work.')
 end
-% Combine original States Inputs and Outputs in an array
-numOriginalSIO = [numOriginalStates, numOriginalInputs, numOriginalOutputs];
 
 % define a dictionary that stores all info
 CMOdict = dictionary();
@@ -57,11 +58,13 @@ t = 0:0.01:5;
 fprintf('\n Defining system with (%4.0f) J-sized (%3.0f) observers. \n',CMOdict('numJObservers'),CMOdict('sizeJObservers'))
 [cmoJSystem,solJ,solJIndices,CMOdict] = cmoSolution(sys, ...
                                         t, ...
+                                        solver,...
                                         'J', ...
                                         CMOdict);
 fprintf('\n Defining system with (%4.0f) P-sized (%3.0f) observers. \n',numPObservers,sizePObservers)
 [cmoPSystem,solP,solPIndices,CMOdict] = cmoSolution(sys, ...
-                                        t,  ...
+                                        t, ...
+                                        solver,...
                                         'P', ...
                                         CMOdict);
 

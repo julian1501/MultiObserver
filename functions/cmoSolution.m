@@ -1,10 +1,16 @@
-function [cmoSystem,sol,CJIndices,CMOdict] = cmoSolution(sys, t,setString,CMOdict)
+function [cmoSystem,sol,CJIndices,CMOdict] = cmoSolution(sys,tspan,solver,setString,CMOdict)
     % This function takes in 
     %   sys: a state space system created by ss(A,B,C,D);
     %   t: a time series
+    %   solver: either 'lsim' or 'ode45'
     %   setString: a string that is either 'P' or 'J' indicating which set
     %       is being set up
     %   CMOdict: a dictionary that stores information about the CMO
+
+    % Check whether one of the correct solvers is given
+    if ~(matches(solver,'lsim') || matches(solver,'ode45'))
+        error('Solver should be lsim or ode45',solver)
+    end
 
     % Extract variables from the CMOdict
     numOutputs = CMOdict('numOutputs');
@@ -33,20 +39,25 @@ function [cmoSystem,sol,CJIndices,CMOdict] = cmoSolution(sys, t,setString,CMOdic
         CMOdict('numCMOOutputsP') = numCMOOutputs;
     end
 
+    % Initial condition is the first n elements of x0Options, xhat initial
+    % conditions are always 0
+    x0 = zeros(numCMOStates,1);
+    x0Options = [0.3;-0.1;-0.2;0.15;0.18;0.1;-0.25;0.2];
+    x0(1:numOriginalOutputs,1) = x0Options(1:numOriginalOutputs,1);
+
     % only solve the system when a time series is provided
-    if t == 0
-        fprintf('System will not be solved.\n')
+    if tspan == 0
+        fprintf('System will not be solved, because t=0.\n')
         sol = nan;
-    else
+    elseif matches(solver,'lsim')
         fprintf(['System ' setString ' is being solved. \n'])
         % simulate system
-        u = zeros(numOriginalInputs,size(t,2));
+        u = zeros(numOriginalInputs,size(tspan,2));
         eta = etaSetup(u,0,0,setString,CMOdict);
-        % Initial condition is the first n elements of x0Options, xhat initial
-        % conditions are always 0
-        x0 = zeros(numCMOStates,1);
-        x0Options = [0.3;-0.1;-0.2;0.15;0.18;0.1;-0.25;0.2];
-        x0(1:numOriginalOutputs,1) = x0Options(1:numOriginalOutputs,1);
-        sol = lsim(cmoSystem,eta,t,x0)';
+
+        sol = lsim(cmoSystem,eta,tspan,x0)';
+    elseif matches(solver,'ode45')
+        odeTspan = [tspan(1) tspan(end)];
+        [t,x] = ode45(@(t,x) stateSpaceSetup(t,x,Astar),odeTspan,x0);
     end
 end

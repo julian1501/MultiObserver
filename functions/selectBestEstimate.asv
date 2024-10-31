@@ -1,0 +1,55 @@
+function estimate = selectBestEstimate(x,PsubsetOfJIndices,CMOdict)
+    % This function implements the selection algoritm as in Chong 2105
+    % Linear systems under adverserial attacks.
+
+    % Extract specs from CMOdict
+    numOriginalStates = CMOdict('numOriginalStates');
+    numJObservers = CMOdict('numJObservers');
+    numPObservers = CMOdict('numPObservers');
+
+    
+    % first 4 states are the previous best 
+    oldBestEst = x(1:numOriginalStates);
+    % xtrue is the true response
+    xtrue = x(numOriginalStates+1:end,:);
+    % xJ contains the states of the J observers
+    xJ = x(2*numOriginalStates+1:(2+numJObservers)*numOriginalStates);
+    % xP contains the states of the P observers
+    xP = x((2+numJObservers)*numOriginalStates+1:(2+numJObservers+numPObservers)*b
+
+
+    for j = 1:1:numJObservers
+        solj = obsvSolJ((j-1)*numOriginalStates+1:j*numOriginalStates,t);
+        % select the row of PsubsetOfJIndices that contains the ids of
+        % p that are a subset of J
+        pSubsetofjIndices = PsubsetOfJIndices(j,:);
+        % diflist will store the difference between solj and all its
+        % subsets solp
+        difflist = zeros(numOfPsubsetsInJ,1);
+        % Loop over the P observers that are a subset of j
+        for p = 1:1:numOfPsubsetsInJ
+            % select the index of p that will be checked
+            pIndex = pSubsetofjIndices(p);
+            % select the solution of p that corresponds to this index
+            solp = solP((pIndex-1)*numOriginalStates+1:pIndex*numOriginalStates,t);
+            % calculate and store the difference between solj and solp
+            dif = norm(solj-solp,2);
+            difflist(p,:) = dif;
+            
+        end
+    
+        % we now select Pi j as the maximum of this list
+        Pij = max(difflist);
+        PiJ(j,1) = Pij;
+                
+    end
+    
+    % Select the extimate xj with j being the best smallest value
+    % in PiJ
+    jBestEst = find(PiJ==min(PiJ));
+    PiJ = zeros(numJObservers,1);
+    BestEst = obsvSolJ((jBestEst-1)*numOriginalStates+1:jBestEst*numOriginalStates,t);
+    % add BestEst to xEst
+    solEst(1:numOriginalStates,t) = BestEst;
+
+end

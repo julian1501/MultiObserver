@@ -34,10 +34,10 @@ function [ATildeJ,BTildeJ,CTildeJ,DTildeJ,LJ] = systemJSetup(A,B,CJ,D,eigenvalue
             eigenvalues = selectRandomSubset(eigenvalueOptions,numOriginalStates);
         end
         % Select the observer for which to calculate the Aj + LjCj and Bi
-        Cj = CJ((l-1)*numOutputsObserver+1:l*numOutputsObserver,:);
+        Cj = CJ(:,(l-1)*numOriginalStates+1:l*numOriginalStates);
         ATildeJ((l-1)*numOriginalStates+1:l*numOriginalStates , (l-1)*numOriginalStates+1:l*numOriginalStates) = A;
         BTildeJ((l-1)*numOriginalStates+1:l*numOriginalStates , 1:numOriginalInputs) = B;
-        CTildeJ(:, (l-1)*numOriginalStates+1:l*numOriginalStates) = Cj;
+        CTildeJ(:,(l-1)*numOriginalStates+1:l*numOriginalStates) = Cj;
         DTildeJ = 0;
         L = -place(A',Cj',eigenvalues)';
         LJ((l-1)*(numOriginalStates)+1:(l-1)*(numOriginalStates) + numOriginalStates,:) = L;
