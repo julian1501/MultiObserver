@@ -1,7 +1,7 @@
 clearvars; close all;
 fprintf('\n')
 % Number of outputs
-numOutputs = 4;
+numOutputs = 8;
 fprintf('The number of outputs is %3.0f: \n',numOutputs)
 
 % M: maximum number of corrupted outputs
@@ -22,8 +22,13 @@ numPObservers = nchoosek(numOutputs,numOutputsPObservers);
 fprintf('The number of P observers is: %3.0f \n',numPObservers)
 
 % Noiseless system definition
-[sys,sysName] = dampedSpringMassSetup(0.2,5,0.5);
-% [sys,sysName] = doubleDampedSpringMassSetup(0.3,0.2,6,7,0.5,0.5);
+% sysNum implies number of mass spring dampers in series
+sysNum = 1;
+if sysNum == 1
+    [sys,sysName] = dampedSpringMassSetup(0.2,5,0.5);
+elseif sysNum == 2
+    [sys,sysName] = doubleDampedSpringMassSetup(0.3,0.2,6,7,0.5,0.5);
+end
 sysA = sys.A;
 numOriginalStates  = size(sysA,1);
 sysB = sys.B;
@@ -58,8 +63,8 @@ COutputs = CNSetup(sys,numOutputs);
 CMOdict('numOfPsubsetsInJ') = numOfPsubsetsInJ;
 
 eigenvalueOptions = [-1 -2 -3 -4 -5 -6 -7 -8];
-[ATildeJ,BTildeJ,CTildeJ,DTildeJ,LJ] = systemJSetup(sysA,sysB,CJ,sysD,eigenvalueOptions,'J',CMOdict);
-[ATildeP,BTildeP,CTildeP,DTildeP,LP] = systemJSetup(sysA,sysB,CP,sysD,eigenvalueOptions,'P',CMOdict);
+[ATildeJ,~,~,~,LJ] = systemJSetup(sysA,sysB,CJ,sysD,eigenvalueOptions,'J',CMOdict);
+[ATildeP,~,~,~,LP] = systemJSetup(sysA,sysB,CP,sysD,eigenvalueOptions,'P',CMOdict);
 [ApLCJ,LCJ] = systemStarSetup(ATildeJ,LJ,CJ,'J',CMOdict);
 [ApLCP,LCP] = systemStarSetup(ATildeP,LP,CP,'P',CMOdict);
 
@@ -80,17 +85,23 @@ clear ATildeP BTildeP CTildeP DTildeP LP
 clear A21 A31 A23 A32 ApLCJ ApLCP LCJ LCP
 % Initial condition is the first n elements of x0Options, xhat initial
 % conditions are always 0
-x0 = zeros((numJObservers+numPObservers+2)*numOriginalStates ,1);
+x0 = zeros((numJObservers+numPObservers+1)*numOriginalStates ,1);
 x0Options = [0.3;-0.1;-0.2;0.15;0.18;0.1;-0.25;0.2];
-x0(numOriginalStates+1:2*numOriginalStates,1) = x0Options(1:numOriginalStates,1);
+x0(1:numOriginalStates,1) = x0Options(1:numOriginalStates,1);
 
 
 % solve system
-tspan = [0 5];
+tmin = 0; tmax = 5;
+tspan = [tmin tmax];
 [t,x] = ode45(@(t,x) ssODEfunSetup(t,x,0,Astar,Bstar,PsubsetOfJIndices,CMOdict),tspan,x0);
 t = t';
 x = x';
-plot(t,x); grid on;
+
+% find estimate after the fact, the estimate is also found at each timestep
+% within the ssODEfunSetup for feedback purposes
+steps = size(x,2);
+[estimate, whichJobserver] = selectBestEstimate(x,steps,PsubsetOfJIndices,CMOdict);
+err = x(1:numOriginalStates,:) - estimate;
 
 % Plots
 close all;
@@ -101,15 +112,11 @@ numberOfRows = ceil(numOriginalStates/numberOfColumns);
 
 fig = figure();
 sgtitle({[char(sysName),' observed by a multi-observer with ', num2str(numOutputs),' outputs.'],[ 'So M=',num2str(M),',|J|=',num2str(numOutputsJObservers),' and |P|=',num2str(numOutputsPObservers)]});
-% Create entities to use in legend
-solLineWidth = 2; solColor = 'black';
-estJLineStyle = '--'; estJColor = 'red';
-estPLineStyle = '--'; estPColor = 'blue';
 
-cmoEstimate = x(1:numOriginalStates,:);
-trueResponse = x(numOriginalStates+1:2*numOriginalStates,:);
-JEstimates = x(2*numOriginalStates+1:2*numOriginalStates+numJObservers*numOriginalStates,:);
-PEstimates = x(2*numOriginalStates+numJObservers*numOriginalStates+1:end,:);
+% cmoEstimate = 
+trueResponse = x(1:numOriginalStates,:);
+JEstimates = x(numOriginalStates+1:numOriginalStates+numJObservers*numOriginalStates,:);
+PEstimates = x(numOriginalStates+numJObservers*numOriginalStates+1:end,:);
  
 % create tiled plot
 for l = 1:1:numOriginalStates
@@ -132,11 +139,15 @@ for l = 1:1:numOriginalStates
     hold on;
     
     % plot the cmo estimate
-    plot(t,cmoEstimate(l,:),LineWidth=1,Color='cyan')
+    plot(t,estimate(l,:),LineWidth=1,Color='cyan')
     hold on;
 
+    % plot error
+    plot(t,err(l,:),LineWidth=1,Color="#EDB120")
+    hold on;
+    grid on;
 end
 
-set(gcf, 'Position', 0.9*get(0, 'Screensize'));
-
+set(gcf, 'Position', 0.7*get(0, 'Screensize'));
+hold off;
 
