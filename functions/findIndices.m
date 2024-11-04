@@ -1,8 +1,17 @@
 function [numOfPsubsetsInJ, PsubsetOfJIndices] = findIndices(CJIndices,CPIndices,CMOdict)
-    % for each j, find the p's that are subsets of j
-    % Define emtpy array that will store the indices of the rows of
-    % solP that are subsets of solj. each row of PsubsetOfJIndices stores
-    % the ids of p that are a subset. For exapmle
+    % [numOfPsubsetsInJ, PsubsetOfJIndices] = 
+    % findIndices(CJIndices,CPIndices,CMOdict) takes in two matrices with
+    % indices of observers. It finds which observers of the smaller set P
+    % are subsets of observers of the larger set J.
+    %
+    % For example:
+    %   - CJIndices = [1 2 3; 1 2 4; 1 3 4; 2 3 4]
+    %     CPIndices = [1 2; 1 3; 1 4; 2 3; 2 4; 3 4];
+    %       -> numOfPsubsetsInJ = 3
+    %          PsubsetOfJIndices = [1 2 4;
+    %                               1 3 5;
+    %                               2 3 6;
+    %                               4 5 6]
     
     % numOutputsJObservers, numOutputsPObservers, numJObservers, numPObservers
     numOutputsJObservers = CMOdict("numOutputsJObservers");

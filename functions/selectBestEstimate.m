@@ -1,6 +1,37 @@
-function [bestEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,PsubsetOfJIndices,CMOdict)
-    % This function implements the selection algoritm as in Chong 2105
-    % Linear systems under adverserial attacks.
+function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,PsubsetOfJIndices,CMOdict)
+    % [bestEstimate, jBestEstimate] = 
+    % selectBestEstimate(x,tsteps,PsubsetOfJIndices,CMOdict) selects the
+    % best estimate bestStateEstimate (xhat) from subobservers OP out of J 
+    % observers in the solution x for every time instant up to tsteps and 
+    % returns the observer index j which provides the best estimate. The 
+    % selection is made according to the criteria in (Chong, 2015, 
+    % Observability of linear systems under adversarial attacks) and are as
+    % follows:
+    %   1. xhat(t) = xhat_sigma(t)_(t),
+    %   2. sigma(t) = arg min PiJ(t)
+    %   3. PiJ(t) = max |xhat_J(t) - xhat_P(t)| for each sub-observer P in
+    %       J.
+    %
+    % For example:
+    %   - x = [ 0.0011;
+    %          -0.9476;
+    %          -0.0329;
+    %          -0.8780;
+    %          -0.0755;
+    %          -0.9336;
+    %          -0.0478;
+    %          -0.8991;
+    %           0.0155;
+    %          -0.7731;
+    %          -0.2359;
+    %          -0.1777;
+    %          -0.0011;
+    %          -0.8644]
+    %     tsteps = 1
+    %     PSubsetOfJIndices = [1 2; 1 3; 2 3]
+    %       -> bestEstimate  = [-0.0755; -0.9336]
+    %          jbestEstimate = 2
+
 
     % Extract specs from CMOdict
     numOriginalStates = CMOdict('numOriginalStates');
@@ -18,7 +49,7 @@ function [bestEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,PsubsetOfJI
     PiJ = zeros(numJObservers,1);
 
     % create emtpy array to store best estimate and which j supplies it
-    bestEstimate = zeros(numOriginalStates,tsteps);
+    bestStateEstimate = zeros(numOriginalStates,tsteps);
     jBestEstimate = zeros(1,tsteps);
     
     for t = 1:1:tsteps
@@ -54,7 +85,7 @@ function [bestEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,PsubsetOfJI
         jBestEstimateTstep = jBestEstimateTstep(1);
         jBestEstimate(:,t) = jBestEstimateTstep;
         bestEstimateTstep = xJ((jBestEstimateTstep-1)*numOriginalStates+1:jBestEstimateTstep*numOriginalStates,t);
-        bestEstimate(:,t) = bestEstimateTstep;
+        bestStateEstimate(:,t) = bestEstimateTstep;
 
     end
 

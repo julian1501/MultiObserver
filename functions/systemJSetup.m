@@ -1,19 +1,37 @@
-function [ATildeJ,BTildeJ,CTildeJ,DTildeJ,LJ] = systemJSetup(A,B,CJ,D,eigenvalueOptions,setString,CMOdict)
-    % This function sets up the output injection gain matrices LJ
-    % for the corresponding matrices CJ, that places the eigenvalues of
-    % A+LjCj at 'eigenvalues'.
+function [ATildeJ,LJ] = systemJSetup(A,B,CJ,eigenvalueOptions,setString,CMOdict)
+    % [ATildeJ,BTildeJ,CTildeJ,DTildeJ,LJ] = 
+    % systemJSetup(A,CJ,eigenvalueOptions,setString,CMOdict) sets up
+    % large matrices that contain each system (ATildeJ, BTildeJ, CTildeJ,
+    % DTildeJ, LJ) out of the setString (P or J) subset. The L for each
+    % pair (Aj,Cj) is chosen based of eigenvalueOptions, if there are more
+    % eigenvalue options then states: a random subset is chosen. To prevent
+    % this random behaviour the list supplied should contain the same
+    % number of options as states.
+    % 
+    % For example:
+    %   - A  = [0 1; -10 -1]
+    %     CJ = [1 0   1 0   1 0   0 1;
+    %           0 1   0 1   1 0   1 0;
+    %           1 0   0 1   0 1   0 1]
+    %       -> ATildeJ = [A 0 0 0;
+    %                     0 A 0 0;
+    %                     0 0 A 0;
+    %                     0 0 0 A]
+    %       -> LJ = Examplary due to random behaviour!
+    %               [-2     -1     -2   ;
+    %                12.5   -0.5   12.5 ;
+    %                -6     -0.5   -0.5 ;
+    %                25     -2.75  -2.75;
+    %                -1     -1     -1   ;
+    %                12.5   12.5   -0.5 ;
+    %                -0.5   -4     -0.5 ;
+    %                -1.75  25     -1.75]
 
     numOriginalStates = CMOdict('numOriginalStates');
-    numOriginalInputs = CMOdict('numOriginalInputs');
-    numOriginalOutputs = CMOdict('numOriginalOutputs');
     [numObservers, numOutputsObserver] = selectObserverSpecs(setString,CMOdict);
 
     % Define the empty matrix (n*J*N x n*J*N) AJ. Where N is the number of outputs.
     ATildeJ = zeros(numOriginalStates*numObservers,numOriginalStates*numObservers);
-    % Define the empty matrix (n*J*N x k) BJ.
-    BTildeJ = zeros(numOriginalStates*numObservers,numOriginalInputs);
-    % Define the empty matrix (J x n*N)
-    CTildeJ = zeros(numOutputsObserver,numOriginalStates*numObservers);
 
     % Define the empty matrix (n x N*J) LJ. 
     LJ = zeros(numOriginalStates*numObservers,numOutputsObserver);
@@ -22,6 +40,10 @@ function [ATildeJ,BTildeJ,CTildeJ,DTildeJ,LJ] = systemJSetup(A,B,CJ,D,eigenvalue
     options = size(eigenvalueOptions,2);
     if numOriginalStates > options
         error('There are more states then possible eigenvalues to choose from')
+    elseif numOriginalStates < options
+        fprintf('A random selection of eigenvalues is made. States: %3.0f, eigenvalue options: %3.0f.',numOriginalStates,options);
+    else
+        fprintf('There are the same number of states as eigenvalue options, no random behaviour.')
     end
 
     % Loop through all rows of CJ and place the eigenvalues at
@@ -36,9 +58,6 @@ function [ATildeJ,BTildeJ,CTildeJ,DTildeJ,LJ] = systemJSetup(A,B,CJ,D,eigenvalue
         % Select the observer for which to calculate the Aj + LjCj and Bi
         Cj = CJ(:,(l-1)*numOriginalStates+1:l*numOriginalStates);
         ATildeJ((l-1)*numOriginalStates+1:l*numOriginalStates , (l-1)*numOriginalStates+1:l*numOriginalStates) = A;
-        BTildeJ((l-1)*numOriginalStates+1:l*numOriginalStates , 1:numOriginalInputs) = B;
-        CTildeJ(:,(l-1)*numOriginalStates+1:l*numOriginalStates) = Cj;
-        DTildeJ = 0;
         L = -place(A',Cj',eigenvalues)';
         LJ((l-1)*(numOriginalStates)+1:(l-1)*(numOriginalStates) + numOriginalStates,:) = L;
         % Stability check

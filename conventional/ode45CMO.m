@@ -1,7 +1,7 @@
 clearvars; close all;
 fprintf('\n')
 % Number of outputs
-numOutputs = 8;
+numOutputs = 3;
 fprintf('The number of outputs is %3.0f: \n',numOutputs)
 
 % M: maximum number of corrupted outputs
@@ -55,18 +55,18 @@ CMOdict('numOriginalOutputs')   = numOriginalOutputs;
 
 
 COutputs = CNSetup(sys,numOutputs);
-[CJ,CJIndices] = CsetSetup(COutputs,numOutputsJObservers,numOutputs,numJObservers);
-[CP,CPIndices] = CsetSetup(COutputs,numOutputsPObservers,numOutputs,numPObservers);
+[CJ,CJIndices] = CsetSetup(COutputs,'J',CMOdict);
+[CP,CPIndices] = CsetSetup(COutputs,'P',CMOdict);
 
 % find which p observers are subsets of each j observer
 [numOfPsubsetsInJ, PsubsetOfJIndices] = findIndices(CJIndices,CPIndices,CMOdict);
 CMOdict('numOfPsubsetsInJ') = numOfPsubsetsInJ;
 
 eigenvalueOptions = [-1 -2 -3 -4 -5 -6 -7 -8];
-[ATildeJ,~,~,~,LJ] = systemJSetup(sysA,sysB,CJ,sysD,eigenvalueOptions,'J',CMOdict);
-[ATildeP,~,~,~,LP] = systemJSetup(sysA,sysB,CP,sysD,eigenvalueOptions,'P',CMOdict);
-[ApLCJ,LCJ] = systemStarSetup(ATildeJ,LJ,CJ,'J',CMOdict);
-[ApLCP,LCP] = systemStarSetup(ATildeP,LP,CP,'P',CMOdict);
+[AStarJ,LJ] = systemJSetup(sysA,sysB,CJ,eigenvalueOptions,'J',CMOdict);
+[AStarP,LP] = systemJSetup(sysA,sysB,CP,eigenvalueOptions,'P',CMOdict);
+[ApLCJ,LCJ] = systemStarSetup(AStarJ,LJ,CJ,'J',CMOdict);
+[ApLCP,LCP] = systemStarSetup(AStarP,LP,CP,'P',CMOdict);
 
 % Astar matrix subblocks
 A21 = zeros(numOriginalStates,numJObservers*numOriginalStates);
@@ -74,14 +74,15 @@ A31 = zeros(numOriginalStates,numPObservers*numOriginalStates);
 A23 = zeros(numJObservers*numOriginalStates,numPObservers*numOriginalStates);
 A32 = A23';
 
-Astar = [sysA,   A21,   A31;
+
+ATilde = [sysA,   A21,   A31;
          -LCJ, ApLCJ,   A23;
          -LCP,   A32, ApLCP];
 
 Bstar = repmat(sysB,1+numJObservers+numPObservers,1);
 
-clear ATildeJ BTildeJ CTildeJ DTildeJ LJ
-clear ATildeP BTildeP CTildeP DTildeP LP
+clear AStarJ BTildeJ CTildeJ DTildeJ LJ
+clear AStarP BTildeP CTildeP DTildeP LP
 clear A21 A31 A23 A32 ApLCJ ApLCP LCJ LCP
 % Initial condition is the first n elements of x0Options, xhat initial
 % conditions are always 0
@@ -93,7 +94,7 @@ x0(1:numOriginalStates,1) = x0Options(1:numOriginalStates,1);
 % solve system
 tmin = 0; tmax = 5;
 tspan = [tmin tmax];
-[t,x] = ode45(@(t,x) ssCMOodeFunSetup(t,x,0,Astar,Bstar,PsubsetOfJIndices,CMOdict),tspan,x0);
+[t,x] = ode45(@(t,x) ssCMOodeFunSetup(t,x,0,ATilde,Bstar,PsubsetOfJIndices,CMOdict),tspan,x0);
 t = t';
 x = x';
 

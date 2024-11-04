@@ -1,7 +1,18 @@
 function COutputs = CNSetup(sys,numOutputs)
-    % This function sets up the CN vector, which contains all N outputs
-    % of the system. All rows are an output.
-    % LTI system sys; number of outputs N; number of corrupted outputs M.
+    % COutputs = CNSetup(sys,numOutputs) sets up the CN matrix that
+    % contains all the outputs of the CMOsystem. The rows of sys.C are
+    % treated as the possible outputs: if there are less then numOutputs
+    % rows in sys.C duplicates are used until COutputs has numOutputs rows.
+    % If there are more rows in sys.C then numOutputs the bottom rows are
+    % not used.
+    %
+    % For example:
+    %   - sys.C = [1 0; 0 1] & numOutputs = 2
+    %       -> COutputs = [1 0; 0 1]
+    %   - sys.C = [1 0; 0 1] & numOutputs = 3
+    %       -> COutputs = [1 0; 0 1; 1 0]
+    %   - sys.C = [1 0; 0 1] & numOutputs = 1
+    %       -> COutputs = [1 0]
     
     % Extract the number of possible ouputs
     COptions = sys.C;

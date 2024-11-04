@@ -1,5 +1,19 @@
 function MOplot(t,x,err,estimate,sysName,MOdict)
-    % This function plots the MO solutions
+    % MOplot(t,x,err,estimate,sysName,MOdict) plots the solutions of the
+    % CMO. It creates a plot for each system state, on each plot the system
+    % response, J-observers, P-observers, CMO final estimate and the error
+    % into a single plot.
+    %
+    % Example values for inputs (single state):
+    %   - t = 0:0.01:5
+    %     x        = [0.10 0.20 0.30 0.40 0.50;
+    %                 0.30 0.20 0.10 0.05 0.01;
+    %                 0.30 0.40 0.50 0.60 0.70;
+    %                 0.20 0.25 0.20 0.15 0.20;
+    %                 0.05 0.10 0.15 0.20 0.25]
+    %     err      = [0.01 0.02 0.01 0.02 0.03]
+    %     estimate = [0.30 0.20 0.50 0.60 0.70]
+    %     sysName  = "Example single input system"
 
     % Extract values from MO
     numOriginalStates = MOdict('numOriginalStates');
