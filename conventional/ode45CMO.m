@@ -1,7 +1,7 @@
 clearvars; close all;
 fprintf('\n')
 % Number of outputs
-numOutputs = 3;
+numOutputs = 5;
 fprintf('The number of outputs is %3.0f: \n',numOutputs)
 
 % M: maximum number of corrupted outputs
@@ -81,9 +81,20 @@ ATilde = [sysA,   A21,   A31;
 
 Bstar = repmat(sysB,1+numJObservers+numPObservers,1);
 
+CMOdict('numCMOStates') = size(ATilde,1);
+
+% Generate attack signals
+[setA, setB] = selectAB(CMOdict);
+E = ESetup(Bstar,LJ,LP,CMOdict);
+eta = etaSetup(setA,CJIndices,CPIndices,0,0,CMOdict);
+
 clear AStarJ BTildeJ CTildeJ DTildeJ LJ
 clear AStarP BTildeP CTildeP DTildeP LP
 clear A21 A31 A23 A32 ApLCJ ApLCP LCJ LCP
+
+
+
+
 % Initial condition is the first n elements of x0Options, xhat initial
 % conditions are always 0
 x0 = zeros((numJObservers+numPObservers+1)*numOriginalStates ,1);
@@ -94,7 +105,7 @@ x0(1:numOriginalStates,1) = x0Options(1:numOriginalStates,1);
 % solve system
 tmin = 0; tmax = 5;
 tspan = [tmin tmax];
-[t,x] = ode45(@(t,x) ssCMOodeFunSetup(t,x,0,ATilde,Bstar,PsubsetOfJIndices,CMOdict),tspan,x0);
+[t,x] = ode45(@(t,x) ssCMOodeFunSetup(t,x,eta,ATilde,E,PsubsetOfJIndices,CMOdict),tspan,x0);
 t = t';
 x = x';
 
@@ -104,7 +115,5 @@ steps = size(x,2);
 [estimate, whichJobserver] = selectBestEstimate(x,steps,PsubsetOfJIndices,CMOdict);
 err = x(1:numOriginalStates,:) - estimate;
 
-
- 
 MOplot(t,x,err,estimate,sysName,CMOdict);
 

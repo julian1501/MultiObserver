@@ -1,7 +1,6 @@
 function [subset,remainder] = selectRandomSubset(set,subsetSize)
     % [subset,remainder] = selectRandomSubset(set,subsetSize) selects a
-    % random subset sized subsetSize out of set. The remainder is whatever
-    % is not chosen.
+    % random subset sized subsetSize out of set. The 
     %
     % For example:
     %   - set = [1,2,3,4]
@@ -17,5 +16,5 @@ function [subset,remainder] = selectRandomSubset(set,subsetSize)
     for index = 1:1:subsetSize
         subset(1,index) = set(1,indices(1,index));
     end
-    remainder = setdiff(set,subset);
+    remainder = setdiff(subset,set);
 end

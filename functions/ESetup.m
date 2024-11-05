@@ -1,35 +1,46 @@
-function E = ESetup(Bstar,LJ,setString,CMOdict)
+function E = ESetup(Bstar,LJ,LP,CMOdict)
     % This function defines the 'input-matrix' E based on the A,B and L
     % matrices of the system.
     numOriginalStates = CMOdict("numOriginalStates");
     numOriginalInputs = CMOdict("numOriginalInputs");
     numOriginalOutputs = CMOdict("numOriginalOutputs");
-    [numObservers, numOutputsObserver] = selectObserverSpecs(setString,CMOdict);
+    numPObservers = CMOdict("numPObservers");
+    numJObservers = CMOdict("numJObservers");
+    numObservers = numPObservers+numJObservers;
     
-    Esize1 = (numObservers+1)*numOriginalOutputs;
-    Esize2 = numOriginalInputs + numObservers*(numOutputsObserver + numOriginalOutputs) + numOriginalOutputs;
+    numOutputsJObservers = CMOdict("numOutputsJObservers");
+    numOutputsPObservers = CMOdict("numOutputsPObservers");
+    
+    
     % Define the empty E matrix:
     %    Vertical: Esize1
     %    Horizontal: Number of inputs + (N x number of outputs per Cj) + n
     %       Number of outputs per Cj is 1 in current implementation, since
     %       a multiple output system is seen as a combination of different
     %       rows of CJ.
+    Esize1 = (numObservers+1)*numOriginalOutputs;
+    Esize2 = numOriginalInputs + numPObservers*numOutputsPObservers + numJObservers*numOutputsJObservers + numOriginalOutputs;
     E = zeros(Esize1,Esize2);
     
     % Add Bbar and Bbar to first column
     E(:,1:numOriginalInputs) = Bstar;
     
     % Add Lj's to central section
-    for l = 1:1:numObservers
+    for l = 1:1:numJObservers
         rowStart = l*numOriginalStates+1;
-        rowEnd   = l*numOriginalStates+1 + numOriginalStates-1;
-        colStart = numOriginalInputs + (l-1)*numOutputsObserver + 1;
-        colEnd   = numOriginalInputs + (l-1)*numOutputsObserver + numOutputsObserver;
+        rowEnd   = rowStart + numOriginalStates-1;
+        colStart = numOriginalInputs + (l-1)*numOutputsJObservers + 1;
+        colEnd   = colStart + numOutputsJObservers - 1;
         E(rowStart:rowEnd,colStart:colEnd) = -LJ((l-1)*numOriginalStates + 1:(l-1)*numOriginalStates + numOriginalStates ,:);
     end
-
-    % Add -I to central part
-    E(numOriginalStates+1:end,numOriginalInputs+numObservers*numOutputsObserver+1:end-numOriginalStates) = -eye(numOriginalStates*numObservers);
+    % Add Lp's to central section
+    for l = 1:1:numPObservers
+        rowStart = (numJObservers+l)*numOriginalStates+1;
+        rowEnd   = rowStart + numOriginalStates-1;
+        colStart = numOriginalInputs + numJObservers*numOutputsJObservers + (l-1)*numOutputsPObservers + 1;
+        colEnd   = colStart + numOutputsPObservers - 1;
+        E(rowStart:rowEnd,colStart:colEnd) = -LP((l-1)*numOriginalStates + 1:(l-1)*numOriginalStates + numOriginalStates ,:);
+    end
 
     % Add In to right top slice
     E(1:numOriginalStates,end-numOriginalStates+1:end) = eye(numOriginalStates);

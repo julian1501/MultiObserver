@@ -1,26 +1,57 @@
-function eta = etaSetup(u,noiseFactor,noisePower,setString,CMOdict)
-    % This function defines the composite input/noise vector eta: [u; v;
-    % eta;w]. Where u is input, vi is sensor noise, tau is the attack 
-    % signal and w is process noise.
+function eta = etaSetup(setA,CJIndices,CPIndices,noiseFactor,noisePower,CMOdict)
+    % attack = attackSetup(u,noiseFactor,noisePower,setString,CMOdict)
 
-    tsize = size(u,2);
-    [numObservers, numObserverOutputs] = selectObserverSpecs(setString,CMOdict);
+    
+    numJObservers = CMOdict('numJObservers');
+    numPObservers = CMOdict("numPObservers");
+    numOutputsPObservers = CMOdict('numOutputsPObservers');
+    numOutputsJObservers = CMOdict('numOutputsJObservers');
     numOriginalStates = CMOdict('numOriginalStates');
-    numOutputs = CMOdict('numOutputs');
-    M = CMOdict('M');
+    numOriginalInputs = CMOdict("numOriginalInputs");
+
+    % Generate u
+    u = zeros(numOriginalInputs,1);
 
     % Generate N (m x tsize) sensor noise signals
-    v = noiseFactor*wgn(numObservers*numObserverOutputs,tsize,noisePower);
+    numJOuptuts = numJObservers*numOutputsJObservers;
+    numPOutputs = numPObservers*numOutputsPObservers;
+    v = zeros(numJOuptuts+numPOutputs,1);
 
     % Generate N (n x tsize) attack signals
     % Select which outputs will be attacked, form 2 subsets of numOutputs
     % sized n. the first subset will be denoted by a value of 1 and the
     % second by a value of 2.
+    attackValue = 3;
+    tau = zeros(numJOuptuts+numPOutputs,1);
+    % Loop over J observers
+    for j = 1:1:numJObservers
+        % Loop over outputs of each J observer
+        row = CJIndices(j,:);
+        for k = 1:1:numOutputsJObservers
+            outputID = row(k);
+            if isMemberOf(setA,outputID)
+                tau((j-1)*numOutputsJObservers+k,:) = attackValue;
+            end
+
+        end
+
+    end
     
-    tau = zeros(numObservers*numOriginalStates,tsize);
+    for p = 1:1:numPObservers
+        % Loop over outputs of each P observer
+        row = CPIndices(p,:);
+        for k = 1:1:numOutputsPObservers
+            outputID = row(k);
+            if isMemberOf(setA,outputID)
+                tau(numJOuptuts + (p-1)*numOutputsPObservers+k,:) = attackValue;
+            end
+
+        end
+
+    end
 
     % Generate an (n x tsize) process noise signal
-    w = zeros(numOriginalStates,tsize);
+    w = zeros(numOriginalStates,1);
 
-    eta = [u;v;tau;w];
+    eta = [u;v+tau;w];
 end

@@ -39,11 +39,11 @@ function [ATildeJ,LJ] = systemJSetup(A,B,CJ,eigenvalueOptions,setString,CMOdict)
     % Determine the number of options for the eigenvalues
     options = size(eigenvalueOptions,2);
     if numOriginalStates > options
-        error('There are more states then possible eigenvalues to choose from')
+        error('There are more states then possible eigenvalues to choose from. \n')
     elseif numOriginalStates < options
-        fprintf('A random selection of eigenvalues is made. States: %3.0f, eigenvalue options: %3.0f.',numOriginalStates,options);
+        fprintf('A random selection of eigenvalues is made. States: %3.0f, eigenvalue options: %3.0f. \n',numOriginalStates,options);
     else
-        fprintf('There are the same number of states as eigenvalue options, no random behaviour.')
+        fprintf('There are the same number of states as eigenvalue options, no random behaviour. \n')
     end
 
     % Loop through all rows of CJ and place the eigenvalues at
