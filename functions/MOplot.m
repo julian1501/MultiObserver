@@ -15,6 +15,8 @@ function MOplot(t,x,err,estimate,sysName,MOdict)
     %     estimate = [0.30 0.20 0.50 0.60 0.70]
     %     sysName  = "Example single input system"
 
+    % Find the maximum 
+
     % Extract values from MO
     numOriginalStates = MOdict('numOriginalStates');
     numOutputs = MOdict('numOutputs');
@@ -66,6 +68,7 @@ function MOplot(t,x,err,estimate,sysName,MOdict)
         hold on;
         grid on;
     end
+    
     
     set(gcf, 'Position', 0.7*get(0, 'Screensize'));
     hold off;

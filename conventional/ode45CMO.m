@@ -7,6 +7,7 @@ fprintf('\n')
 % Input dialog box
 inputPrompt = {'System selection (number indicates amount of mass-spring-dampers in series)',...
     'Number of system outputs',...
+    'M, number of attacked outputs (max: 2M<N)',...
     'Eigenvalue options (enter options separated by spaces)',...
     'Timespan (enter tmin and tmax separtated by spaces)',...
     'x0 (enter x0 seperated by spaces)',...
@@ -14,30 +15,30 @@ inputPrompt = {'System selection (number indicates amount of mass-spring-dampers
 
 definputs = {'1',...
     '5',...
-    '-3 -4 -5 -6 -7 -8 -9 -10',...
+    'max',...
+    '-3 -4 -5 -6 -7 -8 -9 -10 -11 -12 -13 -14 -15 -16',...
     '0 5',...
-    '0.3 -0.1 0.5 0.2 -0.4 0.6 0.3 0.3',...
+    '0.3 -0.1 0.5 0.2 -0.4 0.6 0.3 0.3 -0.7 0.4 -0.2 0.6',...
     '0'};
 
 inputs = inputdlg(inputPrompt,'CMO inputs',[1 40],definputs);
 
 sysNum = str2num(inputs{1});
 numOutputs = str2num(inputs{2});
-eigenvalueOptions = str2num(inputs{3});
-tspan = str2num(inputs{4});
-x0Options = str2num(inputs{5})';
-attackSignal = str2num(inputs{6});
+if lower(inputs{3}) == 'max'
+    M = floor((numOutputs-1)/2);
+else
+    M = str2num(inputs{3});
+end
+eigenvalueOptions = str2num(inputs{4});
+tspan = str2num(inputs{5});
+x0Options = str2num(inputs{6})';
+attackSignal = str2num(inputs{7});
 
 %% CALCULATIONS
 fprintf('The number of outputs is %3.0f: \n',numOutputs)
 
 % M: maximum number of corrupted outputs
-M = floor((numOutputs-1)/2);
-if ~ M > 0
-    error('M is 0')
-elseif ~ numOutputs > 2*M
-    error('N is not larger then 2M.')
-end
 fprintf('The maximum allowable number of compromised outputs %3.0f: \n',M)
 numOutputsJObservers = numOutputs-M;
 fprintf('The size of each J observer is: %3.0f \n',numOutputsJObservers)
@@ -49,7 +50,7 @@ numPObservers = nchoosek(numOutputs,numOutputsPObservers);
 fprintf('The number of P observers is: %3.0f \n',numPObservers)
 
 % Noiseless system definition
-[sys,sysName] = xDampedSpringMassSetup(sysNum,[0.3 0.3 0.3 0.3 0.2],[5 5 5 5 5],[0.5 0.6 0.7 0.8 0.2]);
+[sys,sysName] = xDampedSpringMassSetup(sysNum,[0.3 0.3 0.3 0.3 0.3 0.3],[5 5 5 5 5 5 ],[0.5 0.6 0.7 0.8 0.2 0.65]);
 
 sysA = sys.A;
 numOriginalStates  = size(sysA,1);
@@ -102,6 +103,7 @@ A32 = A23';
 ATilde = [sysA,   A21,   A31;
           -LCJ, ApLCJ,   A23;
           -LCP,   A32, ApLCP];
+
 
 Bstar = repmat(sysB,1+numJObservers+numPObservers,1);
 

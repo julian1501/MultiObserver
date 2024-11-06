@@ -10,7 +10,7 @@ function [system,sysName,A,B,C,D] = xDampedSpringMassSetup(x,m,k,c)
         C = [1 0;
              0 1];
         D = 0;
-    elseif x == 2
+    else
         A = zeros(2*x);
         
         % Add state matrix entries for the first mass
