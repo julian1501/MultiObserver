@@ -18,8 +18,8 @@ function E = ESetup(Bstar,LJ,LP,CMOdict)
     %       Number of outputs per Cj is 1 in current implementation, since
     %       a multiple output system is seen as a combination of different
     %       rows of CJ.
-    Esize1 = (numObservers+1)*numOriginalOutputs;
-    Esize2 = numOriginalInputs + numPObservers*numOutputsPObservers + numJObservers*numOutputsJObservers + numOriginalOutputs;
+    Esize1 = (numObservers+1)*numOriginalStates;
+    Esize2 = numOriginalInputs + numPObservers*numOutputsPObservers + numJObservers*numOutputsJObservers + numOriginalStates;
     E = zeros(Esize1,Esize2);
     
     % Add Bbar and Bbar to first column

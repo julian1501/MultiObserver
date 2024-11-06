@@ -52,11 +52,19 @@ function [ATildeJ,LJ] = systemJSetup(A,B,CJ,eigenvalueOptions,setString,CMOdict)
         % Select n eigenvalues out of eigenvalueOptions if the number of
         % options is larger then n. If the number of options is smaller
         % then n, throw an error.
-        if options > numOriginalStates
+        if options >= numOriginalStates
             eigenvalues = selectRandomSubset(eigenvalueOptions,numOriginalStates);
         end
         % Select the observer for which to calculate the Aj + LjCj and Bi
         Cj = CJ(:,(l-1)*numOriginalStates+1:l*numOriginalStates);
+        if ~isObsv(A,Cj)
+            disp('A =')
+            disp(A);
+            disp('Cj =')
+            disp(Cj)
+            error('The pair (A,Cj) is not observable')
+        end
+
         ATildeJ((l-1)*numOriginalStates+1:l*numOriginalStates , (l-1)*numOriginalStates+1:l*numOriginalStates) = A;
         L = -place(A',Cj',eigenvalues)';
         LJ((l-1)*(numOriginalStates)+1:(l-1)*(numOriginalStates) + numOriginalStates,:) = L;
@@ -68,7 +76,7 @@ function [ATildeJ,LJ] = systemJSetup(A,B,CJ,eigenvalueOptions,setString,CMOdict)
             disp(eig(A+L*Cj))
             error('The chosen Lj does not make Aj + LjCj stable')
         end
-       
+               
     end
 
 end

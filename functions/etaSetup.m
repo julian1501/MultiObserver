@@ -1,5 +1,8 @@
-function eta = etaSetup(setA,CJIndices,CPIndices,noiseFactor,noisePower,CMOdict)
-    % attack = attackSetup(u,noiseFactor,noisePower,setString,CMOdict)
+function eta = etaSetup(setA,CJIndices,CPIndices,attackValue,CMOdict)
+    % eta = etaSetup(setA,CJIndices,CPIndices,attackValue,noiseFactor,noisePower,CMOdict)
+    % sets up the state-space system input eta, where eta = [u;v+tau;w]. u
+    % is system input, v is sensor noise, tau is the attack signal and w is
+    % the disturbance.
 
     
     numJObservers = CMOdict('numJObservers');
@@ -21,7 +24,6 @@ function eta = etaSetup(setA,CJIndices,CPIndices,noiseFactor,noisePower,CMOdict)
     % Select which outputs will be attacked, form 2 subsets of numOutputs
     % sized n. the first subset will be denoted by a value of 1 and the
     % second by a value of 2.
-    attackValue = 3;
     tau = zeros(numJOuptuts+numPOutputs,1);
     % Loop over J observers
     for j = 1:1:numJObservers

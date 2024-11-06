@@ -19,11 +19,10 @@ function [ATilde,LC] = systemStarSetup(Aset,Lset,Cset,setString,CMOdict)
     %          LC = [L1C1; L2C2; L3C3; L4C4]
     
     numOriginalStates = CMOdict("numOriginalStates");
-    numOriginalOutputs = CMOdict("numOriginalOutputs");
     [numObservers,~] = selectObserverSpecs(setString,CMOdict);
     
     % Define Bstar
-    LC = zeros(numOriginalStates*numObservers,numOriginalOutputs);
+    LC = zeros(numOriginalStates*numObservers,numOriginalStates);
     
     % Create a copy of Aset
     ATilde =  Aset;
