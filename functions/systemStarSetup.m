@@ -36,4 +36,6 @@ function [ATilde,LC] = systemStarSetup(Aset,Lset,Cset,setString,CMOdict)
         LC(Start:End,:) = LCl;
     end
 
+    ATilde = sparse(ATilde);
+
 end

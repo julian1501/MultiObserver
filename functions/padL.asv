@@ -1,0 +1,18 @@
+function paddedL = padL(L,outputsID,numOutputs)
+    % paddedL = padL(L,outputsID) returns the L matrix padded with zeros in
+    % outputs that are not present in outputsID, numOutputs is the 
+    % 
+    % For example:
+    %   - L = [2 1; 1 3; 5 1]
+    %     outputsID = [1 3 4]
+    %     numOriginalStates = 6
+    %       -> paddedL = [2 1; 0 0; 1 3; 5 1; 0 0; 0 0]
+    numObserver = size(L,2);
+    paddedL = zeros(numOriginalStates,numOutputs);
+    
+    for i = 1:1:numObserverOutputs
+        rowId = outputsID(i,:);
+        paddedL(rowId,:) = L(i,:);
+    end
+
+end

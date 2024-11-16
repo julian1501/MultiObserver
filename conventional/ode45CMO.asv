@@ -1,10 +1,31 @@
 clearvars; close all;
-fprintf('\n -------------------------------------------------')
-inputs = inputDiaglog;
+fprintf('\n')
+%% USER INPUTS
+% There are more parameters that can be changed, some things nested within
+% functions.
+
+% Input dialog box
+inputPrompt = {'System selection (number indicates amount of mass-spring-dampers in series)',...
+    'Number of system outputs',...
+    'M, number of attacked outputs (max: 2M<N)',...
+    'Eigenvalue options (enter options separated by spaces)',...
+    'Timespan (enter tmin and tmax separtated by spaces)',...
+    'x0 (enter x0 seperated by spaces)',...
+    'Attack signal (0 is no attack)'};
+
+definputs = {'1',...
+    '5',...
+    'max',...
+    '-3 -4 -5 -6 -7 -8 -9 -10 -11 -12 -13 -14 -15 -16',...
+    '0 5',...
+    '0.3 -0.1 0.5 0.2 -0.4 0.6 0.3 0.3 -0.7 0.4 -0.2 0.6',...
+    '0'};
+
+inputs = inputdlg(inputPrompt,'CMO inputs',[1 40],definputs);
 
 sysNum = str2num(inputs{1});
 numOutputs = str2num(inputs{2});
-if lower(inputs{3}) == 'max'
+if inputs{3} == 'max' || inputs{3} == 'Max'
     M = floor((numOutputs-1)/2);
 else
     M = str2num(inputs{3});
@@ -82,8 +103,6 @@ A32 = A23';
 ATilde = [sysA,   A21,   A31;
           -LCJ, ApLCJ,   A23;
           -LCP,   A32, ApLCP];
-
-ATilde = sparse(ATilde);
 
 
 Bstar = repmat(sysB,1+numJObservers+numPObservers,1);

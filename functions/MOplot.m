@@ -67,6 +67,8 @@ function MOplot(t,x,err,estimate,sysName,MOdict)
         plot(t,err(l,:),LineWidth=1,Color="#EDB120")
         hold on;
         grid on;
+
+        ylim([-1.5 1.5])
     end
     
     
