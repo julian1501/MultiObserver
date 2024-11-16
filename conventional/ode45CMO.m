@@ -58,7 +58,7 @@ CMOdict('numOriginalStates')    = numOriginalStates;
 CMOdict('numOriginalInputs')    = numOriginalInputs;
 CMOdict('numOriginalOutputs')   = numOriginalOutputs;
 
-
+% Setup C matrices
 COutputs = CNSetup(sys,numOutputs);
 [CJ,CJIndices] = CsetSetup(COutputs,'J',CMOdict);
 [CP,CPIndices] = CsetSetup(COutputs,'P',CMOdict);
@@ -67,8 +67,8 @@ COutputs = CNSetup(sys,numOutputs);
 [numOfPsubsetsInJ, PsubsetOfJIndices] = findIndices(CJIndices,CPIndices,CMOdict);
 CMOdict('numOfPsubsetsInJ') = numOfPsubsetsInJ;
 
-[AStarJ,LJ] = systemJSetup(sysA,sysB,CJ,eigenvalueOptions,'J',CMOdict);
-[AStarP,LP] = systemJSetup(sysA,sysB,CP,eigenvalueOptions,'P',CMOdict);
+[AStarJ,LJ] = systemJSetup(sysA,CJ,eigenvalueOptions,'J',CMOdict);
+[AStarP,LP] = systemJSetup(sysA,CP,eigenvalueOptions,'P',CMOdict);
 [ApLCJ,LCJ] = systemStarSetup(AStarJ,LJ,CJ,'J',CMOdict);
 [ApLCP,LCP] = systemStarSetup(AStarP,LP,CP,'P',CMOdict);
 
@@ -82,9 +82,6 @@ A32 = A23';
 ATilde = [sysA,   A21,   A31;
           -LCJ, ApLCJ,   A23;
           -LCP,   A32, ApLCP];
-
-ATilde = sparse(ATilde);
-
 
 Bstar = repmat(sysB,1+numJObservers+numPObservers,1);
 

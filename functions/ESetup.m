@@ -31,7 +31,7 @@ function E = ESetup(Bstar,LJ,LP,CMOdict)
         rowEnd   = rowStart + numOriginalStates-1;
         colStart = numOriginalInputs + (l-1)*numOutputsJObservers + 1;
         colEnd   = colStart + numOutputsJObservers - 1;
-        E(rowStart:rowEnd,colStart:colEnd) = -LJ((l-1)*numOriginalStates + 1:(l-1)*numOriginalStates + numOriginalStates ,:);
+        E(rowStart:rowEnd,colStart:colEnd) = -LJ(:,:,l);
     end
     % Add Lp's to central section
     for l = 1:1:numPObservers
@@ -39,7 +39,7 @@ function E = ESetup(Bstar,LJ,LP,CMOdict)
         rowEnd   = rowStart + numOriginalStates-1;
         colStart = numOriginalInputs + numJObservers*numOutputsJObservers + (l-1)*numOutputsPObservers + 1;
         colEnd   = colStart + numOutputsPObservers - 1;
-        E(rowStart:rowEnd,colStart:colEnd) = -LP((l-1)*numOriginalStates + 1:(l-1)*numOriginalStates + numOriginalStates ,:);
+        E(rowStart:rowEnd,colStart:colEnd) = -LP(:,:,l);
     end
 
     % Add In to right top slice

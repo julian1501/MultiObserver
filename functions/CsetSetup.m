@@ -38,7 +38,7 @@ function [Cset,CsetIndices] = CsetSetup(CN,setString,CMOdict)
     CsetIndices = nchoosek(outputList,numOutputsObserver);
     
     % Loop over the combinations and add them to the empty CJ
-    Cset = zeros(numOutputsObserver,numObservers*numStates);
+    Cset = zeros(numOutputsObserver,numStates,numObservers);
     for j = 1:1:numObservers
         % In every j of CJ
         selection = CsetIndices(j,:);
@@ -47,7 +47,7 @@ function [Cset,CsetIndices] = CsetSetup(CN,setString,CMOdict)
 
             % Select first row of Cj
             CNId = selection(k);
-            Cset(k,(j-1)*numStates+1:j*numStates) = CN(CNId,:);
+            Cset(k,:,j) = CN(CNId,:);
         end
 
     end

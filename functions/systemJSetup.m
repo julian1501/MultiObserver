@@ -1,4 +1,4 @@
-function [ATildeJ,LJ] = systemJSetup(A,B,CJ,eigenvalueOptions,setString,CMOdict)
+function [ATildeJ,LJ] = systemJSetup(A,CJ,eigenvalueOptions,setString,CMOdict)
     % [ATildeJ,BTildeJ,CTildeJ,DTildeJ,LJ] = 
     % systemJSetup(A,CJ,eigenvalueOptions,setString,CMOdict) sets up
     % large matrices that contain each system (ATildeJ, BTildeJ, CTildeJ,
@@ -31,10 +31,10 @@ function [ATildeJ,LJ] = systemJSetup(A,B,CJ,eigenvalueOptions,setString,CMOdict)
     [numObservers, numOutputsObserver] = selectObserverSpecs(setString,CMOdict);
 
     % Define the empty matrix (n*J*N x n*J*N) AJ. Where N is the number of outputs.
-    ATildeJ = zeros(numOriginalStates*numObservers,numOriginalStates*numObservers);
+    ATildeJ = zeros(numOriginalStates,numOriginalStates,numObservers);
 
     % Define the empty matrix (n x N*J) LJ. 
-    LJ = zeros(numOriginalStates*numObservers,numOutputsObserver);
+    LJ = zeros(numOriginalStates,numOutputsObserver,numObservers);
 
     % Determine the number of options for the eigenvalues
     options = size(eigenvalueOptions,2);
@@ -56,18 +56,18 @@ function [ATildeJ,LJ] = systemJSetup(A,B,CJ,eigenvalueOptions,setString,CMOdict)
             eigenvalues = selectRandomSubset(eigenvalueOptions,numOriginalStates);
         end
         % Select the observer for which to calculate the Aj + LjCj and Bi
-        Cj = CJ(:,(l-1)*numOriginalStates+1:l*numOriginalStates);
+        Cj = CJ(:,:,l);
         if ~isObsv(A,Cj)
             disp('A =')
             disp(A);
             disp('Cj =')
             disp(Cj)
-            error('The pair (A,Cj) is not observable')
+            error('A pair (A,Cj) is not observable')
         end
 
-        ATildeJ((l-1)*numOriginalStates+1:l*numOriginalStates , (l-1)*numOriginalStates+1:l*numOriginalStates) = A;
+        ATildeJ(:,:,l) = A;
         L = -place(A',Cj',eigenvalues)';
-        LJ((l-1)*(numOriginalStates)+1:(l-1)*(numOriginalStates) + numOriginalStates,:) = L;
+        LJ(:,:,l) = L;
         % Stability check
         if ~isMatrixStable(A+L*Cj)
             disp("The desired eigenvalues of A+LC")

@@ -1,5 +1,5 @@
 clearvars; close all;
-fprintf('\n -------------------------------------------------')
+fprintf(['\n' repmat('-',1,100) '\n'])
 inputs = inputDiaglog;
 
 sysNum = str2num(inputs{1});
@@ -9,7 +9,7 @@ if lower(inputs{3}) == 'max'
 else
     M = str2num(inputs{3});
 end
-eigenvalueOptions = str2num(inputs{4});
+eigenvalues = str2num(inputs{4});
 tspan = str2num(inputs{5});
 x0Options = str2num(inputs{6})';
 attackSignal = str2num(inputs{7});
@@ -41,6 +41,9 @@ sysD = sys.D;
 if ~isMatrixStable(sysA)
     warning('The system is unstable',sysName)
 end
+if numOriginalStates ~= size(eigenvalues,2)
+    error('The number of eigenvalues does not match the number of states.')
+end
 if sysD ~= 0
     error('Implementation for systems with D still needs work.')
 end
@@ -58,4 +61,12 @@ CMOdict('numOriginalStates')    = numOriginalStates;
 CMOdict('numOriginalInputs')    = numOriginalInputs;
 CMOdict('numOriginalOutputs')   = numOriginalOutputs;
 
+% Setup C matrices
+COutputs = CNSetup(sys,numOutputs);
+[CJ,CJIndices] = CsetSetup(COutputs,'J',CMOdict);
+[CP,CPIndices] = CsetSetup(COutputs,'P',CMOdict);
+
+% Setup system
+[AStarJ,LJ] = systemJSetup(sysA,sysB,CJ,eigenvalues,'J',CMOdict);
+[AStarP,LP] = systemJSetup(sysA,sysB,CP,eigenvalues,'P',CMOdict);
 
