@@ -1,6 +1,6 @@
 clearvars; close all;
 fprintf(['\n' repmat('-',1,100) '\n'])
-inputs = inputDiaglog;
+inputs = inputDiaglog(false);
 
 sysNum = str2num(inputs{1});
 numOutputs = str2num(inputs{2});
@@ -68,40 +68,28 @@ CMOstruct.numOfPsubsetsInJ = numOfPsubsetsInJ;
 
 [AStarJ,LJ] = systemJSetup(sysA,CJ,eigenvalueOptions,'J',CMOstruct);
 [AStarP,LP] = systemJSetup(sysA,CP,eigenvalueOptions,'P',CMOstruct);
-[ApLCJ,LCJ] = systemStarSetup(AStarJ,LJ,CJ,'J',CMOstruct);
-[ApLCP,LCP] = systemStarSetup(AStarP,LP,CP,'P',CMOstruct);
-
-% Astar matrix subblocks
-A21 = zeros(numOriginalStates,numJObservers*numOriginalStates);
-A31 = zeros(numOriginalStates,numPObservers*numOriginalStates);
-A23 = zeros(numJObservers*numOriginalStates,numPObservers*numOriginalStates);
-A32 = A23';
+[ApLCJ,LCJ] = systemStarSetup3D(AStarJ,LJ,CJ,'J',CMOstruct);
+[ApLCP,LCP] = systemStarSetup3D(AStarP,LP,CP,'P',CMOstruct);
 
 
-ATilde = [sysA,   A21,   A31;
-          -LCJ, ApLCJ,   A23;
-          -LCP,   A32, ApLCP];
+% Create page arrays of each ApLC
+ApLC = cat(3,sysA,ApLCJ,ApLCP);
+LC   = cat(3,zeros(size(LCJ(:,:,1))),LCJ,LCP);
 
-Bstar = repmat(sysB,1+numJObservers+numPObservers,1);
-
-CMOstruct.numCMOStates = size(ATilde,1);
-
-% Generate attack signals
-[setA, setB] = selectAB(CMOstruct);
-E = ESetup(Bstar,LJ,LP,CMOstruct);
-eta = etaSetup(setA,CJIndices,CPIndices,attackSignal,CMOstruct);
+CMOstruct.numSystems = numJObservers+numPObservers+1;
+% Bstar = repmat(sysB,1+numJObservers+numPObservers,1);
 
 % Initial condition is the first n elements of x0Options, xhat initial
 % conditions are always 0
 if size(x0Options,1) < numOriginalStates
     error('There are more states than initial conditions.')
 end
-x0 = zeros((numJObservers+numPObservers+1)*numOriginalStates ,1);
-x0(1:numOriginalStates,1) = x0Options(1:numOriginalStates,1);
+x0 = zeros(numOriginalStates,1,numJObservers+numPObservers+1);
+x0(:,:,1) = x0Options(1:numOriginalStates,1);
 
 
 % solve system
-[t,x] = ode45(@(t,x) ssCMOodeFunSetup(t,x,eta,ATilde,E,PsubsetOfJIndices,CMOstruct),tspan,x0);
+[t,x] = ode45(@(t,x) ss3DMOodeFunSetup(x,ApLC,LC,PsubsetOfJIndices,CMOstruct),tspan,x0);
 t = t';
 x = x';
 

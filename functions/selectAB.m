@@ -1,4 +1,4 @@
-function [corruptA,corruptB,uncorrupt] = selectAB(CMOdict)
+function [corruptA,corruptB,uncorrupt] = selectAB(CMOstruct)
     % [corruptA,corruptB,uncorrupt] = selectAB(CMOdict) selects two sets
     % (A,B)
     % sized M out of the set 1:1:numOutputs.
@@ -10,8 +10,8 @@ function [corruptA,corruptB,uncorrupt] = selectAB(CMOdict)
     %          corruptB  = [6,7,8,9,10]
     %          uncorrupt = [11,12]
 
-    numOutputs = CMOdict('numOutputs');
-    M = CMOdict("M");
+    numOutputs = CMOstruct.numOutputs;
+    M = CMOstruct.numAttackedOutputs;
     outputSet = 1:1:numOutputs;
     
     % Select the first M outputs to be in set A

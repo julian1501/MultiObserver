@@ -68,48 +68,41 @@ CMOstruct.numOfPsubsetsInJ = numOfPsubsetsInJ;
 
 [AStarJ,LJ] = systemJSetup(sysA,CJ,eigenvalueOptions,'J',CMOstruct);
 [AStarP,LP] = systemJSetup(sysA,CP,eigenvalueOptions,'P',CMOstruct);
-[ApLCJ,LCJ] = systemStarSetup(AStarJ,LJ,CJ,'J',CMOstruct);
-[ApLCP,LCP] = systemStarSetup(AStarP,LP,CP,'P',CMOstruct);
+[ApLCJ,LCJ] = systemStarSetup3D(AStarJ,LJ,CJ,'J',CMOstruct);
+[ApLCP,LCP] = systemStarSetup3D(AStarP,LP,CP,'P',CMOstruct);
 
-% Astar matrix subblocks
-A21 = zeros(numOriginalStates,numJObservers*numOriginalStates);
-A31 = zeros(numOriginalStates,numPObservers*numOriginalStates);
-A23 = zeros(numJObservers*numOriginalStates,numPObservers*numOriginalStates);
-A32 = A23';
-
-
-ATilde = [sysA,   A21,   A31;
-          -LCJ, ApLCJ,   A23;
-          -LCP,   A32, ApLCP];
+ApLC = cat(3,sysA,ApLCJ,ApLCP);
+LC   = cat(3,zeros(size(LCJ(:,:,1))),LCJ,LCP);
 
 Bstar = repmat(sysB,1+numJObservers+numPObservers,1);
 
-CMOstruct.numCMOStates = size(ATilde,1);
 
-% Generate attack signals
-[setA, setB] = selectAB(CMOstruct);
-E = ESetup(Bstar,LJ,LP,CMOstruct);
-eta = etaSetup(setA,CJIndices,CPIndices,attackSignal,CMOstruct);
+clear AStarJ BTildeJ CTildeJ DTildeJ LJ
+clear AStarP BTildeP CTildeP DTildeP LP
+clear A21 A31 A23 A32 ApLCJ ApLCP LCJ LCP
+
+
+
 
 % Initial condition is the first n elements of x0Options, xhat initial
 % conditions are always 0
 if size(x0Options,1) < numOriginalStates
     error('There are more states than initial conditions.')
 end
-x0 = zeros((numJObservers+numPObservers+1)*numOriginalStates ,1);
-x0(1:numOriginalStates,1) = x0Options(1:numOriginalStates,1);
+x0 = zeros(numOriginalStates,1,numJObservers+numPObservers+1);
+x0(:,:,1) = x0Options(1:numOriginalStates,1);
 
 
 % solve system
-[t,x] = ode45(@(t,x) ssCMOodeFunSetup(t,x,eta,ATilde,E,PsubsetOfJIndices,CMOstruct),tspan,x0);
+[t,x,estimate] = ode45(@(t,x) ss3DMOodeFunSetup(x,ApLC,LC,PsubsetOfJIndices,CMOstruct),tspan,x0);
 t = t';
 x = x';
 
 % find estimate after the fact, the estimate is also found at each timestep
 % within the ssODEfunSetup for feedback purposes
-steps = size(x,2);
-[estimate, whichJobserver] = selectBestEstimate(x,steps,PsubsetOfJIndices,CMOstruct);
-err = x(1:numOriginalStates,:) - estimate;
+% steps = size(x,2);
+% [estimate, whichJobserver] = selectBestEstimate(x,steps,PsubsetOfJIndices,CMOstruct);
+err = x - estimate;
 fprintf('The error at the final time step is: %2.20f \n',err(:,end))
 
 MOplot(t,x,err,estimate,sysName,CMOstruct);

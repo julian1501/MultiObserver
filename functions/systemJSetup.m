@@ -1,4 +1,4 @@
-function [ATildeJ,LJ] = systemJSetup(A,CJ,eigenvalueOptions,setString,CMOdict)
+function [ATildeJ,LJ] = systemJSetup(A,CJ,eigenvalueOptions,setString,CMOstruct)
     % [ATildeJ,BTildeJ,CTildeJ,DTildeJ,LJ] = 
     % systemJSetup(A,CJ,eigenvalueOptions,setString,CMOdict) sets up
     % large matrices that contain each system (ATildeJ, BTildeJ, CTildeJ,
@@ -27,8 +27,8 @@ function [ATildeJ,LJ] = systemJSetup(A,CJ,eigenvalueOptions,setString,CMOdict)
     %                -0.5   -4     -0.5 ;
     %                -1.75  25     -1.75]
 
-    numOriginalStates = CMOdict('numOriginalStates');
-    [numObservers, numOutputsObserver] = selectObserverSpecs(setString,CMOdict);
+    numOriginalStates = CMOstruct.numOriginalStates;
+    [numObservers, numOutputsObserver] = selectObserverSpecs(setString,CMOstruct);
 
     % Define the empty matrix (n*J*N x n*J*N) AJ. Where N is the number of outputs.
     ATildeJ = zeros(numOriginalStates,numOriginalStates,numObservers);

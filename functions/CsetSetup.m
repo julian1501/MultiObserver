@@ -1,4 +1,4 @@
-function [Cset,CsetIndices] = CsetSetup(CN,setString,CMOdict)
+function [Cset,CsetIndices] = CsetSetup(CN,setString,CMOstruct)
     % [Cset, CsetIndices] =
     % CsetSetup(CN,sizeObserver,numOutputs,numObservers) sets up a matrix
     % with all observers with outputs a subset of CN. The cardinality of
@@ -23,16 +23,13 @@ function [Cset,CsetIndices] = CsetSetup(CN,setString,CMOdict)
     %                  0 0 0 1]
     %       -> CsetIndices = [1 2 3; 1 2 4; 1 3 4; 2 3 4];
     
-
-    % Extract values from CMOdict
-    numOutputs = CMOdict("numOutputs");
-    [numObservers, numOutputsObserver] = selectObserverSpecs(setString,CMOdict);
+    [numObservers, numOutputsObserver] = selectObserverSpecs(setString,CMOstruct);
 
     % Extract the number of states
     numStates = size(CN,2);
 
     % Define a list with all indices, so 1,2,...,N
-    outputList = 1:1:numOutputs;
+    outputList = 1:1:CMOstruct.numOutputs;
     
     % Select the indices of the combinations of Cj's
     CsetIndices = nchoosek(outputList,numOutputsObserver);

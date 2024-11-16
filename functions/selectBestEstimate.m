@@ -1,4 +1,4 @@
-function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,PsubsetOfJIndices,CMOdict)
+function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,PsubsetOfJIndices,CMOstruct)
     % [bestEstimate, jBestEstimate] = 
     % selectBestEstimate(x,tsteps,PsubsetOfJIndices,CMOdict) selects the
     % best estimate bestStateEstimate (xhat) from subobservers OP out of J 
@@ -31,42 +31,37 @@ function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,Psubse
     %     PSubsetOfJIndices = [1 2; 1 3; 2 3]
     %       -> bestEstimate  = [-0.0755; -0.9336]
     %          jbestEstimate = 2
-
-
-    % Extract specs from CMOdict
-    numOriginalStates = CMOdict('numOriginalStates');
-    numJObservers = CMOdict('numJObservers');
-    numPObservers = CMOdict('numPObservers');
-    numOfPsubsetsInJ = CMOdict('numOfPsubsetsInJ');
     
+    numOriginalStates = 
+
     % xJ contains the states of the J observers
-    xJ = x(numOriginalStates+1:(1+numJObservers)*numOriginalStates,:);
+    xJ = x(CMOstruct.numOriginalStates+1:(1+CMOstruct.numJObservers)*CMOstruct.numOriginalStates,:);
     % xP contains the states of the P observers
-    xP = x((1+numJObservers)*numOriginalStates+1:(1+numJObservers+numPObservers)*numOriginalStates,:);
+    xP = x((1+CMOstruct.numJObservers)*CMOstruct.numOriginalStates+1:(1+CMOstruct.numJObservers+CMOstruct.numPObservers)*CMOstruct.numOriginalStates,:);
     
     % Initialize PiJ, the array that will house all Pi j (the maximum
     % difference between a J observer and all its P observers).
-    PiJ = zeros(numJObservers,1);
+    PiJ = zeros(CMOstruct.numJObservers,1);
 
     % create emtpy array to store best estimate and which j supplies it
-    bestStateEstimate = zeros(numOriginalStates,tsteps);
+    bestStateEstimate = zeros(CMOstruct.numOriginalStates,tsteps);
     jBestEstimate = zeros(1,tsteps);
     
     for t = 1:1:tsteps
-        for j = 1:1:numJObservers
-            xj = xJ((j-1)*numOriginalStates+1:j*numOriginalStates,t);
+        for j = 1:1:CMOstruct.numJObservers
+            xj = xJ((j-1)*CMOstruct.numOriginalStates+1:j*CMOstruct.numOriginalStates,t);
             % select the row of PsubsetOfJIndices that contains the ids of
             % p that are a subset of J
             pSubsetofjIndices = PsubsetOfJIndices(j,:);
             % diflist will store the difference between solj and all its
             % subsets solp
-            difflist = zeros(numOfPsubsetsInJ,1);
+            difflist = zeros(CMOstruct.numOfPsubsetsInJ,1);
             % Loop over the P observers that are a subset of j
-            for p = 1:1:numOfPsubsetsInJ
+            for p = 1:1:CMOstruct.numOfPsubsetsInJ
                 % select the index of p that will be checked
                 pIndex = pSubsetofjIndices(p);
                 % select the solution of p that corresponds to this index
-                xp = xP((pIndex-1)*numOriginalStates+1:pIndex*numOriginalStates,t);
+                xp = xP((pIndex-1)*CMOstruct.numOriginalStates+1:pIndex*CMOstruct.numOriginalStates,t);
                 % calculate and store the difference between solj and solp
                 dif = norm(xj-xp);
                 difflist(p,:) = dif;
@@ -84,7 +79,7 @@ function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,Psubse
         jBestEstimateTstep = find(PiJ==min(PiJ));
         jBestEstimateTstep = jBestEstimateTstep(1);
         jBestEstimate(:,t) = jBestEstimateTstep;
-        bestEstimateTstep = xJ((jBestEstimateTstep-1)*numOriginalStates+1:jBestEstimateTstep*numOriginalStates,t);
+        bestEstimateTstep = xJ((jBestEstimateTstep-1)*CMOstruct.numOriginalStates+1:jBestEstimateTstep*CMOstruct.numOriginalStates,t);
         bestStateEstimate(:,t) = bestEstimateTstep;
 
     end
