@@ -39,7 +39,7 @@ function MOplot(t,x,err,estimate,sysName,MOstruct)
         subplot(numberOfRows,numberOfColumns,l);
         
         % plot all p and j estimators
-        for k=1:1:max(15,MOstruct.numJObservers)
+        for k=1:1:min(5,MOstruct.numJObservers)
             plot(t,JEstimates((k-1)*numOriginalStates+l,:),LineStyle="--",Color='red')
             hold on;
             if k < MOstruct.numPObservers

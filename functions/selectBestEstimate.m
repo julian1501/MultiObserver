@@ -31,8 +31,7 @@ function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,Psubse
     %     PSubsetOfJIndices = [1 2; 1 3; 2 3]
     %       -> bestEstimate  = [-0.0755; -0.9336]
     %          jbestEstimate = 2
-    
-    numOriginalStates = 
+
 
     % xJ contains the states of the J observers
     xJ = x(CMOstruct.numOriginalStates+1:(1+CMOstruct.numJObservers)*CMOstruct.numOriginalStates,:);
@@ -48,8 +47,10 @@ function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,Psubse
     jBestEstimate = zeros(1,tsteps);
     
     for t = 1:1:tsteps
+        xJ3D = reshape(xJ(:,t),CMOstruct.numOriginalStates,1,[]);
+        xP3D = reshape(xP(:,t),CMOstruct.numOriginalStates,1,[]);
         for j = 1:1:CMOstruct.numJObservers
-            xj = xJ((j-1)*CMOstruct.numOriginalStates+1:j*CMOstruct.numOriginalStates,t);
+            xj = xJ3D(:,:,j);
             % select the row of PsubsetOfJIndices that contains the ids of
             % p that are a subset of J
             pSubsetofjIndices = PsubsetOfJIndices(j,:);
@@ -61,7 +62,7 @@ function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,Psubse
                 % select the index of p that will be checked
                 pIndex = pSubsetofjIndices(p);
                 % select the solution of p that corresponds to this index
-                xp = xP((pIndex-1)*CMOstruct.numOriginalStates+1:pIndex*CMOstruct.numOriginalStates,t);
+                xp = xP3D(:,:,pIndex);
                 % calculate and store the difference between solj and solp
                 dif = norm(xj-xp);
                 difflist(p,:) = dif;

@@ -1,6 +1,6 @@
 clearvars; close all;
 fprintf(['\n' repmat('-',1,100) '\n'])
-inputs = inputDiaglog(false);
+inputs = inputDiaglog(true);
 
 sysNum = str2num(inputs{1});
 numOutputs = str2num(inputs{2});
@@ -13,6 +13,10 @@ eigenvalueOptions = str2num(inputs{4});
 tspan = str2num(inputs{5});
 x0Options = str2num(inputs{6})';
 attackSignal = str2num(inputs{7});
+
+% setup the attack
+syms attackFunction(symt)
+attackFunction(symt) = attackSignal;
 
 %% CALCULATIONS
 fprintf('The number of outputs is %3.0f: \n',numOutputs)
@@ -39,12 +43,11 @@ sysC = sys.C;
 numOriginalOutputs = size(sysC,1);
 sysD = sys.D;
 if ~isMatrixStable(sysA)
-    warning('The system is unstable',sysName)
+    warning('The system is unstable')
 end
 if sysD ~= 0
     error('Implementation for systems with D still needs work.')
 end
-
 
 % define a dictionary that stores all info
 CMOstruct.numOutputs              = numOutputs;
@@ -57,10 +60,14 @@ CMOstruct.numOriginalStates       = numOriginalStates;
 CMOstruct.numOriginalInputs       = numOriginalInputs;
 CMOstruct.numOriginalOutputs      = numOriginalOutputs;
 
-% Setup C matrices
+% Define system input
+u = zeros(CMOstruct.numOriginalInputs,1);
+
+% Setup outputs and noise 
 COutputs = CNSetup(sys,numOutputs);
-[CJ,CJIndices] = CsetSetup(COutputs,'J',CMOstruct);
-[CP,CPIndices] = CsetSetup(COutputs,'P',CMOstruct);
+attack = attackSetup(attackSignal,CMOstruct);
+[CJ,CJIndices,JAttack] = CsetSetup(COutputs,attack,'J',CMOstruct);
+[CP,CPIndices,PAttack] = CsetSetup(COutputs,attack,'P',CMOstruct);
 
 % find which p observers are subsets of each j observer
 [numOfPsubsetsInJ, PsubsetOfJIndices] = findIndices(CJIndices,CPIndices,CMOstruct);
@@ -71,12 +78,23 @@ CMOstruct.numOfPsubsetsInJ = numOfPsubsetsInJ;
 [ApLCJ,LCJ] = systemStarSetup3D(AStarJ,LJ,CJ,'J',CMOstruct);
 [ApLCP,LCP] = systemStarSetup3D(AStarP,LP,CP,'P',CMOstruct);
 
+% Pad the right side of LP with zeros to match the cross sectional size of
+% LJ
+padding = zeros(numOriginalStates,numOutputsJObservers-numOutputsPObservers,numPObservers);
+LP0 = cat(2,LP,padding);
+padding = zeros(numOutputsJObservers-numOutputsPObservers,1,numPObservers);
+PAttack0 = cat(1,PAttack,padding);
 
 % Create page arrays of each ApLC
-ApLC = cat(3,sysA,ApLCJ,ApLCP);
-LC   = cat(3,zeros(size(LCJ(:,:,1))),LCJ,LCP);
-
 CMOstruct.numSystems = numJObservers+numPObservers+1;
+ApLC3D = cat(3,sysA,ApLCJ,ApLCP);
+LC3D   = cat(3,zeros(size(LCJ(:,:,1))),LCJ,LCP);
+L3D    = cat(3,zeros(size(LJ(:,:,1))),LJ,LP0);
+attack3D = cat(3,zeros(size(JAttack(:,:,1))),JAttack,PAttack0);
+B3D    = repmat(sysB,1,1,CMOstruct.numSystems);
+u3D    = repmat(u,1,1,CMOstruct.numSystems);
+
+
 % Bstar = repmat(sysB,1+numJObservers+numPObservers,1);
 
 % Initial condition is the first n elements of x0Options, xhat initial
@@ -89,7 +107,7 @@ x0(:,:,1) = x0Options(1:numOriginalStates,1);
 
 
 % solve system
-[t,x] = ode45(@(t,x) ss3DMOodeFunSetup(x,ApLC,LC,PsubsetOfJIndices,CMOstruct),tspan,x0);
+[t,x] = ode45(@(t,x) ss3DMOodeFunSetup(t,x,u3D,attack3D,ApLC3D,B3D,LC3D,L3D,attackFunction,PsubsetOfJIndices,CMOstruct),tspan,x0);
 t = t';
 x = x';
 
