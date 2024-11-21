@@ -1,6 +1,6 @@
 clearvars; close all;
 fprintf(['\n' repmat('-',1,100) '\n'])
-inputs = inputDiaglog;
+inputs = inputDiaglog(true);
 
 sysNum = str2num(inputs{1});
 numOutputs = str2num(inputs{2});
@@ -9,10 +9,14 @@ if lower(inputs{3}) == 'max'
 else
     numAttackedOutputs = str2num(inputs{3});
 end
-eigenvalueOptions = str2num(inputs{4});
-tspan = str2num(inputs{5});
-x0Options = str2num(inputs{6})';
-attackSignal = str2num(inputs{7});
+if lower(inputs{3}) == 'max'
+    numOutputsPObservers = numOutputs-2*numAttackedOutputs;
+else
+    numOutputsPObservers = str2num(inputs{3});
+end
+eigenvalueOptions = str2num(inputs{5});
+tspan = str2num(inputs{6});
+x0Options = str2num(inputs{7})';
 
 %% CALCULATIONS
 fprintf('The number of outputs is %3.0f: \n',numOutputs)
@@ -21,7 +25,6 @@ fprintf('The number of outputs is %3.0f: \n',numOutputs)
 fprintf('The maximum allowable number of compromised outputs %3.0f: \n',numAttackedOutputs)
 numOutputsJObservers = numOutputs-numAttackedOutputs;
 fprintf('The size of each J observer is: %3.0f \n',numOutputsJObservers)
-numOutputsPObservers = numOutputs-2*numAttackedOutputs;
 fprintf('The size of each P observer is: %3.0f \n',numOutputsPObservers)
 numJObservers = nchoosek(numOutputs,numOutputsJObservers);
 fprintf('The number of J observers is: %3.0f \n',numJObservers)
@@ -48,7 +51,7 @@ end
 
 % define a dictionary that stores all info
 CMOstruct.numOutputs              = numOutputs;
-CMOstruct.numAttackedOutputs         = numAttackedOutputs;
+CMOstruct.numAttackedOutputs      = numAttackedOutputs;
 CMOstruct.numOutputsJObservers    = numOutputsJObservers;
 CMOstruct.numJObservers           = numJObservers;
 CMOstruct.numOutputsPObservers    = numOutputsPObservers;
@@ -59,8 +62,9 @@ CMOstruct.numOriginalOutputs      = numOriginalOutputs;
 
 % Setup C matrices
 COutputs = CNSetup(sys,numOutputs);
-[CJ,CJIndices] = CsetSetup(COutputs,'J',CMOstruct);
-[CP,CPIndices] = CsetSetup(COutputs,'P',CMOstruct);
+attack = attackSetup(CMOstruct);
+[CJ,CJIndices] = CsetSetup(COutputs,attack,'J',CMOstruct);
+[CP,CPIndices] = CsetSetup(COutputs,attack,'P',CMOstruct);
 
 % find which p observers are subsets of each j observer
 [numOfPsubsetsInJ, PsubsetOfJIndices] = findIndices(CJIndices,CPIndices,CMOstruct);
@@ -89,7 +93,7 @@ CMOstruct.numCMOStates = size(ATilde,1);
 % Generate attack signals
 [setA, setB] = selectAB(CMOstruct);
 E = ESetup(Bstar,LJ,LP,CMOstruct);
-eta = etaSetup(setA,CJIndices,CPIndices,attackSignal,CMOstruct);
+eta = etaSetup(setA,CJIndices,CPIndices,1,CMOstruct);
 
 % Initial condition is the first n elements of x0Options, xhat initial
 % conditions are always 0

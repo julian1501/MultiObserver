@@ -9,14 +9,15 @@ if lower(inputs{3}) == 'max'
 else
     numAttackedOutputs = str2num(inputs{3});
 end
-eigenvalueOptions = str2num(inputs{4});
-tspan = str2num(inputs{5});
-x0Options = str2num(inputs{6})';
-attackSignal = str2num(inputs{7});
+if lower(inputs{4}) == 'max'
+    numOutputsPObservers = numOutputs-2*numAttackedOutputs;
+else
+    numOutputsPObservers = str2num(inputs{4});
+end
+eigenvalueOptions = str2num(inputs{5});
+tspan = str2num(inputs{6});
+x0Options = str2num(inputs{7})';
 
-% setup the attack
-syms attackFunction(symt)
-attackFunction(symt) = attackSignal;
 
 %% CALCULATIONS
 fprintf('The number of outputs is %3.0f: \n',numOutputs)
@@ -25,7 +26,6 @@ fprintf('The number of outputs is %3.0f: \n',numOutputs)
 fprintf('The maximum allowable number of compromised outputs %3.0f: \n',numAttackedOutputs)
 numOutputsJObservers = numOutputs-numAttackedOutputs;
 fprintf('The size of each J observer is: %3.0f \n',numOutputsJObservers)
-numOutputsPObservers = numOutputs-2*numAttackedOutputs;
 fprintf('The size of each P observer is: %3.0f \n',numOutputsPObservers)
 numJObservers = nchoosek(numOutputs,numOutputsJObservers);
 fprintf('The number of J observers is: %3.0f \n',numJObservers)
@@ -51,7 +51,7 @@ end
 
 % define a dictionary that stores all info
 CMOstruct.numOutputs              = numOutputs;
-CMOstruct.numAttackedOutputs         = numAttackedOutputs;
+CMOstruct.numAttackedOutputs      = numAttackedOutputs;
 CMOstruct.numOutputsJObservers    = numOutputsJObservers;
 CMOstruct.numJObservers           = numJObservers;
 CMOstruct.numOutputsPObservers    = numOutputsPObservers;
@@ -65,7 +65,7 @@ u = zeros(CMOstruct.numOriginalInputs,1);
 
 % Setup outputs and noise 
 COutputs = CNSetup(sys,numOutputs);
-attack = attackSetup(attackSignal,CMOstruct);
+attack = attackSetup(CMOstruct);
 [CJ,CJIndices,JAttack] = CsetSetup(COutputs,attack,'J',CMOstruct);
 [CP,CPIndices,PAttack] = CsetSetup(COutputs,attack,'P',CMOstruct);
 
@@ -73,10 +73,10 @@ attack = attackSetup(attackSignal,CMOstruct);
 [numOfPsubsetsInJ, PsubsetOfJIndices] = findIndices(CJIndices,CPIndices,CMOstruct);
 CMOstruct.numOfPsubsetsInJ = numOfPsubsetsInJ;
 
-[AStarJ,LJ] = systemJSetup(sysA,CJ,eigenvalueOptions,'J',CMOstruct);
-[AStarP,LP] = systemJSetup(sysA,CP,eigenvalueOptions,'P',CMOstruct);
-[ApLCJ,LCJ] = systemStarSetup3D(AStarJ,LJ,CJ,'J',CMOstruct);
-[ApLCP,LCP] = systemStarSetup3D(AStarP,LP,CP,'P',CMOstruct);
+[AJ,LJ] = systemJSetup(sysA,CJ,eigenvalueOptions,'J',CMOstruct);
+[AP,LP] = systemJSetup(sysA,CP,eigenvalueOptions,'P',CMOstruct);
+[ApLCJ,LCJ] = systemStarSetup3D(AJ,LJ,CJ,'J',CMOstruct);
+[ApLCP,LCP] = systemStarSetup3D(AP,LP,CP,'P',CMOstruct);
 
 % Pad the right side of LP with zeros to match the cross sectional size of
 % LJ
@@ -94,9 +94,6 @@ attack3D = cat(3,zeros(size(JAttack(:,:,1))),JAttack,PAttack0);
 B3D    = repmat(sysB,1,1,CMOstruct.numSystems);
 u3D    = repmat(u,1,1,CMOstruct.numSystems);
 
-
-% Bstar = repmat(sysB,1+numJObservers+numPObservers,1);
-
 % Initial condition is the first n elements of x0Options, xhat initial
 % conditions are always 0
 if size(x0Options,1) < numOriginalStates
@@ -107,7 +104,7 @@ x0(:,:,1) = x0Options(1:numOriginalStates,1);
 
 
 % solve system
-[t,x] = ode45(@(t,x) ss3DMOodeFunSetup(t,x,u3D,attack3D,ApLC3D,B3D,LC3D,L3D,attackFunction,PsubsetOfJIndices,CMOstruct),tspan,x0);
+[t,x] = ode45(@(t,x) ss3DMOodeFunSetup(t,x,u3D,attack3D,ApLC3D,B3D,LC3D,L3D,PsubsetOfJIndices,CMOstruct),tspan,x0);
 t = t';
 x = x';
 

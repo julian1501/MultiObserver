@@ -1,6 +1,0 @@
-function attack = getAttackValue(t,a,attackFunction,CMOstruct)
-
-    a = a(:);
-    for i = 1:1:size(a,1)
-    
-end

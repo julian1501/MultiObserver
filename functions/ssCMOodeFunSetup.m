@@ -4,5 +4,5 @@ function [dx,xhat] = ssCMOodeFunSetup(t,x,eta,A,E,PsubsetOfJIndices,CMOstruct)
     % that time.
     
     xhat = selectBestEstimate(x,1,PsubsetOfJIndices,CMOstruct);
-    dx = A*x; % + E*eta;
+    dx = A*x + E*eta;
 end
