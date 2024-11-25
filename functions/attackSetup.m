@@ -7,7 +7,7 @@ function attack =  attackSetup(CMOstruct)
     attack = zeros(CMOstruct.numOutputs,1);
     for i = 1:1:CMOstruct.numAttackedOutputs
         outputA = attackedOuptutsA(i);
-        attack(outputA) = 1;
+        attack(outputA) = randi(2,1);
     end
 
 end
