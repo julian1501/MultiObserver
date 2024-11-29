@@ -52,8 +52,10 @@ function [ATildeJ,LJ] = systemJSetup(A,CJ,eigenvalueOptions,setString,MOstruct)
         % Select n eigenvalues out of eigenvalueOptions if the number of
         % options is larger then n. If the number of options is smaller
         % then n, throw an error.
-        if options >= numOriginalStates
+        if options > numOriginalStates
             eigenvalues = selectRandomSubset(eigenvalueOptions,numOriginalStates);
+        elseif options == numOriginalStates
+            eigenvalues = eigenvalueOptions;
         end
         % Select the observer for which to calculate the Aj + LjCj and Bi
         Cj = CJ(:,:,l);

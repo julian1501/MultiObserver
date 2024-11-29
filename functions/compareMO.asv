@@ -1,12 +1,14 @@
-function score = compareMO(x1,x2,t1,t2)
-    % 
+function score = compareMO
+    input = false;
+    plot = false;
+    [x1,t1] = CMO3D(input,plot);
+    [x2,t2] = SSMO(input,plot);
     tCommon = linspace(min([t1,t2]),max([t1,t2]),1000);
     x1Interp = interp1(t1,x1',tCommon,"spline")';
     x2Interp = interp1(t2,x2',tCommon,"spline")';
     
     diff = x1Interp - x2Interp;
-    score = norm(diff,2);
-
+    score = max(max(diff));
     disp(score)
     if score < 1e-3
         disp('Tolerance within numerical tolerance.')

@@ -1,6 +1,7 @@
+
 clearvars; close all;
 fprintf(['\n' repmat('-',1,100) '\n'])
-inputs = inputDiaglog(false);
+inputs = inputDiaglog(true);
 
 sysNum = str2num(inputs{1});
 numOutputs = str2num(inputs{2});

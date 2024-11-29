@@ -3,7 +3,7 @@ function LTilde = pad3DL(L3D,CIndices,setString,CMOstruct)
     % matrix of all padded L matrices placed behind each other in the third
     % dimension.
 
-    [numObservers, numOutputsObserver] = selectObserverSpecs(setString,CMOstruct);
+    [numObservers, ~] = selectObserverSpecs(setString,CMOstruct);
     
     LTilde = zeros(CMOstruct.numOriginalStates,CMOstruct.numOutputs,numObservers);
 

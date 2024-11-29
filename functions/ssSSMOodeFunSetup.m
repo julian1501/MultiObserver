@@ -7,8 +7,9 @@ function [ds] = ssSSMOodeFunSetup(t,s,a,sysA,ssmoA,ssmoB,C,T,PsubsetOfJIndices,M
     z = s(l+1:end);
     y = C*s(1:l);
     attack = attackFunction(t,a);
-
-%     zhat = selectBestEstimate(z(:),1,PsubsetOfJIndices,MOstruct);
+    
+    xhat = pagemtimes(T,z);
+    zhat = selectBestEstimate(xhat(:),1,PsubsetOfJIndices,MOstruct);
 
     ds1 = sysA*x;
     ds2 = ssmoA*z - ssmoB*(y+attack);
