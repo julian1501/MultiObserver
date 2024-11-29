@@ -33,51 +33,46 @@ function [x,t] =  CMO3D(dialog,plot)
     fprintf('The number of P observers is: %3.0f \n',numPObservers)
     
     % Noiseless system definition
-    [sys,sysName] = xDampedSpringMassSetup(sysNum,[0.3 0.3 0.3 0.3 0.3 0.3],[5 5 5 5 5 5 ],[0.5 0.6 0.7 0.8 0.2 0.65]);
-    
-    sysA = sys.A;
-    numOriginalStates  = size(sysA,1);
-    sysB = sys.B;
-    numOriginalInputs  = size(sysB,2);
-    sysC = sys.C;
-    numOriginalOutputs = size(sysC,1);
-    sysD = sys.D;
-    if ~isMatrixStable(sysA)
+    sys = msd(true,sysNum,0.5,5,0.6);
+
+    if ~isMatrixStable(sys.A)
         warning('The system is unstable')
     end
-    if sysD ~= 0
+    if sys.D ~= 0
         error('Implementation for systems with D still needs work.')
     end
+
+    Attack = attack(numOutputs,numAttackedOutputs);
     
     % define a dictionary that stores all info
-    CMOstruct.numOutputs              = numOutputs;
-    CMOstruct.numAttackedOutputs      = numAttackedOutputs;
-    CMOstruct.numOutputsJObservers    = numOutputsJObservers;
-    CMOstruct.numJObservers           = numJObservers;
-    CMOstruct.numOutputsPObservers    = numOutputsPObservers;
-    CMOstruct.numPObservers           = numPObservers;
-    CMOstruct.numOriginalStates       = numOriginalStates;
-    CMOstruct.numOriginalInputs       = numOriginalInputs;
-    CMOstruct.numOriginalOutputs      = numOriginalOutputs;
-    CMOstruct.numSystems = numJObservers+numPObservers+1;
+    MOstruct.numOutputs              = numOutputs;
+    MOstruct.numAttackedOutputs      = numAttackedOutputs;
+    MOstruct.numOutputsJObservers    = numOutputsJObservers;
+    MOstruct.numJObservers           = numJObservers;
+    MOstruct.numOutputsPObservers    = numOutputsPObservers;
+    MOstruct.numPObservers           = numPObservers;
+    MOstruct.numOriginalStates       = sys.nx;
+    MOstruct.numOriginalInputs       = sys.nu;
+    MOstruct.numOriginalOutputs      = sys.ny;
+    MOstruct.numSystems = numJObservers+numPObservers+1;
     
     % Define system input
-    u = zeros(CMOstruct.numOriginalInputs,1);
+    u = zeros(MOstruct.numOriginalInputs,1);
     
     % Setup outputs and noise 
     COutputs = CNSetup(sys,numOutputs);
-    attack = attackSetup(CMOstruct);
-    [CJ,CJIndices,JAttack] = CsetSetup(COutputs,attack,'J',CMOstruct);
-    [CP,CPIndices,PAttack] = CsetSetup(COutputs,attack,'P',CMOstruct);
+    attack = attackSetup(MOstruct);
+    [CJ,CJIndices,JAttack] = CsetSetup(COutputs,attack,'J',MOstruct);
+    [CP,CPIndices,PAttack] = CsetSetup(COutputs,attack,'P',MOstruct);
     
     % find which p observers are subsets of each j observer
-    [numOfPsubsetsInJ, PsubsetOfJIndices] = findIndices(CJIndices,CPIndices,CMOstruct);
-    CMOstruct.numOfPsubsetsInJ = numOfPsubsetsInJ;
+    [numOfPsubsetsInJ, PsubsetOfJIndices] = findIndices(CJIndices,CPIndices,MOstruct);
+    MOstruct.numOfPsubsetsInJ = numOfPsubsetsInJ;
     
-    [AJ,LJ] = systemJSetup(sysA,CJ,eigenvalueOptions,'J',CMOstruct);
-    [AP,LP] = systemJSetup(sysA,CP,eigenvalueOptions,'P',CMOstruct);
-    [ApLCJ,LCJ] = systemStarSetup3D(AJ,LJ,CJ,'J',CMOstruct);
-    [ApLCP,LCP] = systemStarSetup3D(AP,LP,CP,'P',CMOstruct);
+    [AJ,LJ] = systemJSetup(sys.A,CJ,eigenvalueOptions,'J',MOstruct);
+    [AP,LP] = systemJSetup(sys.A,CP,eigenvalueOptions,'P',MOstruct);
+    [ApLCJ,LCJ] = systemStarSetup3D(AJ,LJ,CJ,'J',MOstruct);
+    [ApLCP,LCP] = systemStarSetup3D(AP,LP,CP,'P',MOstruct);
     
     % Pad the right side of LP with zeros to match the cross sectional size of
     % LJ
@@ -91,8 +86,8 @@ function [x,t] =  CMO3D(dialog,plot)
     LC3D   = cat(3,zeros(size(LCJ(:,:,1))),LCJ,LCP);
     L3D    = cat(3,zeros(size(LJ(:,:,1))),LJ,LP0);
     attack3D = cat(3,zeros(size(JAttack(:,:,1))),JAttack,PAttack0);
-    B3D    = repmat(sysB,1,1,CMOstruct.numSystems);
-    u3D    = repmat(u,1,1,CMOstruct.numSystems);
+    B3D    = repmat(sysB,1,1,MOstruct.numSystems);
+    u3D    = repmat(u,1,1,MOstruct.numSystems);
     
     % Initial condition is the first n elements of x0Options, xhat initial
     % conditions are always 0
@@ -104,19 +99,19 @@ function [x,t] =  CMO3D(dialog,plot)
     
     
     % solve system
-    [t,x] = ode45(@(t,x) ss3DMOodeFunSetup(t,x,u3D,attack3D,ApLC3D,B3D,LC3D,L3D,PsubsetOfJIndices,CMOstruct),tspan,x0);
+    [t,x] = ode45(@(t,x) ss3DMOodeFunSetup(t,x,u3D,attack3D,ApLC3D,B3D,LC3D,L3D,PsubsetOfJIndices,MOstruct),tspan,x0);
     t = t';
     x = x';
     
     % find estimate after the fact, the estimate is also found at each timestep
     % within the ssODEfunSetup for feedback purposes
     steps = size(x,2);
-    [estimate, ~] = selectBestEstimate(x,steps,PsubsetOfJIndices,CMOstruct);
+    [estimate, ~] = selectBestEstimate(x,steps,PsubsetOfJIndices,MOstruct);
     err = x(1:numOriginalStates,:) - estimate;
     fprintf('The error at the final time step is: %2.20f \n',err(:,end))
     
     if plot
-        MOplot(t,x,err,estimate,sysName,CMOstruct);
+        MOplot(t,x,err,estimate,sys.Name,MOstruct);
     end
 end
 
