@@ -25,6 +25,8 @@ classdef msd
         ny
         % number of inputs
         nu
+        % size of eventual x
+        xsize
     end
 
     methods

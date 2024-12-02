@@ -1,4 +1,4 @@
-function [ATilde,LC] = systemStarSetup3D(Aset,Lset,Cset,setString,CMOstruct)
+function [ApLCi,LCi] = systemStarSetup3D(mo)
     % [Aset,LC] = systemStarSetup(Aset,Lset,Cset,setString,CMOdict) sets up
     % the ATilde matrix that will be used to simulate the system and all
     % its observers. Aset is a matrix with copies of the original A along
@@ -18,20 +18,17 @@ function [ATilde,LC] = systemStarSetup3D(Aset,Lset,Cset,setString,CMOstruct)
     %                      0      0      0    A+L4C4]
     %          LC = [L1C1; L2C2; L3C3; L4C4]
     
-    numOriginalStates = CMOstruct.numOriginalStates;
-    [numObservers,~] = selectObserverSpecs(setString,CMOstruct);
-    
-    % Define Bstar
-    LC = zeros(numOriginalStates,numOriginalStates,numObservers);
+    % Define empty LC
+    LCi = zeros(mo.nx,mo.nx,mo.numObservers);
     
     % Create empty matrix to store A's on the diagonal
-    ATilde =  zeros(numOriginalStates,numOriginalStates,numObservers);
+    ApLCi =  zeros(mo.nx,mo.nx,mo.numObservers);
 
     % Add LjCj from Aj and place on the diagonal
-    for l = 1:1:numObservers
-        LCl = Lset(:,:,l)*Cset(:,:,l);
-        ATilde(:,:,l) = Aset(:,:,l) + LCl;
-        LC(:,:,l) = LCl;
+    for l = 1:1:mo.numObservers
+        LCl = mo.Li(:,:,l)*mo.Ci(:,:,l);
+        ApLCi(:,:,l) = mo.Ai(:,:,l) + LCl;
+        LCi(:,:,l) = LCl;
     end
 
 end

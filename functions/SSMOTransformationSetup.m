@@ -1,21 +1,19 @@
-function T = SSMOTransformationSetup(Ap,Bp,q,setString,MOstruct)
+function T = SSMOTransformationSetup(Ap,Bp,q,mo)
+       
+    a = mo.nx*mo.numOutputs;
+    c = mo.nx;
     
-    [numObservers, ~] = selectObserverSpecs(setString,MOstruct);
-    
-    a = MOstruct.numOriginalStates*MOstruct.numOutputs;
-    c = MOstruct.numOriginalStates;
-    
-    Rp = zeros(c,a,numObservers);
-    for i = 1:1:numObservers
+    Rp = zeros(c,a,mo.numObservers);
+    for i = 1:1:mo.numObservers
        Rp(:,:,i) = ctrb(Ap(:,:,i),Bp(:,:,i));
     end
 
-    I = eye(MOstruct.numOutputs);
-    RqValues = zeros(MOstruct.numOriginalStates);
+    I = eye(mo.numOutputs);
+    RqValues = zeros(mo.nx);
 
-    for i = 1:1:MOstruct.numOriginalStates
+    for i = 1:1:mo.nx
         newRow = [zeros(1,i-1) 1 q(1:end-1)];
-        RqValues(i,:) = newRow(1:MOstruct.numOriginalStates);
+        RqValues(i,:) = newRow(1:mo.nx);
     end
 
     % multiply all individual eigenvalues by the appropriatly sized
@@ -23,8 +21,8 @@ function T = SSMOTransformationSetup(Ap,Bp,q,setString,MOstruct)
     Rq = kron(RqValues,I);
 
     % Create all T matrices by multiplying Rp and Rq
-    T = zeros(MOstruct.numOriginalStates,MOstruct.numOutputs*MOstruct.numOriginalStates,numObservers);
-    for i = 1:1:numObservers
+    T = zeros(mo.nx,mo.numOutputs*mo.nx,mo.numObservers);
+    for i = 1:1:mo.numObservers
         T(:,:,i) = Rp(:,:,i)*Rq;
     end
 

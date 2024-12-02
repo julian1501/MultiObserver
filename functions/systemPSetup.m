@@ -1,16 +1,14 @@
-function [Ap,Bp] = systemPSetup(A,C,L,LTilde,setString,MOstruct)
+function [Ap,Bp] = systemPSetup(mo,Lpadded)
     % [Ap,Bp] = systemPSetup(A,C,LTilde,setString,CMOstruct) defines the Ap
     % and Bp matrices. Where each layer of Ap is
     % A(:,:,i)+L(:,:,i)*C(:,:,i). And Bp is LTilde when there is no
     % non-linearity.
     
-    [numObservers, ~] = selectObserverSpecs(setString,MOstruct);
-    
-    Ap = zeros(MOstruct.numOriginalStates,MOstruct.numOriginalStates,numObservers);
-    Bp = LTilde;
+    Ap = zeros(mo.nx,mo.nx,mo.numObservers);
+    Bp = Lpadded;
 
-    for i = 1:1:numObservers
-        Ap(:,:,i) = A(:,:,i) + L(:,:,i)*C(:,:,i);
+    for i = 1:1:mo.numObservers
+        Ap(:,:,i) = mo.Ai(:,:,i) + mo.Li(:,:,i)*mo.Ci(:,:,i);
     end
 
 end

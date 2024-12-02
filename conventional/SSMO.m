@@ -77,9 +77,7 @@ function [x,t] = SSMO(dialog,plot)
     [AJ,LJ] = systemJSetup(sysA,CJ,eigenvalues,'J',MOstruct);
     [AP,LP] = systemJSetup(sysA,CP,eigenvalues,'P',MOstruct);
 
-    % Pad the L matrices so that they are compatible with the full output
-    LJTilde = pad3DL(LJ,CJIndices,'J',MOstruct);
-    LPTilde = pad3DL(LP,CPIndices,'P',MOstruct);
+    
     
     % Define Ap and Bp for each observer
     [AJp,BJp] = systemPSetup(AJ,CJ,LJ,LJTilde,'J',MOstruct);

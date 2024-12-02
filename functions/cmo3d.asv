@@ -4,7 +4,7 @@ classdef cmo3d
 
     properties
         sys
-        numObservers
+        numSystems
         ApLC
         LC
         L
@@ -19,23 +19,23 @@ classdef cmo3d
             %UNTITLED9 Construct an instance of this class
             %   Detailed explanation goes here
             obj.sys = sys;
-            obj.numObservers = Jmo.numObservers + Pmo.numObservers;
             [ApLCJ,LCJ] = systemStarSetup3D(Jmo);
             [ApLCP,LCP] = systemStarSetup3D(Pmo);
 
             % Pad the right side of LP with zeros to match the cross sectional size of
             % LJ
-            padding = zeros(Jmo.nx,Jmo.numOutputsObservers-Pmo.numOutputsObservers,Pmo.numObservers);
-            PmoLPadded = cat(2,Pmo.Li,padding);
-            padding = zeros(Jmo.numOutputsObservers-Pmo.numOutputsObservers,1,Pmo.numObservers);
-            PAttackPadded = cat(1,Pmo.attack3d,padding);
+            padding = zeros(Jmo.nx,Jmo.numObservers-Pmo.numOutputsObservers,Pmo.numObservers);
+            LP0 = cat(2,LP,padding);
+            padding = zeros(numOutputsJObservers-numOutputsPObservers,1,numPObservers);
+            PAttackPadded = cat(1,Pmo.attack3D,padding);
 
             % Create page arrays of each ApLC
-            obj.ApLC = cat(3,ApLCJ,ApLCP);
-            obj.LC   = cat(3,LCJ,LCP);
-            obj.L    = cat(3,Jmo.Li,PmoLPadded);
-            obj.attack = cat(3,Jmo.attack3d,PAttackPadded);
-            obj.B    = repmat(sys.B,1,1,obj.numObservers);
+            obj.ApLC = cat(3,sysA,ApLCJ,ApLCP);
+            obj.LC   = cat(3,zeros(size(LCJ(:,:,1))),LCJ,LCP);
+            obj.L    = cat(3,zeros(size(LJ(:,:,1))),LJ,LP0);
+            obj.attack = cat(3,zeros(size(Jmo.attack3d(:,:,1))),Jmo.attack3d,PAttackPadded);
+            obj.B    = repmat(sysB,1,1,MOstruct.numSystems);
+            obj.u    = repmat(u,1,1,MOstruct.numSystems);
         end
 
     end

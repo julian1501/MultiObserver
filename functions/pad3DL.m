@@ -1,16 +1,14 @@
-function LTilde = pad3DL(L3D,CIndices,setString,CMOstruct)
+function Lpadded = pad3DL(mo)
     % LTilde = pad3DL(L3D,CIndices,setString,CMOstruct) creates the 3D
     % matrix of all padded L matrices placed behind each other in the third
     % dimension.
-
-    [numObservers, ~] = selectObserverSpecs(setString,CMOstruct);
     
-    LTilde = zeros(CMOstruct.numOriginalStates,CMOstruct.numOutputs,numObservers);
+    Lpadded = zeros(mo.nx,mo.numOutputs,mo.numObservers);
 
-    for c = 1:1:numObservers
-        L = L3D(:,:,c);
-        cIndices = CIndices(c,:);
-        LTilde(:,:,c) = padL(L,cIndices,CMOstruct.numOutputs);
+    for c = 1:1:mo.numObservers
+        L = mo.Li(:,:,c);
+        cIndices = mo.CiIndices(c,:);
+        Lpadded(:,:,c) = padL(L,cIndices,mo.numOutputs);
     end
 
 end

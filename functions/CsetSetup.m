@@ -1,4 +1,4 @@
-function [Cset,CsetIndices,setAttack] = CsetSetup(CN,attack,setString,CMOstruct)
+function [Cset,CsetIndices,setAttack] = CsetSetup(CN,Attack,obj)
     % [Cset, CsetIndices] =
     % CsetSetup(CN,sizeObserver,numOutputs,numObservers) sets up a 3D array
     % with all observers with outputs a subset of CN. The cardinality of
@@ -28,29 +28,28 @@ function [Cset,CsetIndices,setAttack] = CsetSetup(CN,attack,setString,CMOstruct)
     %          setAttack(:,:,1) = [1; 1; 0];
     %          setAttack(:,:,1) = [0; 1; 0];
     
-    [numObservers, numOutputsObserver] = selectObserverSpecs(setString,CMOstruct);
 
     % Extract the number of states
-    numStates = size(CN,2);
+    numStates = obj.sys.nx;
 
     % Define a list with all indices, so 1,2,...,N
-    outputList = 1:1:CMOstruct.numOutputs;
+    outputList = 1:1:obj.numOutputs;
     
     % Select the indices of the combinations of Cj's
-    CsetIndices = nchoosek(outputList,numOutputsObserver);
+    CsetIndices = nchoosek(outputList,obj.numOutputsObservers);
     
     % Loop over the combinations and add them to the empty CJ
-    Cset = zeros(numOutputsObserver,numStates,numObservers);
-    setAttack = zeros(numOutputsObserver,1,numObservers);
-    for j = 1:1:numObservers
+    Cset = zeros(obj.numOutputsObservers,numStates,obj.numObservers);
+    setAttack = zeros(obj.numOutputsObservers,1,obj.numObservers);
+    for j = 1:1:obj.numObservers
         % In every j of CJ
         Cselection = CsetIndices(j,:);
-        for k = 1:1:numOutputsObserver
+        for k = 1:1:obj.numOutputsObservers
             % in every row k of a Cj
             % Select first row of Cj
             CNId = Cselection(k);
             Cset(k,:,j) = CN(CNId,:);
-            setAttack(k,:,j) = attack(CNId,:);
+            setAttack(k,:,j) = Attack.attackList(CNId,:);
         end
 
     end
