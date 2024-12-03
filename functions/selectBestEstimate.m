@@ -1,4 +1,4 @@
-function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,PsubsetOfJIndices,CMOstruct)
+function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys)
     % [bestEstimate, jBestEstimate] = 
     % selectBestEstimate(x,tsteps,PsubsetOfJIndices,CMOdict) selects the
     % best estimate bestStateEstimate (xhat) from subobservers OP out of J 
@@ -34,31 +34,32 @@ function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,Psubse
 
 
     % xJ contains the states of the J observers
-    xJ = x(CMOstruct.numOriginalStates+1:(1+CMOstruct.numJObservers)*CMOstruct.numOriginalStates,:);
+    xJ = x(sys.nx+1:(1+Jmo.numObservers)*sys.nx,:);
     % xP contains the states of the P observers
-    xP = x((1+CMOstruct.numJObservers)*CMOstruct.numOriginalStates+1:(1+CMOstruct.numJObservers+CMOstruct.numPObservers)*CMOstruct.numOriginalStates,:);
+    xP = x((1+Jmo.numObservers)*sys.nx+1:(1+Jmo.numObservers+Pmo.numObservers)*sys.nx,:);
     
     % Initialize PiJ, the array that will house all Pi j (the maximum
     % difference between a J observer and all its P observers).
-    PiJ = zeros(CMOstruct.numJObservers,1);
+    PiJ = zeros(Jmo.numObservers,1);
 
     % create emtpy array to store best estimate and which j supplies it
-    bestStateEstimate = zeros(CMOstruct.numOriginalStates,tsteps);
+    bestStateEstimate = zeros(sys.nx,tsteps);
     jBestEstimate = zeros(1,tsteps);
+
     
     for t = 1:1:tsteps
-        xJ3D = reshape(xJ(:,t),CMOstruct.numOriginalStates,1,[]);
-        xP3D = reshape(xP(:,t),CMOstruct.numOriginalStates,1,[]);
-        for j = 1:1:CMOstruct.numJObservers
+        xJ3D = reshape(xJ(:,t),sys.nx,1,[]);
+        xP3D = reshape(xP(:,t),sys.nx,1,[]);
+        for j = 1:1:Jmo.numObservers
             xj = xJ3D(:,:,j);
             % select the row of PsubsetOfJIndices that contains the ids of
             % p that are a subset of J
             pSubsetofjIndices = PsubsetOfJIndices(j,:);
             % diflist will store the difference between solj and all its
             % subsets solp
-            difflist = zeros(CMOstruct.numOfPsubsetsInJ,1);
+            difflist = zeros(numOfPsubsetsInJ,1);
             % Loop over the P observers that are a subset of j
-            for p = 1:1:CMOstruct.numOfPsubsetsInJ
+            for p = 1:1:numOfPsubsetsInJ
                 % select the index of p that will be checked
                 pIndex = pSubsetofjIndices(p);
                 % select the solution of p that corresponds to this index
@@ -80,7 +81,7 @@ function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,Psubse
         jBestEstimateTstep = find(PiJ==min(PiJ));
         jBestEstimateTstep = jBestEstimateTstep(1);
         jBestEstimate(:,t) = jBestEstimateTstep;
-        bestEstimateTstep = xJ((jBestEstimateTstep-1)*CMOstruct.numOriginalStates+1:jBestEstimateTstep*CMOstruct.numOriginalStates,t);
+        bestEstimateTstep = xJ((jBestEstimateTstep-1)*sys.nx+1:jBestEstimateTstep*sys.nx,t);
         bestStateEstimate(:,t) = bestEstimateTstep;
 
     end

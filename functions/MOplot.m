@@ -1,4 +1,4 @@
-function MOplot(t,x,err,estimate,sysName,MOstruct)
+function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
     % MOplot(t,x,err,estimate,sysName,MOdict) plots the solutions of the
     % CMO. It creates a plot for each system state, on each plot the system
     % response, J-observers, P-observers, CMO final estimate and the error
@@ -16,34 +16,31 @@ function MOplot(t,x,err,estimate,sysName,MOstruct)
     %     sysName  = "Example single input system"
 
     % Find the maximum 
-
-    % Extract values from MO
-    numOriginalStates = MOstruct.numOriginalStates;
     
     % decide on what size grid should be used based on number of states in
     % system
-    numberOfColumns = ceil(sqrt(numOriginalStates));
-    numberOfRows = ceil(numOriginalStates/numberOfColumns);
+    numberOfColumns = ceil(sqrt(sys.nx));
+    numberOfRows = ceil(sys.nx/numberOfColumns);
     
     fig = figure();
-    sgtitle({[char(sysName),' observed by a multi-observer with ', num2str(MOstruct.numOutputs),' outputs.'],[ 'So M=',num2str(MOstruct.numAttackedOutputs),',|J|=',num2str(MOstruct.numOutputsJObservers),' and |P|=',num2str(MOstruct.numOutputsPObservers)]});
+    sgtitle({[char(sys.Name),' observed by a ' char(MO.Name) ' ', num2str(MO.numOutputs),' outputs.'],[ 'So M=',num2str(MO.Attack.numAttacks),',|J|=',num2str(Jmo.numOutputsObservers),' and |P|=',num2str(Pmo.numOutputsObservers)]});
     
     % cmoEstimate = 
-    trueResponse = x(1:numOriginalStates,:);
-    JEstimates = x(numOriginalStates+1:numOriginalStates+MOstruct.numJObservers*numOriginalStates,:);
-    PEstimates = x(numOriginalStates+MOstruct.numJObservers*numOriginalStates+1:end,:);
+    trueResponse = x(1:sys.nx,:);
+    JEstimates = x(sys.nx+1:sys.nx+Jmo.numObservers*sys.nx,:);
+    PEstimates = x(sys.nx+Jmo.numObservers*sys.nx+1:end,:);
 
     % create tiled plot
-    for l = 1:1:numOriginalStates
+    for l = 1:1:sys.nx
         % select subplot to edit
         subplot(numberOfRows,numberOfColumns,l);
         
         % plot all p and j estimators
-        for k=1:1:min(5,MOstruct.numJObservers)
-            plot(t,JEstimates((k-1)*numOriginalStates+l,:),LineStyle="--",Color='red')
+        for k=1:1:min(5,Jmo.numObservers)
+            plot(t,JEstimates((k-1)*sys.nx+l,:),LineStyle="--",Color='red')
             hold on;
-            if k < MOstruct.numPObservers
-                plot(t,PEstimates((k-1)*numOriginalStates+l,:),LineStyle="--",Color='blue')
+            if k < Pmo.numObservers
+                plot(t,PEstimates((k-1)*sys.nx+l,:),LineStyle="--",Color='blue')
                 hold on;
             end
     
@@ -54,12 +51,16 @@ function MOplot(t,x,err,estimate,sysName,MOstruct)
         hold on;
         
         % plot the cmo estimate
-        plot(t,estimate(l,:),LineWidth=1,Color='cyan')
-        hold on;
+        if size(estimate,2) > 1
+            plot(t,estimate(l,:),LineWidth=1,Color='cyan')
+            hold on;
+        end
     
         % plot error
-        plot(t,err(l,:),LineWidth=1,Color="#EDB120")
-        hold on;
+        if size(estimate,2) > 1
+            plot(t,err(l,:),LineWidth=1,Color="#EDB120")
+            hold on;
+        end
         grid on;
 
         ylim([-1.5 1.5])

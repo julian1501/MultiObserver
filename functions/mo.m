@@ -32,6 +32,8 @@ classdef mo
         eigenvalues
         % all outputs of the system
         COutputs
+
+        Attack
     end
 
     methods
@@ -42,6 +44,7 @@ classdef mo
             obj.nx = size(sys.A,1);
             obj.ny = size(sys.C,1);
             obj.nu = size(sys.B,2);
+            obj.Attack = Attack;
             % Check whether numoutputs > 2*numAttackedOutputs
             if ~ (numOutputs > 2* Attack.numAttacks)
                error('The number of outputs is not larger then twice the number of attacked outputs %3.0f <= %3.0f',numOutputs,numAttackedOutputs); 

@@ -3,12 +3,15 @@ classdef ssmo
     %   Detailed explanation goes here
 
     properties
+        Name
         sys
         numOutputs
         T
         A
         B
         COutputs
+        Attack
+
     end
 
     methods
@@ -17,6 +20,8 @@ classdef ssmo
             %   Detailed explanation goes here
             % Define Ap and Bp for each observer
             obj.sys = sys;
+            obj.Name = 'SSMO';
+            obj.Attack = Jmo.Attack;
             obj.numOutputs = Jmo.numOutputs;
             obj.COutputs = Jmo.COutputs;
 

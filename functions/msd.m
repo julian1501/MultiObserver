@@ -27,6 +27,12 @@ classdef msd
         nu
         % size of eventual x
         xsize
+
+        k
+
+        a
+
+        m
     end
 
     methods
@@ -36,6 +42,9 @@ classdef msd
             obj.numMass = numMass;
             obj.Name = strcat(num2str(numMass), " mass-spring-damper");
             obj.Linear = linear;
+            obj.k = k;
+            obj.a = 3;
+            obj.m = m;
 
             % Check if only one constant is provided and create multiples
             if size(k,1) > 1 || size(m,1) > 1 || size(c,1) > 1
@@ -57,8 +66,7 @@ classdef msd
                 B = [0; 1/m(1)];
                 % C should contain all rows that are valid outputs all rows should
                 % individu
-                C = [1 0;
-                     0 1];
+                C = [1 0];
                 D = 0;
             else
                 A = zeros(2*numMass);

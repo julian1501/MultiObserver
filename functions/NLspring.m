@@ -1,5 +1,10 @@
-function NLk = NLspring(x,k,a)
+function NLk = NLspring(sys,x)
     % NLk = NLspring(x,k,a) describes a non-linear hardening spring, 
-    % formula taken from page 9 Nonlinear Systems by Khalil Hassan.
-    NLk = k*(1-a^2*x^2)*x;
+    % 
+    NLk = zeros(size(x));
+    for i = 1:1:size(x,3)
+        % Edit function below for changing spring
+        NLk(2,:,i) = -(sys.k*x(1,:,i))^3/sys.m;
+    end
+
 end
