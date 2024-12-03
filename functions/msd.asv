@@ -118,10 +118,11 @@ classdef msd
                     % non-linearities
                     P = repmat([0;1],numMass,1);
                     invm = 1./m;
-                    invm = reshape([invm'; zeros(size(invm'))], 1, []);
+                    invm = zeros(numMass);
+                    invm(1:2:end)
                     E = [zeros(1,2*numMass); diag(invm)];
                                         
-                    error('Non linear model not possible for numMass: %2.0 > 1.',numMass)
+%                     error('Non linear model not possible for numMass: %2.0 > 1.',numMass)
                 end
 
                 % Set up B
@@ -134,9 +135,8 @@ classdef msd
                 % C should contain all rows that are valid outputs
                 C = zeros(numMass,2*numMass);
                 for i = 1:1:numMass
-                    C(i,1:2*i) = [repmat([1 0],1,i)];
+                    C(i,1:2*i) = repmat([1 0],1,i);
                 end
-                C(1,:) = [];
 
                 D = 0;
 

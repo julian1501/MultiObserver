@@ -9,6 +9,7 @@ classdef cmo3d
         numOutputs
         ApLC
         LC
+        C
         L
         attack
         B
@@ -27,11 +28,15 @@ classdef cmo3d
             obj.Attack = Jmo.Attack;
             obj.numObservers = Jmo.numObservers + Pmo.numObservers;
             obj.numOutputs = Jmo.numOutputs;
+            
+
             [ApLCJ,LCJ] = systemStarSetup3D(Jmo);
             [ApLCP,LCP] = systemStarSetup3D(Pmo);
 
             % Pad the right side of LP with zeros to match the cross sectional size of
             % LJ
+            padding = zeros(Jmo.numOutputsObservers-Pmo.numOutputsObservers,Jmo.nx,Pmo.numObservers);
+            obj.C = cat(3,Jmo.Ci,cat(1,Pmo.Ci,padding));
             padding = zeros(Jmo.nx,Jmo.numOutputsObservers-Pmo.numOutputsObservers,Pmo.numObservers);
             PmoLPadded = cat(2,Pmo.Li,padding);
             padding = zeros(Jmo.numOutputsObservers-Pmo.numOutputsObservers,1,Pmo.numObservers);

@@ -15,7 +15,7 @@ function x0 = x0setup(x0input,whichMO,sys,Jmo,Pmo)
     end
 
     if whichMO(3) == 1
-        x0ssmo = zeros(sys.nx*Jmo.numOutputs,1);
+        x0ssmo = zeros(sys.nx*(Jmo.numOutputs + sys.NLsize),1);
     else
         x0ssmo = [];
     end

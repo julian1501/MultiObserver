@@ -77,10 +77,12 @@ SSMOest = flatten(pagemtimes(SSMO.T,SSMOz));
 
 CMO3DbestEst = selectBestEstimate([state; CMO3Dest],size(t,2),PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys);
 CMO3Derr = state - CMO3DbestEst;
+SSMObestEst = selectBestEstimate([state; SSMOest],size(t,2),PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys);
+SSMOerr = state - SSMObestEst;
 err = 0; bestEst = 0;
 % calculate difference
 diff = CMO3Dest - SSMOest;
-score = max(max(diff));
+score = max(max(abs(diff)));
 disp(score)
 if score < 1e-3
     disp('Tolerance within numerical tolerance.')
@@ -95,5 +97,6 @@ if plot && whichMO(2) == 1
       MOplot(t,[state; CMO3Dest],CMO3Derr,CMO3DbestEst,sys,CMO3D,Jmo,Pmo);
 end
 if plot && whichMO(3) == 1
-      MOplot(t,[state; SSMOest],err,bestEst,sys,SSMO,Jmo,Pmo);
+      MOplot(t,[state; SSMOest],SSMOerr,SSMObestEst,sys,SSMO,Jmo,Pmo);
 end
+

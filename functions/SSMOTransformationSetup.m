@@ -1,6 +1,6 @@
 function T = SSMOTransformationSetup(Ap,Bp,q,mo)
        
-    a = mo.nx*mo.numOutputs;
+    a = mo.nx*(mo.numOutputs + mo.sys.NLsize);
     c = mo.nx;
     
     Rp = zeros(c,a,mo.numObservers);
@@ -8,7 +8,7 @@ function T = SSMOTransformationSetup(Ap,Bp,q,mo)
        Rp(:,:,i) = ctrb(Ap(:,:,i),Bp(:,:,i));
     end
 
-    I = eye(mo.numOutputs);
+    I = eye(mo.numOutputs + mo.sys.NLsize);
     RqValues = zeros(mo.nx);
 
     for i = 1:1:mo.nx
@@ -21,7 +21,7 @@ function T = SSMOTransformationSetup(Ap,Bp,q,mo)
     Rq = kron(RqValues,I);
 
     % Create all T matrices by multiplying Rp and Rq
-    T = zeros(mo.nx,mo.numOutputs*mo.nx,mo.numObservers);
+    T = zeros(mo.nx,(mo.numOutputs + mo.sys.NLsize)*mo.nx,mo.numObservers);
     for i = 1:1:mo.numObservers
         T(:,:,i) = Rp(:,:,i)*Rq;
     end
