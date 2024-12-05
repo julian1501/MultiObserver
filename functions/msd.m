@@ -47,7 +47,7 @@ classdef msd
             obj.Name = strcat(num2str(numMass), " mass-spring-damper");
             obj.Linear = linear;
             obj.k = k;
-            obj.a = 3;
+            obj.a = 10;
             obj.m = m;
 
             % Check if only one constant is provided and create multiples
@@ -79,16 +79,16 @@ classdef msd
                 if linear               
                     % Add state matrix entries for the first mass
                     A(1,2) = 1;
-                    A(2,1:4) = [-(k(1)+k(2))/m(1), -(c(1)+c(2))/m(1), k(2)/m(1), c(2)/m(1)];
+                    A(2,1:4) = [-(k(1))/m(1), -(c(1))/m(1), k(2)/m(1), c(2)/m(1)];
                 
                     % Add state matrix entries for the last mass
                     A(end-1,end) = 1;
-                    A(end,end-3:end) = [k(end)/m(end) c(end)/m(end) -k(end)/m(end) -c(end)/m(end)];
+                    A(end,end-3:end) = [0 0 -k(end)/m(end) -c(end)/m(end)];
                     
                     % Add state matrix entries for intermediate matrices
                     for i = 2:1:numMass-1
                         A(2*i-1,2*i) = 1;
-                        slice = [k(i)/m(i) c(i)/m(i) -(k(i)+k(i+1))/m(i), -(c(i)+c(i+1))/m(i), k(i+1)/m(i), c(i+1)/m(i)];
+                        slice = [0 0 -k(i)/m(i), -c(i)/m(i), k(i+1)/m(i), c(i+1)/m(i)];
                         A(2*i,2*i-3:2*i+2) = slice;
                     end
 
@@ -102,7 +102,7 @@ classdef msd
                    
                    % Add state matrix entries for the first mass
                     A(1,2) = 1;
-                    A(2,1:4) = [0, -(c(1)+c(2))/m(1), 0, c(2)/m(1)];
+                    A(2,1:4) = [0, -(c(1))/m(1), 0, c(2)/m(1)];
                 
                     % Add state matrix entries for the last mass
                     A(end-1,end) = 1;
@@ -111,7 +111,7 @@ classdef msd
                     % Add state matrix entries for intermediate matrices
                     for i = 2:1:numMass-1
                         A(2*i-1,2*i) = 1;
-                        slice = [0 c(i)/m(i) 0, -(c(i)+c(i+1))/m(i), 0, c(i+1)/m(i)];
+                        slice = [0 0 0, -(c(i))/m(i), 0, c(i+1)/m(i)];
                         A(2*i,2*i-3:2*i+2) = slice;
                     end
 
@@ -121,7 +121,7 @@ classdef msd
                     invm = reshape([invm'; zeros(size(invm'))], 1, []);
                     E = [zeros(1,2*numMass); diag(invm)];
                                         
-                    error('Non linear model not possible for numMass: %2.0 > 1.',numMass)
+%                     error('Non linear model not possible for numMass: %2.0 > 1.',numMass)
                 end
 
                 % Set up B
@@ -136,7 +136,6 @@ classdef msd
                 for i = 1:1:numMass
                     C(i,1:2*i) = [repmat([1 0],1,i)];
                 end
-                C(1,:) = [];
 
                 D = 0;
 

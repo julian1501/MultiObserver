@@ -44,7 +44,7 @@ function [Ai,Li] = defineObservers(A,CJ,eigenvalues,obj)
             disp(A);
             disp('Cj =')
             disp(Cj)
-            warning('A pair (A,Cj) is not observable')
+            error('A pair (A,Cj) is not observable')
         end
 
         Ai(:,:,l) = A;

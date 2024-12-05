@@ -47,7 +47,7 @@ classdef msd
             obj.Name = strcat(num2str(numMass), " mass-spring-damper");
             obj.Linear = linear;
             obj.k = k;
-            obj.a = 3;
+            obj.a = 10;
             obj.m = m;
 
             % Check if only one constant is provided and create multiples
@@ -118,8 +118,7 @@ classdef msd
                     % non-linearities
                     P = repmat([0;1],numMass,1);
                     invm = 1./m;
-                    invm = zeros(numMass);
-                    invm(1:2:end)
+                    invm = reshape([invm'; zeros(size(invm'))], 1, []);
                     E = [zeros(1,2*numMass); diag(invm)];
                                         
 %                     error('Non linear model not possible for numMass: %2.0 > 1.',numMass)
@@ -135,8 +134,9 @@ classdef msd
                 % C should contain all rows that are valid outputs
                 C = zeros(numMass,2*numMass);
                 for i = 1:1:numMass
-                    C(i,1:2*i) = repmat([1 0],1,i);
+                    C(i,1:2*i) = [1 1 repmat([1 0],1,i-1)];
                 end
+                C(1,:) = [];
 
                 D = 0;
 

@@ -29,41 +29,43 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
     trueResponse = x(1:sys.nx,:);
     JEstimates = x(sys.nx+1:sys.nx+Jmo.numObservers*sys.nx,:);
     PEstimates = x(sys.nx+Jmo.numObservers*sys.nx+1:end,:);
+    yl = 1.05 * max(max(abs(trueResponse)));
 
     % create tiled plot
     for l = 1:1:sys.nx
+        leg = [];
         % select subplot to edit
         subplot(numberOfRows,numberOfColumns,l);
         
         % plot all p and j estimators
         for k=1:1:min(5,Jmo.numObservers)
-            plot(t,JEstimates((k-1)*sys.nx+l,:),LineStyle="--",Color='red')
+            leg(2*k-1) = plot(t,JEstimates((k-1)*sys.nx+l,:),LineStyle="--",Color='red');
             hold on;
             if k < Pmo.numObservers
-                plot(t,PEstimates((k-1)*sys.nx+l,:),LineStyle="--",Color='blue')
+                leg(2*k) = plot(t,PEstimates((k-1)*sys.nx+l,:),LineStyle="--",Color='blue');
                 hold on;
             end
     
         end
     
         % plot system response
-        plot(t,trueResponse(l,:),LineWidth=2,Color='black')
+        leg(end + 1) = plot(t,trueResponse(l,:),LineWidth=2,Color='black');
         hold on;
         
         % plot the cmo estimate
         if size(estimate,2) > 1
-            plot(t,estimate(l,:),LineWidth=1,Color='cyan')
+            leg(end + 1) = plot(t,estimate(l,:),LineWidth=1,Color='cyan');
             hold on;
         end
     
         % plot error
         if size(estimate,2) > 1
-            plot(t,err(l,:),LineWidth=1,Color="#EDB120")
+            leg(end + 1) = plot(t,err(l,:),LineWidth=1,Color="#EDB120");
             hold on;
         end
         grid on;
-
-        ylim([-1.5 1.5])
+        legend([leg(1:2) leg(end-2:end)],'J-observers','P-Observers','System response','MO estimate','Error')
+        ylim([-yl yl])
     end
     
     

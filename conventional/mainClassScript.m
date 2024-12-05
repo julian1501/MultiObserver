@@ -37,7 +37,7 @@ numPObservers = nchoosek(numOutputs,numOutputsPObservers);
 fprintf('The number of P observers is: %3.0f \n',numPObservers)
 
 % Noiseless system definition
-sys = msd(linear,sysNum,1,5,0.5);
+sys = msd(linear,sysNum,1,15,2.0);
 
 if ~isMatrixStable(sys.A)
     warning('The system is unstable')
@@ -62,6 +62,7 @@ end
 if whichMO(3) == 1
     SSMO  =  ssmo(sys,Jmo,Pmo);
 end
+
 
 x0 = x0setup(x0Options,whichMO,sys,Jmo,Pmo);
 

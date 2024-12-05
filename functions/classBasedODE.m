@@ -32,7 +32,12 @@ function dx = classBasedODE(sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO)
         yhat = pagemtimes(CMO3D.C,xsys);
         phi = NLspring(sys,[yhat(1);0]);
 
-        dxcmo3d = pagemtimes(CMO3D.ApLC,xcmo3d) - pagemtimes(CMO3D.LC,xsys) - pagemtimes(CMO3D.L,Attack3d) + pagemtimes(CMO3D.E,phi);
+        dxcmo3d = pagemtimes(CMO3D.ApLC,xcmo3d) - pagemtimes(CMO3D.LC,xsys) - pagemtimes(CMO3D.L,Attack3d);
+
+        if ~sys.Linear
+            dxcmo3d = dxcmo3d +  pagemtimes(CMO3D.E,phi);
+        end
+        
     else
         dxcmo3d = [];
     end
