@@ -49,7 +49,8 @@ classdef cmo3d
             obj.L    = cat(3,Jmo.Li,PmoLPadded);
             obj.attack = cat(3,Jmo.attack3d,PAttackPadded);
             obj.B    = repmat(sys.B,1,1,obj.numObservers);
-            obj.E    = repmat([0 0; 0 1],1,1,obj.numObservers);
+            obj.E    = repmat(sys.E,1,1,obj.numObservers);
+            
         end
 
     end

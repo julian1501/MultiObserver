@@ -6,7 +6,7 @@ function [Ap,Bp] = systemPSetup(mo,Lpadded)
     
     Ap = zeros(mo.nx,mo.nx,mo.numObservers);
     if size(mo.sys.E,2) > 0
-        Bp = [repmat(mo.sys.E,1,1,size(Lpadded,3)),-Lpadded];
+        Bp = cat(2,repmat(mo.sys.E,1,1,size(Lpadded,3)), -Lpadded);
     else
         Bp = -Lpadded;
     end

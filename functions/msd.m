@@ -37,6 +37,8 @@ classdef msd
         m
 
         NLsize
+
+        COutputs
     end
 
     methods
@@ -65,9 +67,9 @@ classdef msd
                     P = [0; 0];
                     E = [];
                 elseif ~linear
-                    A = [0, 1; 0, -c(1)/m(1)];
+                    A = [0, 1; -k(1)/m(1), -c(1)/m(1)];
                     P = [0; 1];
-                    E = [0 0; 0 1];
+                    E = [0 0; 0 -1];
                 end
                 B = [0; 1/m(1)];
                 % C should contain all rows that are valid outputs all rows should
@@ -79,16 +81,16 @@ classdef msd
                 if linear               
                     % Add state matrix entries for the first mass
                     A(1,2) = 1;
-                    A(2,1:4) = [-(k(1))/m(1), -(c(1))/m(1), k(2)/m(1), c(2)/m(1)];
+                    A(2,1:4) = [-(k(1)), -c(1), k(2), c(2)]./m(1);
                 
                     % Add state matrix entries for the last mass
                     A(end-1,end) = 1;
-                    A(end,end-3:end) = [0 0 -k(end)/m(end) -c(end)/m(end)];
+                    A(end,end-3:end) = [0 0 -k(end) -c(end)]./m(end);
                     
                     % Add state matrix entries for intermediate matrices
                     for i = 2:1:numMass-1
                         A(2*i-1,2*i) = 1;
-                        slice = [0 0 -k(i)/m(i), -c(i)/m(i), k(i+1)/m(i), c(i+1)/m(i)];
+                        slice = [0 0 -k(i), -c(i), k(i+1), c(i+1)]./m(i);
                         A(2*i,2*i-3:2*i+2) = slice;
                     end
 
@@ -102,24 +104,29 @@ classdef msd
                    
                    % Add state matrix entries for the first mass
                     A(1,2) = 1;
-                    A(2,1:4) = [0, -(c(1))/m(1), 0, c(2)/m(1)];
+                    A(2,1:4) = [-k(1), -(c(1)), k(2), c(2)]./m(1);
                 
                     % Add state matrix entries for the last mass
                     A(end-1,end) = 1;
-                    A(end,end-3:end) = [0 c(end)/m(end) 0 -c(end)/m(end)];
+                    A(end,end-3:end) = [0 0 -k(end) -c(end)]./m(end);
                     
                     % Add state matrix entries for intermediate matrices
                     for i = 2:1:numMass-1
                         A(2*i-1,2*i) = 1;
-                        slice = [0 0 0, -(c(i))/m(i), 0, c(i+1)/m(i)];
+                        slice = [0 0 -k(i) -c(i) k(i+1) c(i+1)]./m(i);
                         A(2*i,2*i-3:2*i+2) = slice;
                     end
 
                     % non-linearities
                     P = repmat([0;1],numMass,1);
-                    invm = 1./m;
-                    invm = reshape([invm'; zeros(size(invm'))], 1, []);
-                    E = [zeros(1,2*numMass); diag(invm)];
+                    E = zeros(2*numMass,numMass);
+                    for i = 1:1:numMass
+                        if i < numMass
+                            E(2*i,i:i+1) = [-1/m(i) 1/m(i)];
+                        else
+                            E(2*i,i) = -1/m(i);
+                        end
+                    end
                                         
 %                     error('Non linear model not possible for numMass: %2.0 > 1.',numMass)
                 end
@@ -135,10 +142,16 @@ classdef msd
                 C = zeros(numMass,2*numMass);
                 for i = 1:1:numMass
                     C(i,1:2*i) = [repmat([1 0],1,i)];
+%                     C = [1 zeros(1, 2*numMass-1)];
                 end
 
                 D = 0;
 
+            end
+
+            % check for observability
+            if ~isObsv(A,C)
+                error('The system is not observable')
             end
 
             obj.A = A;

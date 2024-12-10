@@ -1,6 +1,8 @@
 classdef attack
-    %UNTITLED10 Summary of this class goes here
-    %   Detailed explanation goes here
+    % attack represents a mechanism for simulating attacks on a system's 
+    % outputs by corrupting specific signals.
+    %
+    % 
 
     properties
         numOutputs

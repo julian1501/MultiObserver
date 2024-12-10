@@ -23,8 +23,7 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
     numberOfRows = ceil(sys.nx/numberOfColumns);
     
     fig = figure();
-    sgtitle({[char(sys.Name),' observed by a ' char(MO.Name) ' ', num2str(MO.numOutputs),' outputs.'],...
-        [ 'Number of attacks =',num2str(MO.Attack.numAttacks),',|J|=',num2str(Jmo.numOutputsObservers),' and |P|=',num2str(Pmo.numOutputsObservers)]});
+    sgtitle({[char(sys.Name),' observed by a ' char(MO.Name) ' ', num2str(MO.numOutputs),' outputs.'],[ 'So M=',num2str(MO.Attack.numAttacks),',|J|=',num2str(Jmo.numOutputsObservers),' and |P|=',num2str(Pmo.numOutputsObservers)]});
     
     % cmoEstimate = 
     trueResponse = x(1:sys.nx,:);
@@ -67,20 +66,6 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
         grid on;
         legend([leg(1:2) leg(end-2:end)],'J-observers','P-Observers','System response','MO estimate','Error')
         ylim([-yl yl])
-
-        xlabel('Time')
-        mass = floor((l+1)/2);
-
-        if (-1)^l == -1
-            % odd
-            ylabel('Position')
-            title(['Position of mass ' num2str(mass)])
-        else
-            % even
-            ylabel('Velocity')
-            title(['Velocity of mass ' num2str(mass)])
-        end
-
     end
     
     

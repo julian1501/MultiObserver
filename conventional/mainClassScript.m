@@ -50,6 +50,8 @@ Attack = attack(numOutputs,numAttackedOutputs);
 
 Pmo = mo(sys,Attack,numOutputs,numOutputsPObservers);
 Jmo = mo(sys,Attack,numOutputs,numOutputsJObservers);
+
+sys.COutputs = Jmo.COutputs;
 [numOfPsubsetsInJ,PsubsetOfJIndices] = findIndices(Jmo,Pmo,sys);
 
 CMO2D = 0; CMO3D = 0; SSMO = 0;

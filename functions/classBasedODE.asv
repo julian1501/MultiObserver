@@ -2,10 +2,8 @@ function dx = classBasedODE(sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO)
     
     % Caluclate dx for the system
     xsys = x(1:sys.nx);
-    y = sys.COutputs*xsys;
-    a = attackFunction(t,Attack.attackList);
     if sys.NLsize > 0
-        dxsys = sys.A*xsys + sys.E*NLspring(sys,y);
+        dxsys = sys.A*xsys + NLspring(sys,xsys);
     else
         dxsys = sys.A*xsys;
     end
@@ -31,7 +29,8 @@ function dx = classBasedODE(sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO)
     if whichMO(2) == 1
         xcmo3d = reshape(x(xcmo3dStart:xcmo3dEnd),sys.nx,1,CMO3D.numObservers);
         Attack3d = attackFunction(t,CMO3D.attack);
-        phi = NLspring(sys,y+a);
+        yhat = pagemtimes(CMO3D.C,xsys);
+        phi = NLspring(sys,[yhat(1);0]);
 
         dxcmo3d = pagemtimes(CMO3D.ApLC,xcmo3d) - pagemtimes(CMO3D.LC,xsys) - pagemtimes(CMO3D.L,Attack3d);
 
@@ -46,7 +45,9 @@ function dx = classBasedODE(sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO)
     % Calculations for the SSMO
     if whichMO(3) == 1
         xssmo = x(xssmoStart:xssmoEnd);
-        dxssmo = SSMO.A*xssmo + SSMO.B*([NLspring(sys,y+a) ;y] + [zeros(sys.NLsize,1) ;a]); 
+        AttackSSMO = attackFunction(t,Attack.attackList);
+        y = SSMO.COutputs*xsys;
+        dxssmo = SSMO.A*xssmo + SSMO.B*([NLspring(sys,[y(1);0]) ;y] + [zeros(sys.NLsize,1) ;AttackSSMO]); 
     else
         dxssmo = [];
     end
