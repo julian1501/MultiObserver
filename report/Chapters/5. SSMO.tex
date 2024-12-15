@@ -1,0 +1,332 @@
+
+
+\section{State-sharing multi-observer}
+In this chapter the state-sharing multi-observer (SSMO) will be discussed, aiming to reduce the required memory to store the CMO. The SSMO described in this chapter will provide the estimates as described in \autoref{subsec:state-estimates} and will employ the same selection procedure as described in \autoref{subsec:estimate-selection}.
+
+\subsection{Constructing the state-estimates}
+Let
+\begin{equation}\label{eqn:ssmo-observer}
+    \begin{split}
+        \dot{\hat{x}}_o &= \A_o\hat{x}_o - L_oC_ox + Bu -L_o(v_o + \tau_o), \quad \A_o=A+L_{o}C_{o} \\
+    \end{split}
+\end{equation}
+be a set of observers that contains all $J$- and $P$-observers \eqref{eqn:cmo-single-J-observer}\eqref{eqn:cmo-single-P-observer}, such that $\mcO=\mcJ\bigcup\mcP$ and $o=1,2,\dots,|\mcO|$. All $L_o$ must be selected in such a way that all $\A_o$ share the same characteristic polynomial
+\begin{equation}\label{eqn:ssmo-char-poly}
+    \det(sI-\A) = p(s) = s^n + q_1s^{n-1} + \dots + q_{n-1}s + q_n
+\end{equation}
+and thus all have equal eigenvalues. Let us now define a matrix $\Tilde{L}_{o}$ such that $\Tilde{L}_oy=L_oy_o$. This can be achieved by padding $L_o$ with zero vectors $z \in \mathbb{R}^{n \times 1}$ \cite{Chong2023MemoryAlgorithms}. Let us now rewrite the observer \eqref{eqn:ssmo-observer} into the following form
+\begin{equation}\label{eqn:ssmo-standard-system-form}
+    \dot{\hat{x}}_o = \A_o\hat{x}_o + \B_o\eta_o, \quad
+    \B_o =
+    \begin{bmatrix}
+        E & B & -\Tilde{L}_o \\
+    \end{bmatrix}, \quad \eta_o =
+    \begin{bmatrix}
+        \phi(y) \\
+        u \\
+        y_o + v_o + \tau_o
+    \end{bmatrix}.
+\end{equation}
+
+Let us now derive transformation matrices $T_o$ that transform all $\A_o=A+L_{o}C_{o}$ into controllable canonical form as in \cite[Sec. 4.3.2]{Hespanha2018LinearTheory}
+\begin{equation}\label{eqn:controllable-canonical-form}
+    \mathbf{A} =
+    \begin{bmatrix}
+        -q_1I_l & -q_2I_l & \cdots & -q_{n-1}I_l & -q_nI_l \\
+        I_l & 0_l & \cdots & 0_l & 0_l \\
+        0_l & I_l & \cdots & 0_l & 0_l \\
+        \vdots & \vdots & \ddots & \vdots & \vdots \\
+        0_l & 0_l & \cdots & I_l & 0_l \\
+    \end{bmatrix}, \quad
+    \mathbf{B} = 
+    \begin{bmatrix}
+        I_l \\ 0_l \\ \vdots \\ 0_l \\ 0_l \\
+    \end{bmatrix}
+\end{equation}
+where $l=N$. The transformation matrices for each observer are $T_o=R_pR_q$,
+\begin{equation}
+    \begin{split}
+         R_p &=
+        \begin{bmatrix}
+            \B_o & \A_o\B_o & \A^{2}_o\B_o & \cdots & \A^{n-1}_o\B_o \\
+        \end{bmatrix} \\
+        R_q &=
+        \begin{bmatrix}
+            I_l & q_1I_l & q_2I_l & \cdots & q_{n-1}I_l \\
+            0_l & I_l & q_1I_l & \cdots & q_{n-2}I_l \\
+            \vdots & \ddots & \ddots & \ddots & \vdots \\
+            0_l & \cdots & 0_l & I_l & q_1I_l \\
+            0_l & \cdots & 0_l & 0_l & I_l \\
+        \end{bmatrix}.
+    \end{split}
+\end{equation}
+Let us now show that the following
+\begin{equation}\label{eqn:A-transformation}
+    \begin{split}
+        T_o\mathbf{A} &= \A_oT_o \\
+        R_pR_q\mathbf{A} &= \A_oR_pR_q \\
+    \end{split}
+\end{equation}
+holds. Let us start by expanding
+\begin{equation*}
+    \begin{split}
+        R_q\mathbf{A} &=  
+        \begin{bmatrix}
+            I_l & q_1I_l & q_2I_l & \cdots & q_{n-1}I_l \\
+            0_l & I_l & q_1I_l & \cdots & q_{n-2}I_l \\
+            \vdots & \ddots & \ddots & \ddots & \vdots \\
+            0_l & \cdots & 0_l & I_l & q_1I_l \\
+            0_l & \cdots & 0_l & 0_l & I_l \\
+        \end{bmatrix}
+        \begin{bmatrix}
+            -q_1I_l & -q_2I_l & \cdots & -q_{n-1}I_l & -q_nI_l \\
+            I_l & 0_l & \cdots & 0_l & 0_l \\
+            0_l & I_l & \cdots & 0_l & 0_l \\
+            \vdots & \vdots & \ddots & \vdots & \vdots \\
+            0_l & 0_l & \cdots & I_l & 0_l \\
+        \end{bmatrix} \\
+        &= 
+        \begin{bmatrix}
+            0_l & 0_l & 0_l & \cdots & 0_l & 0_l & 0_l \\
+            I_l & q_1I_l & q_2I_l & \cdots & q_{n-3}I_l & q_{n-2}I_l & 0_l \\ 
+            0_l & I_l & q_1I_l & \cdots & q_{n-4}I_l & q_{n-3}I_l & 0_l \\ 
+            \vdots & \vdots & \vdots & \ddots & \vdots & \vdots & \vdots \\
+            0_l & 0_l & 0_l & \cdots & q_1I_l & q_2I_l & 0_l \\
+            0_l & 0_l & 0_l & \cdots & I_l & q_1I_l & 0_l \\
+            0_l & 0_l & 0_l & \cdots & 0_l & I_l & 0_l \\
+        \end{bmatrix}.
+    \end{split} 
+\end{equation*}
+We now premultiply this by $R_o$
+\begin{equation*}
+    \begin{split}
+        R_pR_q\mathbf{A} &= 
+        \begin{bmatrix}
+            \B_o & \A_o\B_o & \A^{2}_o\B_o & \cdots & \A^{n-1}_o\B_o \\
+        \end{bmatrix}
+        \begin{bmatrix}
+            0_l & 0_l & 0_l & \cdots & 0_l & 0_l \\
+            I_l & q_1I_l & q_2I_l & \cdots & q_{n-2}I_l & 0_l \\ 
+            0_l & I_l & q_1I_l & \cdots & q_{n-3}I_l & 0_l \\ 
+            \vdots & \ddots & \ddots & \ddots & \vdots & \vdots \\
+            0_l & 0_l & 0_l & \ddots & q_1I_l & 0_l \\
+            0_l & 0_l & 0_l & \cdots & I_l & 0_l \\
+        \end{bmatrix} \\
+        &= 
+        \begin{bmatrix}
+            \A_o\B_o \\ q_1\A_o\B_o + \A^2_o\B_o \\ q_2\A_o\B_o + q_1\A^2_o\B_o + \A^3_o\B_o \\ \cdots \\ q_{n-2}\A_o\B_o + q_{n-3}\A^2_o\B_o + \cdots + q_1\A^{n-2}_o\B_o + \A^{n-1}_o\B_o \\ 0 \\      
+        \end{bmatrix}^T
+    \end{split}
+\end{equation*}
+Where by the Cayley-Hamilton theorem we can rewrite penultimate column as
+\begin{equation*}
+    \begin{bmatrix}
+            \A_o\B_o \\ q_1\A_o\B_o + \A^2_o\B_o \\ q_2\A_o\B_o + q_1\A^2_o\B_o + \A^3_o\B_o \\ \vdots \\ -\A^n_o\B_o \\ 0 \\      
+        \end{bmatrix}^T
+\end{equation*}
+
+We now expand
+\begin{equation*}
+    \begin{split}
+        \A_oR_pR_q &= 
+        \begin{bmatrix}
+            \A_o\B_o & \A^2_o\B_o & \A^{3}_o\B_o & \cdots & \A^{n}_o\B_o \\
+        \end{bmatrix}
+        \begin{bmatrix}
+            I_l & q_1I_l & q_2I_l & \cdots & q_{n-1}I_l \\
+            0_l & I_l & q_1I_l & \cdots & q_{n-2}I_l \\
+            \vdots & \ddots & \ddots & \ddots & \vdots \\
+            0_l & \cdots & 0_l & I_l & q_1I_l \\
+            0_l & \cdots & 0_l & 0_l & I_l \\
+        \end{bmatrix} \\
+        &=
+        \begin{bmatrix}
+            \A_o\B_o \\ 
+            q_1\A_o\B_o + \A^2_o\B_o \\ 
+            q_2\A_o\B_o + q_1\A^2\B_o + \A^3_o\B_o \\ \vdots \\ 
+            q_{n-1}\A_o\B_o + q_{n-2}\A^2_o\B_o + \cdots + \A^{n-1}_o\B_o \\
+            q_{n-1}\A_o\B_o + q_{n-2}\A^2_o\B_o + \cdots + \A^{n-1}_o\B_o + \A^n_o\B_o \\
+        \end{bmatrix}^T,
+    \end{split}
+\end{equation*}
+where the bottom two rows can be simplified by using the Cayley-Hamilton theorem
+\begin{equation*}
+    \begin{split}
+        \A_oR_pR_q &= 
+        \begin{bmatrix}
+            \A_o\B_o \\ 
+            q_1\A_o\B_o + \A^2_o\B_o \\ 
+            q_2\A_o\B_o + q_1\A^2\B_o + \A^3_o\B_o \\ \vdots \\ 
+            \A^{n}_o\B_o \\
+            0 \\
+        \end{bmatrix}^T,
+    \end{split}
+\end{equation*}
+which is equal to $R_oR_q\A_o$. We can now conclude that the matrix $T_o=R_oR_q$ satisfies \eqref{eqn:A-transformation}. Now we will show the same for
+\begin{equation}\label{eqn:B-transformation}
+    \begin{split}
+        T_o\mathbf{B} &= \B_o \\
+        R_pR_q\mathbf{B} &= \B_o.
+    \end{split}
+\end{equation}
+Let us expand
+\begin{equation*}
+    \begin{split}
+        R_pR_q\mathbf{B} &=
+        \begin{bmatrix}
+            \B_o & \A_o\B_o & \A^{2}_o\B_o & \cdots & \A^{n-1}_o\B_o \\
+        \end{bmatrix}
+        \begin{bmatrix}
+            I_l & q_1I_l & q_2I_l & \cdots & q_{n-1}I_l \\
+            0_l & I_l & q_1I_l & \cdots & q_{n-2}I_l \\
+            \vdots & \ddots & \ddots & \ddots & \vdots \\
+            0_l & \cdots & 0_l & I_l & q_1I_l \\
+            0_l & \cdots & 0_l & 0_l & I_l \\
+        \end{bmatrix}
+        \begin{bmatrix}
+            I_l \\ 0_l \\ \vdots \\ 0_l \\ 0_l \\
+        \end{bmatrix} \\
+        &=
+        \begin{bmatrix}
+            \B_o & \A_o\B_o & \A^{2}_o\B_o & \cdots & \A^{n-1}_o\B_o \\
+        \end{bmatrix}
+        \begin{bmatrix}
+            I_l \\ 0_l \\ \vdots \\ 0_l \\ 0_l \\
+        \end{bmatrix} = \B_o \\
+    \end{split}
+\end{equation*}
+which shows that \eqref{eqn:B-transformation} holds. It should be noted that $\mathbf{A}$ and $\mathbf{B}$ are independent of $o$ and since all observers \eqref{eqn:ssmo-observer} share the same characteristic polynomial \eqref{eqn:ssmo-char-poly}, $\mathbf{A}$ and $\mathbf{B}$ are the same for all observers. This means that only one copy of the matrices needs to be stored and all state estimates $\hat{x}$ from the transformation matrices.
+
+\subsection{Implementation}
+Let us set the initial conditions of all state estimates to be equal, we will choose $0$ for simplicity. When all initial conditions are zero $z$ will also be the same for all state estimates, 
+\begin{equation*}
+    \dot{z} = \mathbf{A}z + \mathbf{B}\eta, \quad \eta = 
+    \begin{bmatrix}
+        u \\ y + v + \tau
+    \end{bmatrix}.
+\end{equation*}
+We then transform $z$ into the original state estimates by
+
+\begin{equation*}
+    \tilde{x}_{SSMO} = \texttt{pm}(T,z,3),
+\end{equation*}
+where
+\begin{center}
+    % \begin{minipage}[t]{0.4\textwidth}
+    %     \centering
+    %     % first tikzpicture
+    %     \begin{equation*}
+    %         \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=1.2cm,minimum height=7mm}]
+            
+    %         % Define the displacement as a coordinate
+    %         \coordinate (displacement) at (0.9,0.2);
+        
+    %         \matrix (mLP) [draw,matrix of math nodes]
+    %             {
+    %             \hat{x}_{\cP}^\mcJ \\
+    %             };
+        
+    %         \matrix (dots2) [draw,matrix of math nodes] at ($(mLP.south west)+(displacement)$)
+    %             {
+    %             \dots \\
+    %             };
+        
+    %         \matrix (mLp) [draw,matrix of math nodes] at ($(dots2.south west)+(displacement)$)
+    %             {
+    %             \hat{x}_{1}^\mcP \\
+    %             };
+        
+    %         \matrix (mLJ) [draw,matrix of math nodes] at ($(mLp.south west)+(displacement)$)
+    %             {
+    %             \hat{x}_{\cJ}^\mcJ \\
+    %             };
+        
+    %         \matrix (dots1) [draw,matrix of math nodes] at ($(mLJ.south west)+(displacement)$)
+    %             {
+    %             \dots \\
+    %             };
+        
+    %         \matrix (mLj) [draw,matrix of math nodes] at ($(dots1.south west)+(displacement)$)
+    %             {
+    %             \hat{x}_1^\mcJ \\
+    %             };
+            
+    %         \draw[dashed](mLj.north east)--(mLP.north east);
+    %         \draw[dashed](mLj.north west)--(mLP.north west);
+    %         \draw[dashed](mLj.south east)--(mLP.south east);
+            
+    %         \node at ($(-4,-1.8)$) {$\hat{x}_{SSMO}=$};
+            
+    %         \end{tikzpicture}
+    %     \end{equation*}
+    % \end{minipage}
+    \begin{minipage}[t]{0.4\textwidth}
+    \centering
+    % Second tikzpicture
+        \begin{equation}
+            \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=2cm,minimum height=7mm}]
+            
+            % Define the displacement as a coordinate
+            \coordinate (displacement) at (1.7,0.2);
+        
+            \matrix (mLP) [draw,matrix of math nodes]
+                {
+                T^\mcP_{|\mcP|} \\
+                };
+        
+            \matrix (dots2) [draw,matrix of math nodes] at ($(mLP.south west)+(displacement)$)
+                {
+                \dots \\
+                };
+        
+            \matrix (mLp) [draw,matrix of math nodes] at ($(dots2.south west)+(displacement)$)
+                {
+                T^\mcP_{1} \\
+                };
+        
+            \matrix (mLJ) [draw,matrix of math nodes] at ($(mLp.south west)+(displacement)$)
+                {
+                T^\mcJ_{|\mcJ|} \\
+                };
+        
+            \matrix (dots1) [draw,matrix of math nodes] at ($(mLJ.south west)+(displacement)$)
+                {
+                \dots \\
+                };
+        
+            \matrix (mLj) [draw,matrix of math nodes] at ($(dots1.south west)+(displacement)$)
+                {
+                T^\mcJ_1 \\
+                };
+
+            \matrix (m0) [draw,matrix of math nodes] at ($(mLj.south west)+(displacement)$)
+                {
+                0 \\
+                };
+            
+            \draw[dashed](m0.north east)--(mLP.north east);
+            \draw[dashed](m0.north west)--(mLP.north west);
+            \draw[dashed](m0.south east)--(mLP.south east);
+            
+            \node at ($(-5,-2.4)$) {$T=$};
+            
+            \end{tikzpicture}
+        \end{equation}
+    \end{minipage}
+\end{center}
+The structure of the storage matrix $\tilde{x}_{SSMO}$ is the same as $\tilde{x}_{3D}$ in \eqref{eqn:A-tilde-3D}. The selection of the final estimate follows the same procedure as described in Section \ref{subsec:estimate-selection}.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{c|c|c}
+       Matrix  & Dimensions & Number of elements \\ \hline
+       $\Tilde{x}_{SSMO}$  & $ n \times 1 \times N_S$ & $nN_S$ \\
+       $\mathbf{A}$ & $nN \times nN$ & $n^2N^2$ \\ 
+       $\mathbf{B}$ & $nN \times n$ & $n^2N$ \\
+       $T$ & $n \times nN \times N_S$ & $n^2NN_S$ \\
+    \end{tabular}
+    \caption{SSMO system matrix dimensions}
+    \label{tab:SSMO-dimensions}
+\end{table}
+
+\subsection{Size comparison}

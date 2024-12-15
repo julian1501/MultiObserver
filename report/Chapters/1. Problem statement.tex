@@ -1,0 +1,14 @@
+\section{Problem Statement}
+In the modern world large-scale systems such as power grids, transportation systems, and industrial processes are increasingly autonomous and interconnected. These systems make decisions based on real-time data, collected by sensors. For large systems, which require a lot of variables to describe the state, measuring all of these variables can be expensive or impractical. In these situations an \textit{observer} can be used to reconstruct the full state of the system from a subset of the \textit{state variables} \cite[Section 16.5]{Hespanha2018LinearTheory}. Unfortunately, these systems are vulnerable to faulty sensor input. The system will then make decisions based on this false data and possibly cause failures or equipment damage. In a power grid this could lead to large-scale blackouts. \textcolor{red}{cite this entire thing} \\
+
+The sensor data being erroneous could, for example, be caused by damage to the sensor or a malicious actor interfering with the sensor. This report will focus on the second case: a number of sensors in our system have been taken over by attackers. The attacker has full control over the sensor output signal and it can be any, potentially unbounded, value. Secure state estimation is the problem of providing an accurate state estimation when sensors are subject to the aforementioned malicious attacks.
+
+
+\textcolor{red}{find other approaches}
+
+
+This BEP aims to provide a comparison between two methods that aim to address the secure state estimation problem: the conventional multi-observer (CMO)\cite{Chong2015ObservabilityAttacks} and the state-sharing multi-observer (SSMO)\cite{Chong2023MemoryAlgorithms}. The SSMO aims to overcome the bottleneck of the CMO: memory-usage. The memory required to operate a CMO scales unfavourably with the number of outputs. The SSMO aims to provide a more scalable solution to secure state estimation problem. A mass-spring-damper system will be used to study the performance of both the CMO and SSMO.
+
+
+
+
