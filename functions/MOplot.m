@@ -1,21 +1,70 @@
 function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
-    % MOplot(t,x,err,estimate,sysName,MOdict) plots the solutions of the
-    % CMO. It creates a plot for each system state, on each plot the system
-    % response, J-observers, P-observers, CMO final estimate and the error
-    % into a single plot.
-    %
-    % Example values for inputs (single state):
-    %   - t = 0:0.01:5
-    %     x        = [0.10 0.20 0.30 0.40 0.50;
-    %                 0.30 0.20 0.10 0.05 0.01;
-    %                 0.30 0.40 0.50 0.60 0.70;
-    %                 0.20 0.25 0.20 0.15 0.20;
-    %                 0.05 0.10 0.15 0.20 0.25]
-    %     err      = [0.01 0.02 0.01 0.02 0.03]
-    %     estimate = [0.30 0.20 0.50 0.60 0.70]
-    %     sysName  = "Example single input system"
-
-    % Find the maximum 
+% MOplot Function
+%
+% The 'MOplot' function generates a series of plots to visualize the results 
+% of a Composite Multi-Observer (CMO) system. It creates a separate plot for 
+% each system state, displaying the system response, J-observers' estimates, 
+% P-observers' estimates, the final CMO estimate, and the error for each state 
+% over time. The plots are arranged in a grid depending on the number of 
+% states in the system.
+%
+% Documentation written by ChatGPT.
+%
+% Syntax:
+% -------
+% MOplot(t, x, err, estimate, sys, MO, Jmo, Pmo)
+%
+% Inputs:
+% -------
+% - 't' : A vector containing time values (e.g., 0:0.01:5).
+% - 'x' : A matrix containing the system states, observer estimates, and CMO 
+%   estimates across the time vector.
+% - 'err' : A matrix containing the error for each system state over time.
+% - 'estimate' : A matrix containing the CMO's final estimates for each system 
+%   state over time.
+% - 'sys' : A structure representing the system being observed, with fields 
+%   such as 'nx' (number of states) and 'Name' (system name).
+% - 'MO' : The multi-observer object that contains information about the system's
+%   outputs and attack settings.
+% - 'Jmo' : The J-observer configuration, containing the number of outputs 
+%   observed by each J-observer.
+% - 'Pmo' : The P-observer configuration, containing the number of outputs 
+%   observed by each P-observer.
+%
+% Description:
+% ------------
+% The 'MOplot' function plots the system response, J-observers' estimates, 
+% P-observers' estimates, the final CMO estimate, and the error for each 
+% system state. It generates a grid of plots, where each subplot corresponds 
+% to a specific state of the system. The function includes various customization 
+% options like labels, legends, and plot titles for each state, as well as 
+% different line styles for each plot element (e.g., system response, estimates, 
+% and errors).
+%
+% Initialization Steps:
+% ---------------------
+% - The function first calculates the number of rows and columns for the plot 
+%   grid based on the number of system states (sys.nx).
+% - It separates the system's true response, J-observers' estimates, P-observers' 
+%   estimates, and the CMO's estimate from the input 'x' matrix.
+% - For each state, the system response, J-observer estimates, P-observer 
+%   estimates, CMO estimate, and error are plotted in individual subplots.
+% - A legend is added for each plot to distinguish between different curves 
+%   (system response, J-observers, P-observers, CMO estimate, and error).
+%
+% Notes:
+% ------
+% - The function dynamically generates subplots for each system state.
+% - The legend is adjusted to show the J-observers' and P-observers' estimates,
+%   the system response, CMO estimate, and error for each state.
+% - The number of rows and columns in the plot grid is calculated based on 
+%   the total number of system states (sys.nx).
+% - The error and CMO estimate are only plotted if the 'estimate' matrix 
+%   contains multiple columns.
+%
+% See also:
+% ---------
+% mo, 3dcmo, ssmo
     
     % decide on what size grid should be used based on number of states in
     % system

@@ -1,6 +1,53 @@
 classdef cmo2d
-    %UNTITLED Summary of this class goes here
-    %   Detailed explanation goes here
+% cmo2d- creates a 2D conventional multi-observer using a system, the set
+% of J-observers and the set of P-observers.
+%
+% Syntax:  obj = cmo2d(sys,Jmo,Pmo)
+%
+% Inputs:
+%    sys - System model containing:
+%        - 'nx': Number of states.
+%        - 'A': State transition matrix.
+%        - 'COutputs': Output matrix.
+%        - 'E': Coupling matrix for nonlinear springs.
+%        - 'NLsize': Size of the nonlinear system components.
+%        - 'Linear': Logical indicating whether the system is linear.
+%    Jmo - mo object for all J-observers
+%        - 'sys': (same as input)
+%        - 'nx': number of states
+%        - 'ny': number of distinct outputs
+%        - 'nu': number of inputs
+%        - 'numOutputs': number of multi-observer outputs
+%        - 'numObservers': number of distinct observers in this mo object
+%        - 'numOutputsObservers': number of outputs per observer
+%        - 'Ci': (numOutputsObserver,nx,numObservers) sized array
+%           containing all Cis on each slice along the third dimension.
+%        - 'CiIndices': (numObservers,numOutputsObservers) sized array
+%           where each row contains the indices of the outputs used in the
+%           observer.
+%    Pmo - mo object for all J-observers
+%
+% Properties:
+%    sys - see input
+%    numObservers - total number of observers
+%    A - shared state matrix for all observers
+%    E - shared 'input' matrix for all observers
+%    attack - 
+%    B
+%    u
+%    x0
+%    PSubsetOfJIndices
+%
+% Example: 
+%    Line 1 of example
+%    Line 2 of example
+%    Line 3 of example
+%
+% Other m-files required: none
+% Subfunctions: none
+% MAT-files required: none
+%
+% See also: OTHER_FUNCTION_NAME1,  OTHER_FUNCTION_NAME2
 
     properties
         sys

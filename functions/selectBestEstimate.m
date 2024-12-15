@@ -1,36 +1,99 @@
 function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys)
-    % [bestEstimate, jBestEstimate] = 
-    % selectBestEstimate(x,tsteps,PsubsetOfJIndices,CMOdict) selects the
-    % best estimate bestStateEstimate (xhat) from subobservers OP out of J 
-    % observers in the solution x for every time instant up to tsteps and 
-    % returns the observer index j which provides the best estimate. The 
-    % selection is made according to the criteria in (Chong, 2015, 
-    % Observability of linear systems under adversarial attacks) and are as
-    % follows:
-    %   1. xhat(t) = xhat_sigma(t)_(t),
-    %   2. sigma(t) = arg min PiJ(t)
-    %   3. PiJ(t) = max |xhat_J(t) - xhat_P(t)| for each sub-observer P in
-    %       J.
-    %
-    % For example:
-    %   - x = [ 0.0011;
-    %          -0.9476;
-    %          -0.0329;
-    %          -0.8780;
-    %          -0.0755;
-    %          -0.9336;
-    %          -0.0478;
-    %          -0.8991;
-    %           0.0155;
-    %          -0.7731;
-    %          -0.2359;
-    %          -0.1777;
-    %          -0.0011;
-    %          -0.8644]
-    %     tsteps = 1
-    %     PSubsetOfJIndices = [1 2; 1 3; 2 3]
-    %       -> bestEstimate  = [-0.0755; -0.9336]
-    %          jbestEstimate = 2
+% selectBestEstimate Function
+%
+% The 'selectBestEstimate' function determines the best state estimate 
+% (xhat) from a set of subobservers P within J observers at each time step.
+% The function identifies the observer index sigma(t) that provides the best
+% estimate based on a predefined selection criterion, and returns the 
+% corresponding state estimate and observer index for all time steps.
+%
+% Documentation written by ChatGPT.
+%
+% Inputs:
+% -------
+% - 'x': A matrix containing the combined state trajectories for all observers. 
+%   The state trajectories are divided into:
+%   1. J observer states
+%   2. P observer states
+%
+% - 'tsteps': The number of time steps for which the state estimates are provided.
+%
+% - 'PsubsetOfJIndices': A matrix containing indices that map each J 
+%   observer to its corresponding P subobservers.
+%
+% - 'numOfPsubsetsInJ': The number of P subobservers within each 
+%   J observer.
+%
+% - 'Jmo': A structure containing information about the J observers, 
+%   specifically:
+%   - 'Jmo.numObservers': The total number of J observers.
+%
+% - 'Pmo': A structure containing information about the P observers, 
+%   specifically:
+%   - 'Pmo.numObservers': The total number of P observers.
+%
+% - 'sys': A structure containing system properties, including:
+%   - 'sys.nx': The number of state variables for each observer.
+%
+% Outputs:
+% --------
+% - 'bestStateEstimate': A matrix of size n_x by tsteps containing the 
+%   best state estimate at each time step.
+%
+% - 'jBestEstimate': A row vector of length 'tsteps' containing the index of 
+%   the J observer that provided the best state estimate at each time step.
+%
+% Function Description:
+% ---------------------
+% The function follows these steps:
+% 1. Extract the state trajectories of the J observers and P observers from 
+%    'x'.
+% 2. For each time step t:
+%    a. Reshape the states of the J and P observers into 3D matrices for 
+%       easier manipulation.
+%    b. Loop through each J observer:
+%       - Compute the maximum norm difference Pi_j between the 
+%         J observer's state and the states of its corresponding 
+%         P subobservers.
+%    c. Identify the J observer with the minimum Pi_j
+%       value and select its state as the best estimate for that time step.
+% 3. Return the best state estimates and the corresponding observer indices.
+%
+% Selection Criterion:
+% --------------------
+% The selection is based on minimizing the observability degradation, 
+% as described in Chong (2015):
+% 1. The best estimate is defined as:
+%    x_hat(t) = x_hat{_sigma(t)}(t)
+%    where \sigma(t) is the observer index minimizing Pi_j(t).
+% 2. Pi_j(t) is calculated as:
+%    Pi_j(t) = max(x_hat_j(t) - x_hat_p(t))
+%
+% Example:
+% --------
+% Consider a system with n_x = 2, J = 3 observers, and P = 2
+% subobservers. Given:
+% - 'x': A matrix of size nx times tsteps containing state estimates 
+%   for all observers.
+% - 'PsubsetOfJIndices = [1 2; 1 3; 2 3]': Maps each J observer 
+%   to its corresponding P subobservers.
+% - 'tsteps = 1': Single time step.
+%
+% The output will provide:
+% - 'bestStateEstimate': The best state estimate for t = 1.
+% - 'jBestEstimate': The index of the J observer that provided 
+%   the best estimate.
+%
+% Notes:
+% ------
+% - The function assumes that the input data is correctly formatted.
+% - If multiple J observers have the same Pi_j value, 
+%   the first observer (lowest index) is selected.
+%
+% See also:
+% ---------
+% norm, reshape, find
+
 
 
     % xJ contains the states of the J observers

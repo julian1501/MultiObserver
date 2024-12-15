@@ -1,6 +1,92 @@
 classdef msd
-    % msd sets up a state space system for a mass-spring-damper (msd)
-    %   Detailed explanation goes here
+% msd Class
+%
+% The 'msd' class defines a mass-spring-damper (MSD) system using state-space 
+% representation. It sets up a linear or nonlinear system with multiple masses 
+% in series and calculates the system matrices A, B, C, D, and optionally E 
+% for nonlinearities.
+%
+% Documentation written by ChatGPT.
+%
+% Properties:
+% -----------
+% - 'numMass': The number of masses in the system.
+% - 'Name': The name of the system, constructed using the number of masses.
+% - 'A': The state-space A matrix, describing the system's dynamics.
+% - 'B': The state-space B matrix, representing the system inputs.
+% - 'C': The state-space C matrix, representing the system outputs.
+% - 'D': The state-space D matrix, which typically relates inputs to outputs.
+% - 'E': The nonlinear E matrix (if applicable), defining the nonlinear behavior.
+% - 'Linear': A boolean indicating whether the system is linear or nonlinear.
+% - 'nx': The number of states in the system, corresponding to the size of the A matrix.
+% - 'ny': The number of outputs in the system, corresponding to the size of the C matrix.
+% - 'nu': The number of inputs to the system, corresponding to the size of the B matrix.
+% - 'xsize': The size of the state vector (calculated based on the number of masses).
+% - 'k': The spring constants for each mass.
+% - 'a': A constant used in the nonlinear model (default value of 10).
+% - 'm': The masses in the system.
+% - 'NLsize': The size of the nonlinear matrix E (if applicable).
+% - 'COutputs': The matrix of valid outputs for the system.
+%
+% Methods:
+% --------
+% - 'msd(linear, numMass, m, k, c)': Constructor to initialize an instance of the 
+%   'msd' class.
+%   - 'linear': A boolean indicating whether the system is linear (true) or nonlinear (false).
+%   - 'numMass': The number of masses in the system.
+%   - 'm': A vector containing the masses in the system.
+%   - 'k': A vector containing the spring constants for each mass.
+%   - 'c': A vector containing the damping constants for each mass.
+%
+% Constructor Description:
+% ------------------------
+% The constructor initializes the mass-spring-damper system based on the 
+% provided parameters. It constructs the system matrices A, B, C, D, E, and P 
+% depending on whether the system is linear or nonlinear. If the system has 
+% nonlinearities, it will set up the appropriate nonlinear matrix E. 
+% The constructor also checks that the system is observable and validates the 
+% input constants. If multiple constants are provided, they are repeated for 
+% each mass.
+%
+% Initialization Steps:
+% ---------------------
+% - The constructor checks that only one constant for spring, mass, and damping 
+%   is provided, and replicates it for each mass if necessary.
+% - If the system is linear, it sets up the A matrix for a linear system with 
+%   the appropriate entries for each mass and its interactions.
+% - If the system is nonlinear, it sets up the A matrix similarly but includes 
+%   additional nonlinear terms and sets the nonlinear matrices E and P.
+% - The system matrices B and C are set up based on the number of masses.
+% - The constructor also checks that the system is observable by calling 
+%   the MATLAB function `isObsv()`.
+%
+% Example:
+% --------
+% linear = true;  % Set to false for a nonlinear system
+% numMass = 2;
+% m = [1; 1];  % Masses of each block
+% k = [10; 10];  % Spring constants
+% c = [0.5; 0.5];  % Damping constants
+%
+% sys = msd(linear, numMass, m, k, c);
+% This creates a linear 2-mass mass-spring-damper system with the specified 
+% parameters.
+%
+% Notes:
+% ------
+% - If a nonlinear system is chosen, the matricex E is populated to 
+%   represent nonlinear contributions to the system.
+% - The system matrices (A, B, C, D, E, and P) are computed based on the 
+%   configuration of the mass-spring-damper system (linear or nonlinear).
+% - The constructor automatically checks for observability and throws an error 
+%   if the system is not observable.
+% - The class is capable of handling multiple masses in series and adjusting 
+%   the system dynamics accordingly.
+%
+% See also:
+% ---------
+% isObsv
+
 
     properties
         % Number of masses in series
@@ -17,8 +103,6 @@ classdef msd
         D
         % Nonlinear E multiplication matrix
         E
-        % Nonlinear contribution matrix
-        P
         % Linear
         Linear
         % number of states
@@ -64,11 +148,9 @@ classdef msd
             if numMass == 1
                 if linear
                     A = [0, 1; -k(1)/m(1), -c(1)/m(1)];
-                    P = [0; 0];
                     E = [];
                 elseif ~linear
                     A = [0, 1; -k(1)/m(1), -c(1)/m(1)];
-                    P = [0; 1];
                     E = [0 0; 0 -1];
                 end
                 B = [0; 1/m(1)];
@@ -95,7 +177,6 @@ classdef msd
                     end
 
                     % No non-linearities
-                    P = zeros(2*numMass,1);
                     E = [];
 
                     
@@ -118,7 +199,6 @@ classdef msd
                     end
 
                     % non-linearities
-                    P = repmat([0;1],numMass,1);
                     E = zeros(2*numMass,numMass);
                     for i = 1:1:numMass
                         if i < numMass
@@ -159,7 +239,6 @@ classdef msd
             obj.C = C;
             obj.D = D;
             obj.E = E;
-            obj.P = P;
             obj.nx = size(A,1);
             obj.ny = size(C,1);
             obj.nu = size(B,2);

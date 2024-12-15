@@ -17,7 +17,7 @@ function c = generateCombination(i, n, k)
             r = r - nchoosek(n - cs, k - s);
             cs = cs + 1;
         end
-        c = [c, cs]; %#ok<AGROW> Append the current selection
+        c = [c, cs]; % Append the current selection
         j = cs;      % Update the starting point
     end
 end

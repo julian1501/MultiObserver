@@ -1,9 +1,12 @@
 clearvars; close all;
 
+% initialize bools indicating user input (dialog) and if the results should
+% be plotted (plot)
 dialog = true; plot = true;
 fprintf(['\n' repmat('-',1,100) '\n'])
-inputs = inputDiaglog(dialog);
+inputs = inputDialog(dialog);
 
+% extract input string values into number type variables
 sysNum = str2num(inputs{1});
 numOutputs = str2num(inputs{2});
 if lower(inputs{3}) == 'max'
@@ -24,9 +27,8 @@ linear = str2num(inputs{9});
 
 
 %% CALCULATIONS
+% display information in the command window
 fprintf('The number of outputs is %3.0f: \n',numOutputs)
-
-% M: maximum number of corrupted outputs
 fprintf('The maximum allowable number of compromised outputs %3.0f: \n',numAttackedOutputs)
 numOutputsJObservers = numOutputs-numAttackedOutputs;
 fprintf('The size of each J observer is: %3.0f \n',numOutputsJObservers)
@@ -36,7 +38,7 @@ fprintf('The number of J observers is: %3.0f \n',numJObservers)
 numPObservers = nchoosek(numOutputs,numOutputsPObservers);
 fprintf('The number of P observers is: %3.0f \n',numPObservers)
 
-% Noiseless system definition
+% system definition
 sys = msd(linear,sysNum,1,15,2.0);
 
 if ~isMatrixStable(sys.A)
@@ -46,14 +48,18 @@ if sys.D ~= 0
     error('Implementation for systems with D still needs work.')
 end
 
+% setup the attack
 Attack = attack(numOutputs,numAttackedOutputs);
 
+% setup the J and P observers
 Pmo = mo(sys,Attack,numOutputs,numOutputsPObservers);
 Jmo = mo(sys,Attack,numOutputs,numOutputsJObservers);
 
+% find which P observers are subobservers of J
 sys.COutputs = Jmo.COutputs;
-[numOfPsubsetsInJ,PsubsetOfJIndices] = findIndices(Jmo,Pmo,sys);
+[numOfPsubsetsInJ,PsubsetOfJIndices] = findIndices(Jmo,Pmo);
 
+% Setup the different type of multi-observers
 CMO2D = 0; CMO3D = 0; SSMO = 0;
 if whichMO(1) == 1
     CMO2D = 0;
@@ -69,7 +75,7 @@ end
 x0 = x0setup(x0Options,whichMO,sys,Jmo,Pmo);
 
 
-[t,x] = ode45(@(t,x) classBasedODE(sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO),tspan,x0);
+[t,x] = ode45(@(t,x) multiObserverODE(sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO),tspan,x0);
 t = t';
 x = x';
 
