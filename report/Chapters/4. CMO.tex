@@ -113,10 +113,10 @@ The $\Tilde{A}$ matrix stores  all $J$- and $P$-estimates: the top section store
     \centering
     \begin{tabular}{c|c|c}
        Matrix  & Dimensions & Number of elements \\ \hline
-       $\Tilde{x}_{2D}$  & $\ntwoD \times 1$ & $nN_S$ \\
-       $\Tilde{A}_{2D}$ & $\ntwoD \times \ntwoD$ & $n^2N_S^2$ \\
-       $B_{2D}$ & $k \times N_S$ & $kN_S$ \\
-       $u_{2D}$ & $k \times N_S$ & $kN_S$ \\
+       $\Tilde{x}_{2D}$  & $n_xN_S \times 1$ & $n_xN_S$ \\
+       $\Tilde{A}_{2D}$ & $n_xN_S \times n_xN_S$ & $n_x^2N_S^2$ \\
+       $B_{2D}$ & $n_u \times N_S$ & $n_uN_S$ \\
+       $u_{2D}$ & $n_u \times N_S$ & $n_uN_S$ \\
     \end{tabular}
     \caption{2D-CMO system matrix dimensions}
     \label{tab:2D-CMO-dimensions}
@@ -390,9 +390,9 @@ Let us now look at the sizes of all matrices that are required for state estimat
     \centering
     \begin{tabular}{c|c|c}
        Matrix  & Dimensions & Number of elements \\ \hline
-       $\Tilde{x}_{3D}$  & $ n \times 1 \times N_S$ & $nN_S$ \\
-       $\Tilde{A}_{3D}$ & $n \times n \times N_S$ & $n^2N_S$ \\ 
-       $F_{3D}$ & $n \times n \times N_S$ & $n^2N_S$ \\
+       $\Tilde{x}_{3D}$  & $ n_x \times 1 \times N_S$ & $n_xN_S$ \\
+       $\Tilde{A}_{3D}$ & $n_x \times n_x \times N_S$ & $n_x^2N_S$ \\ 
+       $F_{3D}$ & $n_x \times n_x \times N_S$ & $n_x^2N_S$ \\
        
     \end{tabular}
     \caption{3D-CMO system matrix dimensions}

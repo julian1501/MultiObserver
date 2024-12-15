@@ -10,7 +10,7 @@ function coefficients = rootsToCoefficients(roots)
 % Inputs:
 % -------
 % - 'roots': A vector (either row or column) of polynomial roots. The input 
-%   must be either a (1 × n) or (n × 1) matrix, where 'n' is the number of roots.
+%   must be either a (1,n) or (n,1) matrix, where 'n' is the number of roots.
 %
 % Outputs:
 % --------

@@ -320,13 +320,35 @@ The structure of the storage matrix $\tilde{x}_{SSMO}$ is the same as $\tilde{x}
     \centering
     \begin{tabular}{c|c|c}
        Matrix  & Dimensions & Number of elements \\ \hline
-       $\Tilde{x}_{SSMO}$  & $ n \times 1 \times N_S$ & $nN_S$ \\
-       $\mathbf{A}$ & $nN \times nN$ & $n^2N^2$ \\ 
-       $\mathbf{B}$ & $nN \times n$ & $n^2N$ \\
-       $T$ & $n \times nN \times N_S$ & $n^2NN_S$ \\
+       $\Tilde{x}_{SSMO}$  & $ n_x \times 1 \times N_S$ & $_xN_S$ \\
+       $\mathbf{A}$ & $n_xN_O \times n_xN_O$ & $n_x^2N_O^2$ \\ 
+       $\mathbf{B}$ & $n_xN_O \times n_x$ & $n_x^2N_O$ \\
+       $T$ & $n_x \times n_xN_O \times N_S$ & $n_x^2N_ON_S$ \\
     \end{tabular}
     \caption{SSMO system matrix dimensions}
     \label{tab:SSMO-dimensions}
 \end{table}
 
 \subsection{Size comparison}
+Let us now compare the sizes of the 2D-CMO, 3D-CMO and SSMO as presented in Tables \ref{tab:2D-CMO-dimensions}, \ref{tab:3D-CMO-dimensions} and \ref{tab:SSMO-dimensions} respectively. First, the total number of elements for each MO is derived from the matrices that are needed to construct it. 
+\begin{table}[h]
+    \centering
+    \begin{tabular}{c|c}
+        Multi-Observer & Total number of Elements \\
+        \hline
+        2D-CMO & $n_x^2N_S^2 + N_S(n_x+2n_u)$ \\
+        3D-CMO & $n_xN_s(1+2n_x)$ \\
+        SSMO   & $n_xN_S(1+n_xN_O) + n_x^2N_O(N_O+1)$ \\
+    \end{tabular}
+    \caption{Total number of elements in each MO implementation}
+    \label{tab:my_label}
+\end{table}
+
+We now use the for $N_S$ as in equation \eqref{eqn:NS-approximation} to compare number of Gigabytes required to store the MO. The comparison is made for different combinations of the number of state variables $n_x$ and number of total system outputs $N_O$. Both of these values are ranged from $1$ to $100$ and the storage size for each combination is compared.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{size}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
