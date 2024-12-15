@@ -1,0 +1,442 @@
+
+
+\section{Conventional multi-observer}
+In this section the CMO will be introduced and two implementations will be discussed. Let us first further elaborate on the what the CMO should achieve. Let us look at the case where a 'single'-observer \eqref{eqn:unstable-simple-state-estimator} is employed to construct the state estimate of system \eqref{eqn:standard-system}, where $w=0$ and $v=0$. When an attacker gains control over some of the outputs $y_i$ and attacks it with the attack signal $\tau_i$. Performing the same analysis on the derivative of error \eqref{eqn:estimate-error} leads to
+\begin{equation*}
+    \begin{split}
+        \dot{e} = \dot{\hat{x}} - \dot{x} &= A\hat{x} + Bu + E\phi(y) + L(C\hat{x} - Cx - \tau) - Ax - Bu - E\phi(y) \\
+        &= (A+LC)e - L\tau,
+    \end{split}
+\end{equation*}
+which does not guarantee $e \rightarrow 0$ as $t \rightarrow \infty$. The CMO aims to still provide a correct state estimate even when a subset $\mathcal{M} \subset \mathcal{N}$ outputs are under attack, where $2|\mathcal{M}| < |\mathcal{N}|$. 
+
+\subsection{Constructing the state estimates}
+\label{subsec:state-estimates}
+The multi-observer described in this section is based on \cite[III B]{Chong2015ObservabilityAttacks}. This CMO is able to correctly estimate the state when up to $N_M = |\mathcal{M}|$ outputs are under attack. $N_M$ is required to satisfy $2N_M<N_O$, in other words: more than half the sensors need to remain attack free at all times. Consider system \eqref{eqn:standard-system} with $N_O$ outputs
+\begin{equation*}
+    \begin{split}
+    \dot{x} &= Ax + Bu + E\phi(y) + w \\
+        y_i &= C_ix + Du + v_i + \tau_i \quad i  \in \{1,2,\dots,N_O\}.
+    \end{split}
+\end{equation*}
+Let us define $\mathcal{J} \subset \{1,2,\dots,N\}$ and $\mathcal{P} \subset \{1,2,\dots,N\}$ as all sets with  $J=N_O-N_M$ and  $P=1$ elements respectively. $P$ could also be taken as any value smaller than $J$, we restrict ourselves to systems that are fully observable trough any single output $y_i = C_ix$. The cardinalities of $\mathcal{J}$ and $\mathcal{P}$ are 
+\begin{equation}\label{eqn:multi-observer-sizes}
+    N_J = \cJ={N_O \choose J}={N_O \choose N_O-N_M}, \quad N_P = \cP = {N_O \choose P} = N_O.
+\end{equation}
+For example, $N_O=17$ and $N_M=8$ ($N_O>2N_M$) leads to $N_J=24310$ and $N_P=17$.
+We now define the $j=1,2,\dots,N_J$ $J$\textit{-observers} as
+\begin{equation*}
+    \begin{split}
+        \dot{\hat{x}}_j^\mcJ &= A\hat{x}_j^\mcJ + Bu + E\phi(y) + L_j(\hat{y}_j^\mcJ - y_j) \\
+        \hat{y}_j^\mcJ &= C_j\hat{x}_j^\mcJ + Du
+    \end{split}
+\end{equation*}
+where $j$ is a single combination out of all outputs and $L_j$ is an output injection gain that can be chosen in such a way to place the eigenvalues at a desired location if and only if the pair $(A,C_j)$ is observable. For example when $N_O=5$ and $N_M=2$, a possible $j$ is $\{1,3,4\}$ or $\{2,3,5\}$. The $J$ in the superscript indicates that this is a variable that relates to an observer that uses $J$ out of $N_O$ outputs.
+Substituting $\hat{y}_j^J$ and $y_j$ in $\dot{\hat{x}}_j^J$ leads to
+\begin{equation}\label{eqn:cmo-single-J-observer}
+    \begin{split}
+        \dot{\hat{x}}_j^{\mcJ} &= Ax_j^{\mcJ} + Bu + E\phi(y) + L_j^{\mcJ}(C\hat{x}_j^{\mcJ} + Du - C_j^{\mcJ}x - Du - v_j^{\mcJ}) \\
+        \dot{\hat{x}}_j^{\mcJ} &= (A + L_j^{\mcJ}C_j^{\mcJ})\hat{x}_j - L_j^JC_j^{\mcJ}x + Bu + E\phi(y) - L_j^{\mcJ}(v_j^{\mcJ} + \tau_j^{\mcJ}). \\
+    \end{split}    
+\end{equation}
+Doing the same for the the $p=1,2,\dots,N_P$ $P$\textit{-observers} leads to
+\begin{equation}\label{eqn:cmo-single-P-observer}
+    \dot{\hat{x}}_p^{\mcP} = (A + L_p^{\mcP}C_p^{\mcP})\hat{x}_p^{\mcP} - L_p^{\mcP}C_p^{\mcP}x + Bu + E\phi(y) - L_p^{\mcP}(v_p^{\mcP} + \tau_p^{\mcP}).
+\end{equation}
+Where $C_p$ and $C_i$ are the rows. All observers in \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer} form a \textit{multi-observer}. Note that for a system with $N_M$ the largest possible number so that $N_O > 2N_M$, there is exactly one possible combination with $J$ elements out of all $N_J$ possible combinations that does not contain any of the $N_M$ attacked outputs. We now need to derive a method to select this one attack free observer from all observers. That is where the $P$-observers are used.
+
+\subsection{Final estimate selection procedure}
+\label{subsec:estimate-selection}
+Now that all state estimates are constructed, a 'final' estimate $\hat{x}$ needs to be selected from all $\hat{x}_j^{\mcJ}$ First, a comparison will be made between all $J$-observers and the $P$-observers that are \textit{sub-observers}, implying that all outputs used to construct the state estimate $\hat{x}_p^{\mcP}$ are also used in the state estimate $\hat{x}_j^{\mcJ}$. For example, when $N_O=4$ $N_M=1$ one of the $J$-observer uses $j=\{1,2,4\}$ as outputs. The $P$-estimates would be constructed with $p \in \{1,2,4\}$. Let us define 
+\begin{equation*}
+   \pi_{j} = \max_{p \subset j} |\hat{x}_{j} - \hat{x}_{p}|
+\end{equation*}
+so the largest difference between the $j$-estimate and its $p$-estimates, where the $p$-observers are all a sub-observers of the $j$-observer. We now collect all $\pi_j$ in
+\begin{equation*}
+   \pi_{\mathcal{J}} = \max_{\mathcal{P} \subset \mathcal{J}} |\hat{x}_{\mathcal{J}} - \hat{x}_{\mathcal{P}}|
+\end{equation*}
+
+where $\hat{x}_{\mathcal{J}}$ are all state estimates from \eqref{eqn:cmo-single-J-observer} and $\hat{x}_{\mathcal{P}}$ are all sub-observers off each $j \in \mcJ$. Let us now choose the smallest $\pi_J$
+\begin{equation}
+    \sigma = \arg \min \pi_{\mathcal{J}}, \quad \sigma \subset \{1,2,\dots,N_J\}.
+\end{equation}
+We can now select the final state estimate as
+\begin{equation}
+    \hat{x} = \hat{x}_{\sigma}.
+\end{equation}
+This selection procedure selects the observer which has the smallest difference between itself and its sub-observers. 
+
+\subsection{Implementations}
+The state estimates constructed in \ref{subsec:state-estimates} only serve as a basis of the CMO, in this subsection two different implementations will be discussed. These implementations will be implemented in Matlab in the next chapter \textcolor{red}{ref this shit}. The first one  stores all the observers in a 2D matrix and will thus be known as the 2D-CMO. The second implementation stores the observers in a 3D matrix and will thus be known as the 3D-CMO.
+
+\subsubsection{2D conventional multi-observer}
+\textcolor{red}{decide if I want to keep this in, would require fintuning the implementation and adding the nonlinearity}
+Let us write all observers \eqref{eqn:cmo-single-J-observer}\eqref{eqn:cmo-single-P-observer} in the following form
+\begin{equation*}
+    \dot{\Tilde{x}}_{2D} = \Tilde{A}_{2D}\Tilde{x}_{2D} + F_{2D}\eta_{2D}
+\end{equation*}
+where
+\begin{equation}\label{eqn:2D-CMO}
+\renewcommand{\arraystretch}{1.3}
+    \begin{split}    
+        \Tilde{x}_{2D} &= 
+        \begin{bmatrix}
+            \hat{x}_1^{\mcJ} \\ \vdots \\ \hat{x}_{N_J}^{\mcJ} \\ \hat{x}_1^{P} \\ \vdots \\ \hat{x}_{N_P}^{\mcP}
+        \end{bmatrix}, \quad
+        \Tilde{A}_{2D} = 
+        \begin{bmatrix}
+            -L_1^{\mcJ}C_1^{\mcJ} & A + L_1^{\mcJ}C_1^{\mcJ} & \cdots & 0  & 0 & \cdots & 0 \\
+            \vdots & \vdots & \ddots & \vdots & \vdots & & \vdots \\
+            -L_{N_J}^{\mcJ}C_{N_J}^{\mcJ} & 0 & \cdots & A + L_{N_J}^{\mcJ}C_{N_J}^{\mcJ} & 0 & \cdots & 0 \\
+            -L_{1}^{\mcP}C_{1}^{\mcP} & 0 & \cdots & 0 & A + L_1^{\mcP}C_1^{\mcP} & \cdots & 0 \\
+            \vdots & \vdots &  & \vdots & \vdots & \ddots & \vdots \\
+            -L_{N_P}^{\mcP}C_{N_P}^{\mcP} & 0 & \cdots & 0 & 0 & \cdots & A + L_{N_P}^{\mcP}C_{N_P}^{\mcP} \\
+        \end{bmatrix} \\
+        \eta &= 
+        \begin{bmatrix}
+            u \\ v_1^{\mcJ} + \tau_1^{\mcJ} \\ \vdots \\ v_{N_J}^{\mcJ} + \tau_{N_J}^J \\ v_1^{\mcP} + \tau_1^{\mcP} \\ \vdots \\ v_{N_P}^{\mcP} + \tau_{N_P}^{\mcP} \\ w \\
+        \end{bmatrix}, \quad 
+        F_{2D} = 
+        \begin{bmatrix}
+            B & -L_1^{\mcJ} & \cdots & 0 & 0 & \cdots & 0 \\
+            \vdots & \vdots & \ddots & \vdots & \vdots & & \vdots \\
+            B & 0 & \cdots & -L_{\cJ}^{\mcJ} & 0 & \cdots & 0 \\
+            B & 0 & \cdots & 0 & -L_{1}^{\mcP} & \cdots & 0 \\
+            \vdots & \vdots & & \vdots & \vdots & \ddots & \vdots \\
+            B & 0 & \cdots & 0 & 0 & \cdots & -L_{N_P}^{\mcP} \\
+        \end{bmatrix}\\
+    \end{split}
+\end{equation}
+The $\Tilde{A}$ matrix stores  all $J$- and $P$-estimates: the top section stores the $J$-observers and on the bottom the $P$-observers. Multiplying this $\Tilde{A}_{2D}$ matrix by $\Tilde{x}_{2D}$ leads to the state estimators presented in \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer} without inputs, noise and attacks. The vector $\eta$ stacks the input and sum of sensor noise and attack signal on top of each other and the matrix $E$ stores all factors that need to be multiplied with $\eta$ to arrive at \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer}.
+
+\newcommand{\ntwoD}{nN_S}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{c|c|c}
+       Matrix  & Dimensions & Number of elements \\ \hline
+       $\Tilde{x}_{2D}$  & $\ntwoD \times 1$ & $nN_S$ \\
+       $\Tilde{A}_{2D}$ & $\ntwoD \times \ntwoD$ & $n^2N_S^2$ \\
+       $B_{2D}$ & $k \times N_S$ & $kN_S$ \\
+       $u_{2D}$ & $k \times N_S$ & $kN_S$ \\
+    \end{tabular}
+    \caption{2D-CMO system matrix dimensions}
+    \label{tab:2D-CMO-dimensions}
+\end{table}
+
+
+
+\newpage
+\subsubsection{3D conventional multi-observer}
+Now the second implementation of the CMO will be discussed. The goal of the 3D-CMO is to reduce the number of zeros required in the $\Tilde{A}_{2D}$\eqref{eqn:2D-CMO}. In order to do so we store all block matrices behind each other. Let us start by defining 
+\begin{center}
+    \begin{minipage}[t]{0.4\textwidth}
+        \centering
+        % First tikzpicture
+        \begin{equation}\label{eqn:x3d}
+            \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=1.2cm,minimum height=7mm}] 
+            % Define the displacement as a coordinate
+            \coordinate (displacement) at (0.9,0.2);
+        
+            \matrix (mxP) [draw,matrix of math nodes]
+                {
+                \hat{x}_{\cP}^P \\
+                };
+        
+            \matrix (dots2) [draw,matrix of math nodes] at ($(mxP.south west)+(displacement)$)
+                {
+                \dots \\
+                };
+        
+            \matrix (mxp) [draw,matrix of math nodes] at ($(dots2.south west)+(displacement)$)
+                {
+                \hat{x}_1^P \\
+                };
+        
+            \matrix (mxJ) [draw,matrix of math nodes] at ($(mxp.south west)+(displacement)$)
+                {
+                \hat{x}_{\cJ}^J \\
+                };
+        
+            \matrix (dots1) [draw,matrix of math nodes] at ($(mxJ.south west)+(displacement)$)
+                {
+                \dots \\
+                };
+        
+            \matrix (mxj) [draw,matrix of math nodes] at ($(dots1.south west)+(displacement)$)
+                {
+                \hat{x}_1^J \\
+                };
+    
+            \node at ($(-4,-1.75)$) {$\tilde{x}_{3D}=$};
+            
+            \draw[dashed](mxj.north east)--(mxP.north east);
+            \draw[dashed](mxj.north west)--(mxP.north west);
+            \draw[dashed](mxj.south east)--(mxP.south east);
+    
+        \end{tikzpicture}
+        \end{equation}
+    \end{minipage}
+    \begin{minipage}[t]{0.4\textwidth}
+        \centering
+        % Second tikzpicture
+        \begin{equation}\label{eqn:A-tilde-3D}
+            \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=2.2cm,minimum height=7mm}]
+            
+            % Define the displacement as a coordinate
+            \coordinate (displacement) at (1.9,0.2);
+        
+            \matrix (mAP) [draw,matrix of math nodes]
+                {
+                A + L_{\cP}^PC_{\cP}^P \\
+                };
+        
+            \matrix (dots2) [draw,matrix of math nodes] at ($(mAP.south west)+(displacement)$)
+                {
+                \dots \\
+                };
+        
+            \matrix (mAp) [draw,matrix of math nodes] at ($(dots2.south west)+(displacement)$)
+                {
+                A + L_1^PC_1^P \\
+                };
+        
+            \matrix (mAJ) [draw,matrix of math nodes] at ($(mAp.south west)+(displacement)$)
+                {
+                A + L_{\cJ}^JC_{\cJ}^J \\
+                };
+        
+            \matrix (dots1) [draw,matrix of math nodes] at ($(mAJ.south west)+(displacement)$)
+                {
+                \dots \\
+                };
+        
+            \matrix (mAj) [draw,matrix of math nodes] at ($(dots1.south west)+(displacement)$)
+                {
+                A + L_1^J C_1^J \\
+                };
+            
+            \draw[dashed](mAj.north east)--(mAP.north east);
+            \draw[dashed](mAj.north west)--(mAP.north west);
+            \draw[dashed](mAj.south east)--(mAP.south east);
+        
+            \node at ($(-5,-1.75)$) {$\tilde{A}_{3D}=$};
+            
+            \end{tikzpicture}
+        \end{equation}
+    \end{minipage}
+\end{center}
+
+$\tilde{x}_{3D}$ is similar to $\tilde{x}_{2D}$ \eqref{eqn:2D-CMO}, where the state $x$ and all its state estimates are stored below each other. Let us now define some basic notation, similar to Matlab notation, regarding three-dimensional arrays. We will define a \textit{page} of a 3D array as a single 2D slice from that array, these slices can be taken from any 2 dimensions present in the 3D array. Let us define $G \in \mathbb{R}^{3 \times 4 \times 8}$, slicing the first page along the third dimension will be denoted as $G(:,:,1)$ and the third page along the first dimension as $G(3,:,:)$. The slices that can be seen in equation \eqref{eqn:A-tilde-3D} are sliced along the third dimension. \\
+$\tilde{A}_{3D}$ stores all elements on the diagonal of $\tilde{A}_{2D}$ \eqref{eqn:2D-CMO} on a separate page of a 3D array. Let us now define the operation \textit{page multiplication}, this operation can be performed on two 3D arrays that have (at least) one equal dimension and pages sliced along this equal dimension result in two matrices that can be multiplied. Or one 3D matrix and a 2D matrix where slicing the 3D matrix along the desired dimension results in slices that can be multiplied with the 2D matrix. This operation is analogous with the Matlab function \texttt{pagemtimes} \cite{2022MATLABR2022b}. In this report a page multiplication of two  matrices $A$ and $B$ along the third dimension will be denoted as $ \pamu(A,B,3)$. \\
+Another operation is required for the summands that are equal for each observer, $Bu$ and $E\phi(y)$. The multiplication only has to be performed once and the resultant matrix $M$ should be repeated along the third dimension $n$ times. This operation is analogous to the Matlab function \texttt{repmat}(M,1,1,n) \cite{2022MATLABR2022b}. In this report this function will be denoted as \texttt{rep}(M,n), where the ones indicating the number of repetitions are omitted. Let us now define
+
+\begin{center}
+    \begin{minipage}[t]{0.4\textwidth}
+        % First tikzpicture
+        \begin{equation}\label{eqn:F-3d}
+            \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=2cm,minimum height=7mm}]
+            
+            % Define the displacement as a coordinate
+            \coordinate (displacement) at (1.7,0.2);
+        
+            \matrix (mLCP) [draw,matrix of math nodes]
+                {
+                -L_{\cP}^PC_{\cP}^P \\
+                };
+        
+            \matrix (dots2) [draw,matrix of math nodes] at ($(mLCP.south west)+(displacement)$)
+                {
+                \dots \\
+                };
+        
+            \matrix (mLCp) [draw,matrix of math nodes] at ($(dots2.south west)+(displacement)$)
+                {
+                -L_{1}^PC_{1}^P \\
+                };
+        
+            \matrix (mLCJ) [draw,matrix of math nodes] at ($(mLCp.south west)+(displacement)$)
+                {
+                -L_{\cJ}^JC_{\cJ}^J \\
+                };
+        
+            \matrix (dots1) [draw,matrix of math nodes] at ($(mLCJ.south west)+(displacement)$)
+                {
+                \dots \\
+                };
+        
+            \matrix (mLCj) [draw,matrix of math nodes] at ($(dots1.south west)+(displacement)$)
+                {
+                -L_1^JC_1^J \\
+                };
+            
+            
+            \draw[dashed](mLCj.north east)--(mLCP.north east);
+            \draw[dashed](mLCj.north west)--(mLCP.north west);
+            \draw[dashed](mLCj.south east)--(mLCP.south east);
+            
+            \node at ($(-5,-1.75)$) {$F_{3D}=$};
+            
+            \end{tikzpicture}
+        \end{equation}
+    \end{minipage}
+\end{center}
+and
+\begin{center}
+    \begin{minipage}[t]{0.4\textwidth}
+        \centering
+        % Second tikzpicture
+        \begin{equation}\label{eqn:L-3d}
+            \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=1.2cm,minimum height=7mm}]
+            
+            % Define the displacement as a coordinate
+            \coordinate (displacement) at (0.9,0.2);
+        
+            \matrix (mLP) [draw,matrix of math nodes]
+                {
+                -L_{\cP}^P \\
+                };
+        
+            \matrix (dots2) [draw,matrix of math nodes] at ($(mLP.south west)+(displacement)$)
+                {
+                \dots \\
+                };
+        
+            \matrix (mLp) [draw,matrix of math nodes] at ($(dots2.south west)+(displacement)$)
+                {
+                -L_{1}^P \\
+                };
+        
+            \matrix (mLJ) [draw,matrix of math nodes] at ($(mLp.south west)+(displacement)$)
+                {
+                -L_{\cJ}^J \\
+                };
+        
+            \matrix (dots1) [draw,matrix of math nodes] at ($(mLJ.south west)+(displacement)$)
+                {
+                \dots \\
+                };
+        
+            \matrix (mLj) [draw,matrix of math nodes] at ($(dots1.south west)+(displacement)$)
+                {
+                -L_1^J \\
+                };
+            
+            \draw[dashed](mLj.north east)--(mLP.north east);
+            \draw[dashed](mLj.north west)--(mLP.north west);
+            \draw[dashed](mLj.south east)--(mLP.south east);
+            
+            \node at ($(-4,-1.75)$) {$L_{3D}=$};
+            
+            \end{tikzpicture}
+        \end{equation}
+    \end{minipage}
+    \begin{minipage}[t]{0.4\textwidth}
+    \centering
+    % Second tikzpicture
+        \begin{equation}\label{eqn:eta-3d}
+            \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=2cm,minimum height=7mm}]
+            
+            % Define the displacement as a coordinate
+            \coordinate (displacement) at (1.7,0.2);
+        
+            \matrix (mLP) [draw,matrix of math nodes]
+                {
+                v_{\cP}^P + \tau_{\cP}^P \\
+                };
+        
+            \matrix (dots2) [draw,matrix of math nodes] at ($(mLP.south west)+(displacement)$)
+                {
+                \dots \\
+                };
+        
+            \matrix (mLp) [draw,matrix of math nodes] at ($(dots2.south west)+(displacement)$)
+                {
+                v_1^P + \tau_1^P \\
+                };
+        
+            \matrix (mLJ) [draw,matrix of math nodes] at ($(mLp.south west)+(displacement)$)
+                {
+                v_{\cJ}^J + \tau_{\cJ}^J \\
+                };
+        
+            \matrix (dots1) [draw,matrix of math nodes] at ($(mLJ.south west)+(displacement)$)
+                {
+                \dots \\
+                };
+        
+            \matrix (mLj) [draw,matrix of math nodes] at ($(dots1.south west)+(displacement)$)
+                {
+                v_1^J + \tau_1^J \\
+                };
+            
+            \draw[dashed](mLj.north east)--(mLP.north east);
+            \draw[dashed](mLj.north west)--(mLP.north west);
+            \draw[dashed](mLj.south east)--(mLP.south east);
+            
+            \node at ($(-4,-1.75)$) {$\eta_{3D}=$};
+            
+            \end{tikzpicture}
+        \end{equation}
+    \end{minipage}
+\end{center}
+
+We can now construct all observers \eqref{eqn:cmo-single-J-observer}\eqref{eqn:cmo-single-P-observer} with the 3D matrices \eqref{eqn:x3d}\eqref{eqn:A-tilde-3D}\eqref{eqn:F-3d}\eqref{eqn:L-3d}\eqref{eqn:eta-3d}
+
+\begin{equation*}
+    \dot{\tilde{x}}_{3D} = \pamu(\tilde{A}_{3D},\tilde{x}_{3D},3) + \pamu(F_{3D},x,3) + \pamu(L_{3D},\eta_{3D},3) + \texttt{rep}(Bu + E\phi(y),N_S).
+\end{equation*}
+
+Let us now look at the sizes of all matrices that are required for state estimation. The matrices $L_{3D}$ and $\eta_{3D}$ are not taken into account, since they are only used to model the state estimators and would not be required in a physical implementation.
+\begin{table}[h]
+    \centering
+    \begin{tabular}{c|c|c}
+       Matrix  & Dimensions & Number of elements \\ \hline
+       $\Tilde{x}_{3D}$  & $ n \times 1 \times N_S$ & $nN_S$ \\
+       $\Tilde{A}_{3D}$ & $n \times n \times N_S$ & $n^2N_S$ \\ 
+       $F_{3D}$ & $n \times n \times N_S$ & $n^2N_S$ \\
+       
+    \end{tabular}
+    \caption{3D-CMO system matrix dimensions}
+    \label{tab:3D-CMO-dimensions}
+\end{table}
+
+
+\subsection{Number of observers}
+Let us define
+\begin{equation}
+    N_S = N_J + N_P
+\end{equation}
+which is the total number of systems needed for this multi-observer.\\
+
+From the combinatoric nature of equation \eqref{eqn:multi-observer-sizes} it can be seen that the number of observers required to provide the secure state-estimate grows rapidly with the number of outputs $N$. Let us look more closely at $\cJ$ when $M$ is the largest integer so that $N>2M$ holds and thus equation \eqref{eqn:multi-observer-sizes} holds.
+\begin{equation*}
+    \begin{split}
+        N_J &= {N_O \choose N_O-N_M}  = \frac{N_O!}{(N_O-M)!N_M!} = {N_O \choose N_M} \\
+    \end{split}
+\end{equation*}
+which follows from the symmetry property of a combination \cite[Section 1.1]{Mazur2010PrinciplesCombinatorics}. Substituting this into $N_S$ results in
+\begin{equation*}
+    N_S = \frac{N_O!}{(N_O-N_M)!N_M!} + N_O,
+\end{equation*}
+which can be simplified into
+\begin{equation*}
+    N_S \approx \frac{N_O!}{(N_O-M)!N_M!}
+\end{equation*}
+for large $N_O$, when the combinatoric term dominates. Let us assume that $N_M=\frac{1}{2}N$ and substitute it in
+\begin{equation}\label{eqn:simplified-NS}
+    N_S \approx \frac{N_O!}{(N_O-\frac{1}{2}N_O)!(\frac{1}{2}N_O)!} = \frac{N_O!}{\left( \left( \frac{1}{2}N_O \right) ! \right)^2}.
+\end{equation}
+This requires taking a factorial of a non-integer, which is not defined. We therefore use \textit{Stirling's formula}\cite{Beals2012GammaZeta}, which states that
+\begin{equation}\label{eqn:stirlings-formula}
+    n! \sim \sqrt{2\pi n} \left( \frac{n}{e} \right)^n,
+\end{equation}
+where the $\sim$ implies that the ratio between the two sides of the equation approaches $1$ as $N_O \rightarrow \infty$. Let us now substitute \eqref{eqn:stirlings-formula} into \eqref{eqn:simplified-NS}
+\begin{equation*}
+    \begin{split}
+        N_S \approx  \frac{\sqrt{2 \pi N_O}( \frac{N_O}{e} )^{N_O}}{\left( \sqrt{\pi N_O}(\frac{1}{2} \frac{N_O}{e} )^{\frac{1}{2}N_O} \right)^2} &= \frac{\sqrt{2 \pi N_O}}{\pi N_O} \frac{( \frac{N_O}{e} )^{N_O}}{(\frac{1}{2} \frac{N_O}{e} )^{N_O}} = \sqrt{\frac{2}{\pi N_O}} \frac{( \frac{N_O}{e} )^{N_O}}{(\frac{1}{2})^{N_O} (\frac{N_O}{e} )^{N_O}} \\
+    \end{split}
+\end{equation*}
+which can be further simplified into
+\begin{equation}\label{eqn:NS-approximation}
+    N_S \approx \sqrt{\frac{2}{\pi N_O}}2^{N_O}
+\end{equation}

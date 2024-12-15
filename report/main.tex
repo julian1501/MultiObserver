@@ -1,0 +1,131 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+%\usepackage{hyperref}
+\usepackage[english]{babel}
+\usepackage{color}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{multicol}
+\usepackage[numbered,framed]{matlab-prettifier}
+\usepackage[font={color=black,bf},figurename=Fig.,labelfont={it}]{caption}
+\usepackage{parskip}
+\usepackage{subfiles}
+\usepackage[toc,page]{appendix}
+\usepackage{graphicx}
+\usepackage{tocloft}
+\usepackage{titlepic}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{cite}
+\usepackage[utf8]{inputenc}
+\usepackage{tabu}
+\usepackage{amsfonts}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{matrix,calc}
+\usepackage[nottoc]{tocbibind}
+\usepackage{filecontents}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{epstopdf}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{gensymb}
+\usepackage[compact]{titlesec}
+\usepackage{fancyvrb}
+\usepackage{eurosym}
+\usepackage{soul}
+\usepackage{longtable}
+\usepackage[margin=1in]{geometry}
+\pagestyle{plain}
+%\usepackage[a4paper, total={7in, 10in}]{geometry}  Dit is voor mee text p.pag
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{subcaption}
+\definecolor{mygreen}{RGB}{28,172,0} 
+\definecolor{mylilas}{RGB}{170,55,241}
+\usepackage{subcaption}
+\usepackage{lscape}
+\usepackage{multirow}
+\usepackage[absolute,overlay]{textpos}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\setcounter{MaxMatrixCols}{13}
+\newcommand{\doctitle}{Multi-observer for control}
+\newcommand{\docsubtitle}{Bachelor End Project}
+\newcommand{\me}{Julian Gootzen}
+\newcommand{\version}{Draft version}
+\newcommand{\placeMonthYear}{Eindhoven, January 2025}
+\newcommand{\department}{Department of Mechanical Engineering}
+\newcommand{\group}{Dynamics and control}
+\newcommand{\firstCommitteeMember}{Michelle Chong} % use all the titles for 
+
+\newcommand{\cJ}{|\mathcal{J}|}
+\newcommand{\cP}{|\mathcal{P}|}
+\newcommand{\pamu}{\texttt{pm}}
+\newcommand{\mcJ}{\mathcal{J}}
+\newcommand{\mcP}{\mathcal{P}}
+\newcommand{\mcO}{\mathcal{O}}
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\A}{\mathcal{A}}
+
+
+
+\begin{document}
+\lstset{language=Matlab,
+	basicstyle = \scriptsize,
+    breaklines=true,
+    morekeywords={matlab2tikz},
+    keywordstyle=\color{blue},
+    morekeywords=[2]{1}, keywordstyle=[2]{\color{black}},
+    identifierstyle=\color{black},
+    stringstyle=\color{mylilas},
+    commentstyle=\color{mygreen},
+    showstringspaces=false,
+    numbers=left,
+    numberstyle={\small \color{black}},
+    numbersep=9pt, 
+    emph=[1]{for,end,break},emphstyle=[1]\color{red},   
+}
+
+
+\title{}
+\author{ \hfill }
+
+\input{report/General/Titlepage.tex}
+%\maketitle\thispagestyle{empty}
+
+\newpage
+\tableofcontents\thispagestyle{empty}
+
+%\section{Introduction}
+%\subsection{dit is een ondertitel}
+%\subsubsection{Dit is een onder-ondertitel}
+
+\newpage
+\input{report/Chapters/1. Problem statement}
+\newpage
+\input{report/Chapters/2. System definition}
+\newpage
+\input{report/Chapters/3. Standard observer}
+\newpage
+\input{report/Chapters/4. CMO}
+\newpage
+\input{report/Chapters/5. SSMO}
+\newpage
+\input{report/Chapters/6. Matlab implementation}
+
+\newpage
+\bibliographystyle{plain}
+\bibliography{report/references.bib}
+
+\newpage
+\input{report/Chapters/Appendix A}
+
+\end{document}
+
