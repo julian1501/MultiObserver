@@ -1,443 +1,199 @@
+\section{State estimation}\label{ch:state-estimation}
+This chapter first discussed the motivation for full state estimation. It also introduces the concept of observability and how it relates to state estimation. A standard 'single-observer' will be derived for linear systems and it will be expanded to also observe system with a non-linearity.
 
 
-\section{Conventional multi-observer}
-In this section the CMO will be introduced and two implementations will be discussed. Let us first further elaborate on the what the CMO should achieve. Let us look at the case where a 'single'-observer \eqref{eqn:unstable-simple-state-estimator} is employed to construct the state estimate of system \eqref{eqn:standard-system}, where $w=0$ and $v=0$. When an attacker gains control over some of the outputs $y_i$ and attacks it with the attack signal $\tau_i$. Performing the same analysis on the derivative of error \eqref{eqn:estimate-error} leads to
+\subsection{Motivation for full state estimation}
+Let us first discuss why there is a need for state estimation, consider the CLTI system
+\begin{equation}\label{eqn:standard-noiseless-system}
+    \dot{x} = Ax + Bu, \quad y = Cx + Du.
+\end{equation}
+The solution to this system can be written as
 \begin{equation*}
     \begin{split}
-        \dot{e} = \dot{\hat{x}} - \dot{x} &= A\hat{x} + Bu + E\phi(y) + L(C\hat{x} - Cx - \tau) - Ax - Bu - E\phi(y) \\
-        &= (A+LC)e - L\tau,
+        x &= e^{tA}x_{0} + \int_{0}^{t}e^{(t-\tau)A}Bu(\tau)d\tau \\
+        y &= Ce^{tA}x_{0} + \int_{0}^{t}Ce^{(t-\tau)A}Bu(\tau)d\tau + Du.
     \end{split}
 \end{equation*}
-which does not guarantee $e \rightarrow 0$ as $t \rightarrow \infty$. The CMO aims to still provide a correct state estimate even when a subset $\mathcal{M} \subset \mathcal{N}$ outputs are under attack, where $2|\mathcal{M}| < |\mathcal{N}|$. 
-
-\subsection{Constructing the state estimates}
-\label{subsec:state-estimates}
-The multi-observer described in this section is based on \cite[III B]{Chong2015ObservabilityAttacks}. This CMO is able to correctly estimate the state when up to $N_M = |\mathcal{M}|$ outputs are under attack. $N_M$ is required to satisfy $2N_M<N_O$, in other words: more than half the sensors need to remain attack free at all times. Consider system \eqref{eqn:standard-system} with $N_O$ outputs
+where $x_0 = x(0)$ \cite[Eqn. 6.4]{Hespanha2018LinearTheory}. When there is no input, i.e. $u=0$, system \eqref{eqn:standard-noiseless-system} reduces to
 \begin{equation*}
-    \begin{split}
-    \dot{x} &= Ax + Bu + E\phi(y) + w \\
-        y_i &= C_ix + Du + v_i + \tau_i \quad i  \in \{1,2,\dots,N_O\}.
-    \end{split}
+    \dot{x} = Ax, \quad y = Cx
 \end{equation*}
-Let us define $\mathcal{J} \subset \{1,2,\dots,N\}$ and $\mathcal{P} \subset \{1,2,\dots,N\}$ as all sets with  $J=N_O-N_M$ and  $P=1$ elements respectively. $P$ could also be taken as any value smaller than $J$, we restrict ourselves to systems that are fully observable trough any single output $y_i = C_ix$. The cardinalities of $\mathcal{J}$ and $\mathcal{P}$ are 
-\begin{equation}\label{eqn:multi-observer-sizes}
-    N_J = \cJ={N_O \choose J}={N_O \choose N_O-N_M}, \quad N_P = \cP = {N_O \choose P} = N_O.
+which has the solution
+\begin{equation}\label{eqn:zero-input-solution}
+    x = e^{tA}x_0, \quad y = Ce^{tA}x_0.
 \end{equation}
-For example, $N_O=17$ and $N_M=8$ ($N_O>2N_M$) leads to $N_J=24310$ and $N_P=17$.
-We now define the $j=1,2,\dots,N_J$ $J$\textit{-observers} as
-\begin{equation*}
-    \begin{split}
-        \dot{\hat{x}}_j^\mcJ &= A\hat{x}_j^\mcJ + Bu + E\phi(y) + L_j(\hat{y}_j^\mcJ - y_j) \\
-        \hat{y}_j^\mcJ &= C_j\hat{x}_j^\mcJ + Du
-    \end{split}
-\end{equation*}
-where $j$ is a single combination out of all outputs and $L_j$ is an output injection gain that can be chosen in such a way to place the eigenvalues at a desired location if and only if the pair $(A,C_j)$ is observable. For example when $N_O=5$ and $N_M=2$, a possible $j$ is $\{1,3,4\}$ or $\{2,3,5\}$. The $J$ in the superscript indicates that this is a variable that relates to an observer that uses $J$ out of $N_O$ outputs.
-Substituting $\hat{y}_j^J$ and $y_j$ in $\dot{\hat{x}}_j^J$ leads to
-\begin{equation}\label{eqn:cmo-single-J-observer}
-    \begin{split}
-        \dot{\hat{x}}_j^{\mcJ} &= Ax_j^{\mcJ} + Bu + E\phi(y) + L_j^{\mcJ}(C\hat{x}_j^{\mcJ} + Du - C_j^{\mcJ}x - Du - v_j^{\mcJ}) \\
-        \dot{\hat{x}}_j^{\mcJ} &= (A + L_j^{\mcJ}C_j^{\mcJ})\hat{x}_j - L_j^JC_j^{\mcJ}x + Bu + E\phi(y) - L_j^{\mcJ}(v_j^{\mcJ} + \tau_j^{\mcJ}). \\
-    \end{split}    
+Let us now consider the definition of Lyapunov stability as in \cite[Th. 8.2]{Hespanha2018LinearTheory}, which states that a system is stable if and only if all the eigenvalues $\lambda_i,i=1,2,\dots,n$ of $A$ have strictly negative real parts. The matrix exponential in equation \eqref{eqn:zero-input-solution} computed by writing the matrix $A$ into its Jordan normal form $J=PAP^{-1}$, the solution can then be written as
+\begin{equation}\label{eqn:jordan-form-exponential}
+    x = P^{-1}e^{tJ}Px_0
 \end{equation}
-Doing the same for the the $p=1,2,\dots,N_P$ $P$\textit{-observers} leads to
-\begin{equation}\label{eqn:cmo-single-P-observer}
-    \dot{\hat{x}}_p^{\mcP} = (A + L_p^{\mcP}C_p^{\mcP})\hat{x}_p^{\mcP} - L_p^{\mcP}C_p^{\mcP}x + Bu + E\phi(y) - L_p^{\mcP}(v_p^{\mcP} + \tau_p^{\mcP}).
+\cite[Section 7.3]{Hespanha2018LinearTheory}. When all eigenvalues of $A$ have an algebraic multiplicity of one (no duplicate eigenvalues), the matrix $J$ is of the form
+\begin{equation}\label{eqn:diagonal-matrix-exponential}
+    J =
+    \begin{bmatrix}
+        \lambda_1 & 0 & \cdots & 0 \\
+        0 & \lambda_2 & \cdots & 0 \\
+        \vdots & \vdots & \ddots & \vdots \\
+        0 & 0 & \cdots & \lambda_n \\
+    \end{bmatrix} \implies 
+    e^{tJ} = 
+    \begin{bmatrix}
+        e^{t\lambda_1} & 0 & \cdots & 0 \\
+        0 & e^{t\lambda_2} & \cdots & 0 \\
+        \vdots & \vdots & \ddots & \vdots \\
+        0 & 0 & \cdots & e^{t\lambda_n} \\
+    \end{bmatrix}
 \end{equation}
-Where $C_p$ and $C_i$ are the rows. All observers in \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer} form a \textit{multi-observer}. Note that for a system with $N_M$ the largest possible number so that $N_O > 2N_M$, there is exactly one possible combination with $J$ elements out of all $N_J$ possible combinations that does not contain any of the $N_M$ attacked outputs. We now need to derive a method to select this one attack free observer from all observers. That is where the $P$-observers are used.
-
-\subsection{Final estimate selection procedure}
-\label{subsec:estimate-selection}
-Now that all state estimates are constructed, a 'final' estimate $\hat{x}$ needs to be selected from all $\hat{x}_j^{\mcJ}$ First, a comparison will be made between all $J$-observers and the $P$-observers that are \textit{sub-observers}, implying that all outputs used to construct the state estimate $\hat{x}_p^{\mcP}$ are also used in the state estimate $\hat{x}_j^{\mcJ}$. For example, when $N_O=4$ $N_M=1$ one of the $J$-observer uses $j=\{1,2,4\}$ as outputs. The $P$-estimates would be constructed with $p \in \{1,2,4\}$. Let us define 
-\begin{equation*}
-   \pi_{j} = \max_{p \subset j} |\hat{x}_{j} - \hat{x}_{p}|
-\end{equation*}
-so the largest difference between the $j$-estimate and its $p$-estimates, where the $p$-observers are all a sub-observers of the $j$-observer. We now collect all $\pi_j$ in
-\begin{equation*}
-   \pi_{\mathcal{J}} = \max_{\mathcal{P} \subset \mathcal{J}} |\hat{x}_{\mathcal{J}} - \hat{x}_{\mathcal{P}}|
-\end{equation*}
-
-where $\hat{x}_{\mathcal{J}}$ are all state estimates from \eqref{eqn:cmo-single-J-observer} and $\hat{x}_{\mathcal{P}}$ are all sub-observers off each $j \in \mcJ$. Let us now choose the smallest $\pi_J$
-\begin{equation}
-    \sigma = \arg \min \pi_{\mathcal{J}}, \quad \sigma \subset \{1,2,\dots,N_J\}.
+\cite[Section 7.1]{Hespanha2018LinearTheory}. Substituting equation \eqref{eqn:diagonal-matrix-exponential} into equation \eqref{eqn:jordan-form-exponential} shows that if all eigenvalues of $A$ have strictly negative real parts, $x \rightarrow 0$ as $t \rightarrow \infty$. If the matrix $A$ is not stable, but stability properties are still desired. The control law
+\begin{equation}\label{eqn:feedback-control-law}
+    u = Kx \implies x = Ax + BKx \implies \dot{x} = (A+BK)x
 \end{equation}
-We can now select the final state estimate as
-\begin{equation}
-    \hat{x} = \hat{x}_{\sigma}.
-\end{equation}
-This selection procedure selects the observer which has the smallest difference between itself and its sub-observers. 
-
-\subsection{Implementations}
-The state estimates constructed in \ref{subsec:state-estimates} only serve as a basis of the CMO, in this subsection two different implementations will be discussed. These implementations will be implemented in Matlab in the next chapter \textcolor{red}{ref this shit}. The first one  stores all the observers in a 2D matrix and will thus be known as the 2D-CMO. The second implementation stores the observers in a 3D matrix and will thus be known as the 3D-CMO.
-
-\subsubsection{2D conventional multi-observer}
-\textcolor{red}{decide if I want to keep this in, would require fintuning the implementation and adding the nonlinearity}
-Let us write all observers \eqref{eqn:cmo-single-J-observer}\eqref{eqn:cmo-single-P-observer} in the following form
-\begin{equation*}
-    \dot{\Tilde{x}}_{2D} = \Tilde{A}_{2D}\Tilde{x}_{2D} + F_{2D}\eta_{2D}
-\end{equation*}
+can be used to stabilize the system, if and only if the system \eqref{eqn:standard-noiseless-system} is stabilizable \cite[Th. 14.5]{Hespanha2018LinearTheory}. As can be seen in the equation, the control law \eqref{eqn:feedback-control-law} requires knowing the full state $x$, which can be very costly or not possible to measure. So we will now work towards creating a state estimate $\hat{x} \rightarrow x$ as $t \rightarrow \infty$.
+ 
+\subsection{Observability}
+We now aim to reconstruct the full state $x$ from the output $y$ and the input $u$. The following derivation is based on \cite{StephenBoyd2009ObservabilitySlides}, consider system \eqref{eqn:standard-noiseless-system} where $x$ is unknown and $y$ and $u$ are known. The derivatives of $y$ 
+\[
+\begin{split}
+y &= Cx + Du \\
+\dot{y} &= C\dot{x} + Du =  CAx + CBu + D\dot{u} \\
+\Ddot{y} &= CA\dot{x} + CBu + Du = CA^{2}x + CABu + CB\dot{u} + D\Ddot{u} \\
+\vdots \\
+y^{(n)} &= CA^{n}x + CA^{n-1}Bu + CA^{n-2}B\dot{u} + \dots + CABu^{(n-2)} + CBu^{(n-1)} + Du^{(n)}
+\end{split}
+\]
+will be used to reconstruct $x$ from $y$ and $u$. These derivatives can be combined into
+\[ \mathbf{y} =  \mathcal{O}x + \mathcal{K}\mathbf{u}
+,\]
 where
-\begin{equation}\label{eqn:2D-CMO}
-\renewcommand{\arraystretch}{1.3}
-    \begin{split}    
-        \Tilde{x}_{2D} &= 
-        \begin{bmatrix}
-            \hat{x}_1^{\mcJ} \\ \vdots \\ \hat{x}_{N_J}^{\mcJ} \\ \hat{x}_1^{P} \\ \vdots \\ \hat{x}_{N_P}^{\mcP}
-        \end{bmatrix}, \quad
-        \Tilde{A}_{2D} = 
-        \begin{bmatrix}
-            -L_1^{\mcJ}C_1^{\mcJ} & A + L_1^{\mcJ}C_1^{\mcJ} & \cdots & 0  & 0 & \cdots & 0 \\
-            \vdots & \vdots & \ddots & \vdots & \vdots & & \vdots \\
-            -L_{N_J}^{\mcJ}C_{N_J}^{\mcJ} & 0 & \cdots & A + L_{N_J}^{\mcJ}C_{N_J}^{\mcJ} & 0 & \cdots & 0 \\
-            -L_{1}^{\mcP}C_{1}^{\mcP} & 0 & \cdots & 0 & A + L_1^{\mcP}C_1^{\mcP} & \cdots & 0 \\
-            \vdots & \vdots &  & \vdots & \vdots & \ddots & \vdots \\
-            -L_{N_P}^{\mcP}C_{N_P}^{\mcP} & 0 & \cdots & 0 & 0 & \cdots & A + L_{N_P}^{\mcP}C_{N_P}^{\mcP} \\
-        \end{bmatrix} \\
-        \eta &= 
-        \begin{bmatrix}
-            u \\ v_1^{\mcJ} + \tau_1^{\mcJ} \\ \vdots \\ v_{N_J}^{\mcJ} + \tau_{N_J}^J \\ v_1^{\mcP} + \tau_1^{\mcP} \\ \vdots \\ v_{N_P}^{\mcP} + \tau_{N_P}^{\mcP} \\ w \\
-        \end{bmatrix}, \quad 
-        F_{2D} = 
-        \begin{bmatrix}
-            B & -L_1^{\mcJ} & \cdots & 0 & 0 & \cdots & 0 \\
-            \vdots & \vdots & \ddots & \vdots & \vdots & & \vdots \\
-            B & 0 & \cdots & -L_{\cJ}^{\mcJ} & 0 & \cdots & 0 \\
-            B & 0 & \cdots & 0 & -L_{1}^{\mcP} & \cdots & 0 \\
-            \vdots & \vdots & & \vdots & \vdots & \ddots & \vdots \\
-            B & 0 & \cdots & 0 & 0 & \cdots & -L_{N_P}^{\mcP} \\
-        \end{bmatrix}\\
-    \end{split}
+\[\mathbf{y}=
+\begin{bmatrix}
+    y \\
+    y^{(1)} \\
+    y^{(2)} \\
+    \vdots \\
+    y^{(n-1)} \\
+\end{bmatrix} \quad \text{and} \quad
+\mathbf{u} = 
+\begin{bmatrix}
+    u \\
+    u^{(1)} \\
+    u^{(2)} \\
+    \vdots \\
+    u^{(n-1)} \\
+\end{bmatrix},
+\]
+are vectors containing the derivatives of the output and the input,
+\begin{equation}\label{eqn:observability-matrix}
+    \mathcal{O}=
+    \begin{bmatrix}
+        C \\
+        CA \\
+        CA^2 \\
+        \vdots \\
+        CA^{n-1}
+    \end{bmatrix}    
 \end{equation}
-The $\Tilde{A}$ matrix stores  all $J$- and $P$-estimates: the top section stores the $J$-observers and on the bottom the $P$-observers. Multiplying this $\Tilde{A}_{2D}$ matrix by $\Tilde{x}_{2D}$ leads to the state estimators presented in \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer} without inputs, noise and attacks. The vector $\eta$ stacks the input and sum of sensor noise and attack signal on top of each other and the matrix $E$ stores all factors that need to be multiplied with $\eta$ to arrive at \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer}.
 
-\newcommand{\ntwoD}{nN_S}
-\begin{table}[h]
-    \centering
-    \begin{tabular}{c|c|c}
-       Matrix  & Dimensions & Number of elements \\ \hline
-       $\Tilde{x}_{2D}$  & $\ntwoD \times 1$ & $nN_S$ \\
-       $\Tilde{A}_{2D}$ & $\ntwoD \times \ntwoD$ & $n^2N_S^2$ \\
-       $B_{2D}$ & $k \times N_S$ & $kN_S$ \\
-       $u_{2D}$ & $k \times N_S$ & $kN_S$ \\
-    \end{tabular}
-    \caption{2D-CMO system matrix dimensions}
-    \label{tab:2D-CMO-dimensions}
-\end{table}
-
-
-
-\newpage
-\subsubsection{3D conventional multi-observer}
-Now the second implementation of the CMO will be discussed. The goal of the 3D-CMO is to reduce the number of zeros required in the $\Tilde{A}_{2D}$\eqref{eqn:2D-CMO}. In order to do so we store all block matrices behind each other. Let us start by defining 
-\begin{center}
-    \begin{minipage}[t]{0.4\textwidth}
-        \centering
-        % First tikzpicture
-        \begin{equation}\label{eqn:x3d}
-            \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=1.2cm,minimum height=7mm}] 
-            % Define the displacement as a coordinate
-            \coordinate (displacement) at (0.9,0.2);
-        
-            \matrix (mxP) [draw,matrix of math nodes]
-                {
-                \hat{x}_{\cP}^P \\
-                };
-        
-            \matrix (dots2) [draw,matrix of math nodes] at ($(mxP.south west)+(displacement)$)
-                {
-                \dots \\
-                };
-        
-            \matrix (mxp) [draw,matrix of math nodes] at ($(dots2.south west)+(displacement)$)
-                {
-                \hat{x}_1^P \\
-                };
-        
-            \matrix (mxJ) [draw,matrix of math nodes] at ($(mxp.south west)+(displacement)$)
-                {
-                \hat{x}_{\cJ}^J \\
-                };
-        
-            \matrix (dots1) [draw,matrix of math nodes] at ($(mxJ.south west)+(displacement)$)
-                {
-                \dots \\
-                };
-        
-            \matrix (mxj) [draw,matrix of math nodes] at ($(dots1.south west)+(displacement)$)
-                {
-                \hat{x}_1^J \\
-                };
-    
-            \node at ($(-4,-1.75)$) {$\tilde{x}_{3D}=$};
-            
-            \draw[dashed](mxj.north east)--(mxP.north east);
-            \draw[dashed](mxj.north west)--(mxP.north west);
-            \draw[dashed](mxj.south east)--(mxP.south east);
-    
-        \end{tikzpicture}
-        \end{equation}
-    \end{minipage}
-    \begin{minipage}[t]{0.4\textwidth}
-        \centering
-        % Second tikzpicture
-        \begin{equation}\label{eqn:A-tilde-3D}
-            \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=2.2cm,minimum height=7mm}]
-            
-            % Define the displacement as a coordinate
-            \coordinate (displacement) at (1.9,0.2);
-        
-            \matrix (mAP) [draw,matrix of math nodes]
-                {
-                A + L_{\cP}^PC_{\cP}^P \\
-                };
-        
-            \matrix (dots2) [draw,matrix of math nodes] at ($(mAP.south west)+(displacement)$)
-                {
-                \dots \\
-                };
-        
-            \matrix (mAp) [draw,matrix of math nodes] at ($(dots2.south west)+(displacement)$)
-                {
-                A + L_1^PC_1^P \\
-                };
-        
-            \matrix (mAJ) [draw,matrix of math nodes] at ($(mAp.south west)+(displacement)$)
-                {
-                A + L_{\cJ}^JC_{\cJ}^J \\
-                };
-        
-            \matrix (dots1) [draw,matrix of math nodes] at ($(mAJ.south west)+(displacement)$)
-                {
-                \dots \\
-                };
-        
-            \matrix (mAj) [draw,matrix of math nodes] at ($(dots1.south west)+(displacement)$)
-                {
-                A + L_1^J C_1^J \\
-                };
-            
-            \draw[dashed](mAj.north east)--(mAP.north east);
-            \draw[dashed](mAj.north west)--(mAP.north west);
-            \draw[dashed](mAj.south east)--(mAP.south east);
-        
-            \node at ($(-5,-1.75)$) {$\tilde{A}_{3D}=$};
-            
-            \end{tikzpicture}
-        \end{equation}
-    \end{minipage}
-\end{center}
-
-$\tilde{x}_{3D}$ is similar to $\tilde{x}_{2D}$ \eqref{eqn:2D-CMO}, where the state $x$ and all its state estimates are stored below each other. Let us now define some basic notation, similar to Matlab notation, regarding three-dimensional arrays. We will define a \textit{page} of a 3D array as a single 2D slice from that array, these slices can be taken from any 2 dimensions present in the 3D array. Let us define $G \in \mathbb{R}^{3 \times 4 \times 8}$, slicing the first page along the third dimension will be denoted as $G(:,:,1)$ and the third page along the first dimension as $G(3,:,:)$. The slices that can be seen in equation \eqref{eqn:A-tilde-3D} are sliced along the third dimension. \\
-$\tilde{A}_{3D}$ stores all elements on the diagonal of $\tilde{A}_{2D}$ \eqref{eqn:2D-CMO} on a separate page of a 3D array. Let us now define the operation \textit{page multiplication}, this operation can be performed on two 3D arrays that have (at least) one equal dimension and pages sliced along this equal dimension result in two matrices that can be multiplied. Or one 3D matrix and a 2D matrix where slicing the 3D matrix along the desired dimension results in slices that can be multiplied with the 2D matrix. This operation is analogous with the Matlab function \texttt{pagemtimes} \cite{2022MATLABR2022b}. In this report a page multiplication of two  matrices $A$ and $B$ along the third dimension will be denoted as $ \pamu(A,B,3)$. \\
-Another operation is required for the summands that are equal for each observer, $Bu$ and $E\phi(y)$. The multiplication only has to be performed once and the resultant matrix $M$ should be repeated along the third dimension $n$ times. This operation is analogous to the Matlab function \texttt{repmat}(M,1,1,n) \cite{2022MATLABR2022b}. In this report this function will be denoted as \texttt{rep}(M,n), where the ones indicating the number of repetitions are omitted. Let us now define
-
-\begin{center}
-    \begin{minipage}[t]{0.4\textwidth}
-        % First tikzpicture
-        \begin{equation}\label{eqn:F-3d}
-            \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=2cm,minimum height=7mm}]
-            
-            % Define the displacement as a coordinate
-            \coordinate (displacement) at (1.7,0.2);
-        
-            \matrix (mLCP) [draw,matrix of math nodes]
-                {
-                -L_{\cP}^PC_{\cP}^P \\
-                };
-        
-            \matrix (dots2) [draw,matrix of math nodes] at ($(mLCP.south west)+(displacement)$)
-                {
-                \dots \\
-                };
-        
-            \matrix (mLCp) [draw,matrix of math nodes] at ($(dots2.south west)+(displacement)$)
-                {
-                -L_{1}^PC_{1}^P \\
-                };
-        
-            \matrix (mLCJ) [draw,matrix of math nodes] at ($(mLCp.south west)+(displacement)$)
-                {
-                -L_{\cJ}^JC_{\cJ}^J \\
-                };
-        
-            \matrix (dots1) [draw,matrix of math nodes] at ($(mLCJ.south west)+(displacement)$)
-                {
-                \dots \\
-                };
-        
-            \matrix (mLCj) [draw,matrix of math nodes] at ($(dots1.south west)+(displacement)$)
-                {
-                -L_1^JC_1^J \\
-                };
-            
-            
-            \draw[dashed](mLCj.north east)--(mLCP.north east);
-            \draw[dashed](mLCj.north west)--(mLCP.north west);
-            \draw[dashed](mLCj.south east)--(mLCP.south east);
-            
-            \node at ($(-5,-1.75)$) {$F_{3D}=$};
-            
-            \end{tikzpicture}
-        \end{equation}
-    \end{minipage}
-\end{center}
-and
-\begin{center}
-    \begin{minipage}[t]{0.4\textwidth}
-        \centering
-        % Second tikzpicture
-        \begin{equation}\label{eqn:L-3d}
-            \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=1.2cm,minimum height=7mm}]
-            
-            % Define the displacement as a coordinate
-            \coordinate (displacement) at (0.9,0.2);
-        
-            \matrix (mLP) [draw,matrix of math nodes]
-                {
-                -L_{\cP}^P \\
-                };
-        
-            \matrix (dots2) [draw,matrix of math nodes] at ($(mLP.south west)+(displacement)$)
-                {
-                \dots \\
-                };
-        
-            \matrix (mLp) [draw,matrix of math nodes] at ($(dots2.south west)+(displacement)$)
-                {
-                -L_{1}^P \\
-                };
-        
-            \matrix (mLJ) [draw,matrix of math nodes] at ($(mLp.south west)+(displacement)$)
-                {
-                -L_{\cJ}^J \\
-                };
-        
-            \matrix (dots1) [draw,matrix of math nodes] at ($(mLJ.south west)+(displacement)$)
-                {
-                \dots \\
-                };
-        
-            \matrix (mLj) [draw,matrix of math nodes] at ($(dots1.south west)+(displacement)$)
-                {
-                -L_1^J \\
-                };
-            
-            \draw[dashed](mLj.north east)--(mLP.north east);
-            \draw[dashed](mLj.north west)--(mLP.north west);
-            \draw[dashed](mLj.south east)--(mLP.south east);
-            
-            \node at ($(-4,-1.75)$) {$L_{3D}=$};
-            
-            \end{tikzpicture}
-        \end{equation}
-    \end{minipage}
-    \begin{minipage}[t]{0.4\textwidth}
-    \centering
-    % Second tikzpicture
-        \begin{equation}\label{eqn:eta-3d}
-            \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=2cm,minimum height=7mm}]
-            
-            % Define the displacement as a coordinate
-            \coordinate (displacement) at (1.7,0.2);
-        
-            \matrix (mLP) [draw,matrix of math nodes]
-                {
-                v_{\cP}^P + \tau_{\cP}^P \\
-                };
-        
-            \matrix (dots2) [draw,matrix of math nodes] at ($(mLP.south west)+(displacement)$)
-                {
-                \dots \\
-                };
-        
-            \matrix (mLp) [draw,matrix of math nodes] at ($(dots2.south west)+(displacement)$)
-                {
-                v_1^P + \tau_1^P \\
-                };
-        
-            \matrix (mLJ) [draw,matrix of math nodes] at ($(mLp.south west)+(displacement)$)
-                {
-                v_{\cJ}^J + \tau_{\cJ}^J \\
-                };
-        
-            \matrix (dots1) [draw,matrix of math nodes] at ($(mLJ.south west)+(displacement)$)
-                {
-                \dots \\
-                };
-        
-            \matrix (mLj) [draw,matrix of math nodes] at ($(dots1.south west)+(displacement)$)
-                {
-                v_1^J + \tau_1^J \\
-                };
-            
-            \draw[dashed](mLj.north east)--(mLP.north east);
-            \draw[dashed](mLj.north west)--(mLP.north west);
-            \draw[dashed](mLj.south east)--(mLP.south east);
-            
-            \node at ($(-4,-1.75)$) {$\eta_{3D}=$};
-            
-            \end{tikzpicture}
-        \end{equation}
-    \end{minipage}
-\end{center}
-
-We can now construct all observers \eqref{eqn:cmo-single-J-observer}\eqref{eqn:cmo-single-P-observer} with the 3D matrices \eqref{eqn:x3d}\eqref{eqn:A-tilde-3D}\eqref{eqn:F-3d}\eqref{eqn:L-3d}\eqref{eqn:eta-3d}
-
+is the \textit{observability matrix} and
+\[ \mathcal{K}=
+\begin{bmatrix}
+    D & 0 & 0 & \hdots & 0\\
+    CB & D & 0 & \hdots & 0\\
+    CAB & CB & D & \hdots & 0 \\
+    \vdots & \vdots & \vdots & \ddots & \vdots \\
+    CA^{n-2}B & CA^{n-3}B & CA^{n-4}B & \hdots & D
+\end{bmatrix}.
+\]
+Isolating x results in
+\begin{equation}\label{eqn:state-estimation-w-observability-matrix}
+    x = \mathcal{O}^{-1}(\mathbf{y}-\mathcal{K}\mathbf{u}).
+\end{equation}
+As can be seen in \eqref{eqn:state-estimation-w-observability-matrix} observability matrix $\mathcal{O}$ is required to be invertible to reconstruct $x$ from $y$ and $u$. If a system's $A$ and $C$ matrix fulfil this requirement, the system can be described as \textit{observable}. The invertibility requirement is equivalent to the statement that the matrix $\mathcal{O}$ needs to be full rank \cite[Section 2.9]{Lay2016LinearApplications}, this theorem that can also be found in \cite[Corollary 3.8]{Antsaklis2006LinearProcessing}. The implication of this is that it is only possible to reconstruct the state $x$ if the pair $A,C$ is observable. \\
+\subsection{Linear single observer}
+Let us now reconstruct the full state of system \eqref{eqn:standard-noiseless-system} from  $y$ and $u$ by defining the state estimate as in \cite[Section 16.5]{Hespanha2018LinearTheory}
+\begin{equation}\label{eqn:stable-simple-state-estimator}
+    \dot{\hat{x}} = A\hat{x} + Bu, \quad \hat{y} = C\hat{x} + Du.
+\end{equation}
+We now define the \textit{state estimation error}
+\begin{equation}\label{eqn:estimate-error}
+    e = \hat{x} - x
+\end{equation}
+which we differentiate and substitute equations \eqref{eqn:standard-noiseless-system} and \eqref{eqn:stable-simple-state-estimator} into to give
 \begin{equation*}
-    \dot{\tilde{x}}_{3D} = \pamu(\tilde{A}_{3D},\tilde{x}_{3D},3) + \pamu(F_{3D},x,3) + \pamu(L_{3D},\eta_{3D},3) + \texttt{rep}(Bu + E\phi(y),N_S).
+    \dot{e} = \dot{\hat{x}} - \dot{x} = A\hat{x} + Bu - Ax - Bu = Ae.
 \end{equation*}
+We can now conclude that $e \rightarrow 0$ as $t \rightarrow \infty$ if the matrix $A$ is a stability matrix. Let us now define a state estimator that provides an asymptotically correct state estimate even when $A$ is not a stability matrix as in \cite[Section 16.5]{Hespanha2018LinearTheory}:
+\begin{equation}\label{eqn:unstable-simple-state-estimator}
+    \dot{\hat{x}} = A\hat{x} + Bu + L(\hat{y} - y), \quad \hat{y} = C\hat{x} + Du.
+\end{equation}
+We now perform the same analysis on the derivative of the state estimation error
+\begin{equation}\label{eqn:error-linear-observer}
+    \dot{e} = A\hat{x} + Bu + L(C\hat{x} + Du - Cx - Du) - Ax - Bu = (A+LC)e
+\end{equation}
+which is similar to the solution in \eqref{eqn:zero-input-solution}. From which we can conclude that if $A+LC$ is a stability matrix $e \rightarrow 0$ as $t \rightarrow \infty$.
 
-Let us now look at the sizes of all matrices that are required for state estimation. The matrices $L_{3D}$ and $\eta_{3D}$ are not taken into account, since they are only used to model the state estimators and would not be required in a physical implementation.
-\begin{table}[h]
-    \centering
-    \begin{tabular}{c|c|c}
-       Matrix  & Dimensions & Number of elements \\ \hline
-       $\Tilde{x}_{3D}$  & $ n \times 1 \times N_S$ & $nN_S$ \\
-       $\Tilde{A}_{3D}$ & $n \times n \times N_S$ & $n^2N_S$ \\ 
-       $F_{3D}$ & $n \times n \times N_S$ & $n^2N_S$ \\
-       
-    \end{tabular}
-    \caption{3D-CMO system matrix dimensions}
-    \label{tab:3D-CMO-dimensions}
-\end{table}
-
-
-\subsection{Number of observers}
-Let us define
+\subsection{Nonlinear observer}
+Let us now extend the observer \eqref{eqn:unstable-simple-state-estimator} to also correctly estimate systems with a nonlinear contribution $\phi(x)$. Consider the system
+\begin{equation*}\label{eqn:nonlinear-system}
+    \dot{x} = Ax + Bu + E\phi(y), \quad y = Cx + Du.
+\end{equation*}
+The observer will be constructed as
 \begin{equation}
-    N_S = N_J + N_P
+    \dot{\hat{x}} = A\hat{x} + Bu + E\phi(y) + L(\hat{y} - y), \quad \hat{y} = C\hat{x} + Du.
 \end{equation}
-which is the total number of systems needed for this multi-observer.\\
+Note that the input to the nonlinearity is $y$. Let us now substitute these definitions into the derivative of the error $e=\hat{x}-x$
+\begin{equation*}\label{eqn:errror-nonlinear-observer}
+    \begin{split}
+        \dot{e} = \dot{\hat{x}} - \dot{x} &= A\hat{x} + Bu + E\phi(y) + L(\hat{y} - y) - Ax - Bu - E\phi(y) \\
+        &= (A+LC)e + E(\phi(y) - \phi(y)) \\
+        &= (A+LC)e.
+    \end{split}
+\end{equation*}
+It is now evident why $\phi(y)$ is used in equation \eqref{eqn:nonlinear-system}, otherwise $e \rightarrow 0$ as $t \rightarrow \infty$ cannot be guaranteed. Because $\phi(y) - \phi(x)$ does not necessarily equal $0$. This does set certain requirements on $y$, variables that affect the nonlinearity need to be measured directly. For the multi mass-spring-damper system as in Chapter \ref{ch:system-definition} this means that all positions $x_a,a=1,2,\dots,b$ need to be measured directly. \\
 
-From the combinatoric nature of equation \eqref{eqn:multi-observer-sizes} it can be seen that the number of observers required to provide the secure state-estimate grows rapidly with the number of outputs $N$. Let us look more closely at $\cJ$ when $M$ is the largest integer so that $N>2M$ holds and thus equation \eqref{eqn:multi-observer-sizes} holds.
-\begin{equation*}
+\subsection{Eigenvalue placement}
+Since we have full control over $L$, we will now discuss methods to place eigenvalues of $A+LC$ at desired locations and what constraints are limiting our control over these eigenvalues.
+
+\begin{theorem}[Observer eigenvalues]
+\label{th:arbitrary-alc-eigenvalues}
+    If the pair $(A,C)$\eqref{eqn:standard-noiseless-system} is observable there exists an $L \in \mathbb{R}^{n \times m}$ that influences all eigenvalues of $A+LC$.
+\end{theorem}
+\begin{proof}
+    This proof is based on \cite[Section 4.2]{Antsaklis2006LinearProcessing}. Suppose that the pair $(A,C)$ is not fully observable and that all eigenvalues of $A+LC$  have been influenced by $L$, it will be shown that this leads to a contradiction. There exists a similarity transformation that separates the observable from the unobservable part: the observable decomposition \cite[Section 16.1]{Hespanha2018LinearTheory}. Performing this transformation on the pair $(A,C)$ leads to
+    \begin{equation}
     \begin{split}
-        N_J &= {N_O \choose N_O-N_M}  = \frac{N_O!}{(N_O-M)!N_M!} = {N_O \choose N_M} \\
+        \begin{bmatrix}
+            \dot{x}_o \\
+            \dot{x}_u
+        \end{bmatrix}
+        &=
+        \begin{bmatrix}
+            A_o & 0 \\
+            A_{21} & A_u
+        \end{bmatrix}
+        \begin{bmatrix}
+            x_o \\
+            x_u
+        \end{bmatrix}
+        + 
+        \begin{bmatrix}
+            L_1 \\
+            L_2
+        \end{bmatrix}
+        \begin{bmatrix}
+            C_o & 0
+        \end{bmatrix} \\
+        &=
+        \begin{bmatrix}
+            A_o + L_1 C_o & 0 \\
+            A_{21} + L_2 C_o & A_u
+        \end{bmatrix}
     \end{split}
-\end{equation*}
-which follows from the symmetry property of a combination \cite[Section 1.1]{Mazur2010PrinciplesCombinatorics}. Substituting this into $N_S$ results in
-\begin{equation*}
-    N_S = \frac{N_O!}{(N_O-N_M)!N_M!} + N_O,
-\end{equation*}
-which can be simplified into
-\begin{equation*}
-    N_S \approx \frac{N_O!}{(N_O-M)!N_M!}
-\end{equation*}
-for large $N_O$, when the combinatoric term dominates. Let us assume that $N_M=\frac{1}{2}N$ and substitute it in
-\begin{equation}\label{eqn:simplified-NS}
-    N_S \approx \frac{N_O!}{(N_O-\frac{1}{2}N_O)!(\frac{1}{2}N_O)!} = \frac{N_O!}{\left( \left( \frac{1}{2}N_O \right) ! \right)^2}.
-\end{equation}
-This requires taking a factorial of a non-integer, which is not defined. We therefore use \textit{Stirling's formula}\cite{Beals2012GammaZeta}, which states that
-\begin{equation}\label{eqn:stirlings-formula}
-    n! \sim \sqrt{2\pi n} \left( \frac{n}{e} \right)^n,
-\end{equation}
-where the $\sim$ implies that the ratio between the two sides of the equation approaches $1$ as $N_O \rightarrow \infty$. Let us now substitute \eqref{eqn:stirlings-formula} into \eqref{eqn:simplified-NS}
-\begin{equation*}
-    \begin{split}
-        N_S \approx  \frac{\sqrt{2 \pi N_O}( \frac{N_O}{e} )^{N_O}}{\left( \sqrt{\pi N_O}(\frac{1}{2} \frac{N_O}{e} )^{\frac{1}{2}N_O} \right)^2} &= \frac{\sqrt{2 \pi N_O}}{\pi N_O} \frac{( \frac{N_O}{e} )^{N_O}}{(\frac{1}{2} \frac{N_O}{e} )^{N_O}} = \sqrt{\frac{2}{\pi N_O}} \frac{( \frac{N_O}{e} )^{N_O}}{(\frac{1}{2})^{N_O} (\frac{N_O}{e} )^{N_O}} \\
-    \end{split}
-\end{equation*}
-which can be further simplified into
-\begin{equation}\label{eqn:NS-approximation}
-    N_S \approx \sqrt{\frac{2}{\pi N_O}}2^{N_O}.
-\end{equation}
-We now have an estimate that will be used to compare the sizes of different MO implementations.
+    \end{equation}  
+where the pair $(A_o,C_o)$ is observable. A similarity transformation leaves the eigenvalues unchanged \cite[Section 5.2]{Lay2016LinearApplications}. The lower triangular structure of the matrix implies that the eigenvalues of $A_u$ remain the same, which leads to a contradiction: not all the eigenvalues of $A+LC$ have been influenced. Thus, if the pair $(A,C)$ is observable there exists an $L$ that can influence all eigenvalues of $A+LC$.
+\end{proof}
+
+An analytical method to place the eigenvalues at arbitrary locations in a MIMO system is presented in \cite[Section 4.2 B]{Antsaklis2006LinearProcessing}, where the system is first transformed into \textit{observer form} by a similarity transformation. After this transformation the deriving the matrix $L$ is convenient. Another option is numerically deriving $L$. Matlab provides the function \texttt{place}, based on the algorithm presented in \cite{Kautsky1985KautskyNV85}.
+
+\textcolor{red}{Unsatisfying conclusion, would prefer to show an actual strategy to choose the eigenvalues.}
+
+

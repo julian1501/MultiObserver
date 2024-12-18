@@ -1,6 +1,4 @@
-
-
-\section{Conventional multi-observer}
+\section{Conventional multi-observer}\label{ch:cmo}
 In this section the CMO will be introduced and two implementations will be discussed. Let us first further elaborate on the what the CMO should achieve. Let us look at the case where a 'single'-observer \eqref{eqn:unstable-simple-state-estimator} is employed to construct the state estimate of system \eqref{eqn:standard-system}, where $w=0$ and $v=0$. When an attacker gains control over some of the outputs $y_i$ and attacks it with the attack signal $\tau_i$. Performing the same analysis on the derivative of error \eqref{eqn:estimate-error} leads to
 \begin{equation*}
     \begin{split}
@@ -66,7 +64,7 @@ We can now select the final state estimate as
 \end{equation}
 This selection procedure selects the observer which has the smallest difference between itself and its sub-observers. 
 
-\subsection{Implementations}
+\subsection{Observer architecture}
 The state estimates constructed in \ref{subsec:state-estimates} only serve as a basis of the CMO, in this subsection two different implementations will be discussed. These implementations will be implemented in Matlab in the next chapter \textcolor{red}{ref this shit}. The first one  stores all the observers in a 2D matrix and will thus be known as the 2D-CMO. The second implementation stores the observers in a 3D matrix and will thus be known as the 3D-CMO.
 
 \subsubsection{2D conventional multi-observer}
