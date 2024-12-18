@@ -1,6 +1,4 @@
-
-
-\section{State-sharing multi-observer}
+\section{State-sharing multi-observer}\label{ch:ssmo}
 In this chapter the state-sharing multi-observer (SSMO) will be discussed, aiming to reduce the required memory to store the CMO. The SSMO described in this chapter will provide the estimates as described in \autoref{subsec:state-estimates} and will employ the same selection procedure as described in \autoref{subsec:estimate-selection}.
 
 \subsection{Constructing the state-estimates}
@@ -197,7 +195,7 @@ Let us expand
 \end{equation*}
 which shows that \eqref{eqn:B-transformation} holds. It should be noted that $\mathbf{A}$ and $\mathbf{B}$ are independent of $o$ and since all observers \eqref{eqn:ssmo-observer} share the same characteristic polynomial \eqref{eqn:ssmo-char-poly}, $\mathbf{A}$ and $\mathbf{B}$ are the same for all observers. This means that only one copy of the matrices needs to be stored and all state estimates $\hat{x}$ from the transformation matrices.
 
-\subsection{Implementation}
+\subsection{Observer architecture}
 Let us set the initial conditions of all state estimates to be equal, we will choose $0$ for simplicity. When all initial conditions are zero $z$ will also be the same for all state estimates, 
 \begin{equation*}
     \dot{z} = \mathbf{A}z + \mathbf{B}\eta, \quad \eta = 
@@ -320,13 +318,35 @@ The structure of the storage matrix $\tilde{x}_{SSMO}$ is the same as $\tilde{x}
     \centering
     \begin{tabular}{c|c|c}
        Matrix  & Dimensions & Number of elements \\ \hline
-       $\Tilde{x}_{SSMO}$  & $ n \times 1 \times N_S$ & $nN_S$ \\
-       $\mathbf{A}$ & $nN \times nN$ & $n^2N^2$ \\ 
-       $\mathbf{B}$ & $nN \times n$ & $n^2N$ \\
-       $T$ & $n \times nN \times N_S$ & $n^2NN_S$ \\
+       $\Tilde{x}_{SSMO}$  & $ n_x \times 1 \times N_S$ & $_xN_S$ \\
+       $\mathbf{A}$ & $n_xN_O \times n_xN_O$ & $n_x^2N_O^2$ \\ 
+       $\mathbf{B}$ & $n_xN_O \times n_x$ & $n_x^2N_O$ \\
+       $T$ & $n_x \times n_xN_O \times N_S$ & $n_x^2N_ON_S$ \\
     \end{tabular}
     \caption{SSMO system matrix dimensions}
     \label{tab:SSMO-dimensions}
 \end{table}
 
 \subsection{Size comparison}
+Let us now compare the sizes of the 2D-CMO, 3D-CMO and SSMO as presented in Tables \ref{tab:2D-CMO-dimensions}, \ref{tab:3D-CMO-dimensions} and \ref{tab:SSMO-dimensions} respectively. First, the total number of elements for each MO is derived from the matrices that are needed to construct it. 
+\begin{table}[h]
+    \centering
+    \begin{tabular}{c|c}
+        Multi-Observer & Total number of Elements \\
+        \hline
+        2D-CMO & $n_x^2N_S^2 + N_S(n_x+2n_u)$ \\
+        3D-CMO & $n_xN_s(1+2n_x)$ \\
+        SSMO   & $n_xN_S(1+n_xN_O) + n_x^2N_O(N_O+1)$ \\
+    \end{tabular}
+    \caption{Total number of elements in each MO implementation}
+    \label{tab:my_label}
+\end{table}
+
+We now use the for $N_S$ as in equation \eqref{eqn:NS-approximation} to compare number of Gigabytes required to store the MO. The comparison is made for different combinations of the number of state variables $n_x$ and number of total system outputs $N_O$. Both of these values are ranged from $1$ to $100$ and the storage size for each combination is compared.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
