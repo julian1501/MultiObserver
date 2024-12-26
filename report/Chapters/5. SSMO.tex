@@ -26,7 +26,7 @@ and thus all have equal eigenvalues. Let us now define a matrix $\Tilde{L}_{o}$ 
     \end{bmatrix}.
 \end{equation}
 
-Let us now derive transformation matrices $T_o$ that transform all $\A_o=A+L_{o}C_{o}$ into controllable canonical form as in \cite[Sec. 4.3.2]{Hespanha2018LinearTheory}
+Let us now derive transformation matrices $T_o$ that transform all $\A_o$ and $\B_o$ as in \eqref{eqn:ssmo-standard-system-form} into controllable canonical form as in \cite[Sec. 4.3.2]{Hespanha2018LinearTheory}
 \begin{equation}\label{eqn:controllable-canonical-form}
     \mathbf{A} =
     \begin{bmatrix}
@@ -58,144 +58,9 @@ where $l=N$. The transformation matrices for each observer are $T_o=R_pR_q$,
         \end{bmatrix}.
     \end{split}
 \end{equation}
-Let us now show that the following
-\begin{equation}\label{eqn:A-transformation}
-    \begin{split}
-        T_o\mathbf{A} &= \A_oT_o \\
-        R_pR_q\mathbf{A} &= \A_oR_pR_q \\
-    \end{split}
-\end{equation}
-holds. Let us start by expanding
-\begin{equation*}
-    \begin{split}
-        R_q\mathbf{A} &=  
-        \begin{bmatrix}
-            I_l & q_1I_l & q_2I_l & \cdots & q_{n-1}I_l \\
-            0_l & I_l & q_1I_l & \cdots & q_{n-2}I_l \\
-            \vdots & \ddots & \ddots & \ddots & \vdots \\
-            0_l & \cdots & 0_l & I_l & q_1I_l \\
-            0_l & \cdots & 0_l & 0_l & I_l \\
-        \end{bmatrix}
-        \begin{bmatrix}
-            -q_1I_l & -q_2I_l & \cdots & -q_{n-1}I_l & -q_nI_l \\
-            I_l & 0_l & \cdots & 0_l & 0_l \\
-            0_l & I_l & \cdots & 0_l & 0_l \\
-            \vdots & \vdots & \ddots & \vdots & \vdots \\
-            0_l & 0_l & \cdots & I_l & 0_l \\
-        \end{bmatrix} \\
-        &= 
-        \begin{bmatrix}
-            0_l & 0_l & 0_l & \cdots & 0_l & 0_l & 0_l \\
-            I_l & q_1I_l & q_2I_l & \cdots & q_{n-3}I_l & q_{n-2}I_l & 0_l \\ 
-            0_l & I_l & q_1I_l & \cdots & q_{n-4}I_l & q_{n-3}I_l & 0_l \\ 
-            \vdots & \vdots & \vdots & \ddots & \vdots & \vdots & \vdots \\
-            0_l & 0_l & 0_l & \cdots & q_1I_l & q_2I_l & 0_l \\
-            0_l & 0_l & 0_l & \cdots & I_l & q_1I_l & 0_l \\
-            0_l & 0_l & 0_l & \cdots & 0_l & I_l & 0_l \\
-        \end{bmatrix}.
-    \end{split} 
-\end{equation*}
-We now premultiply this by $R_o$
-\begin{equation*}
-    \begin{split}
-        R_pR_q\mathbf{A} &= 
-        \begin{bmatrix}
-            \B_o & \A_o\B_o & \A^{2}_o\B_o & \cdots & \A^{n-1}_o\B_o \\
-        \end{bmatrix}
-        \begin{bmatrix}
-            0_l & 0_l & 0_l & \cdots & 0_l & 0_l \\
-            I_l & q_1I_l & q_2I_l & \cdots & q_{n-2}I_l & 0_l \\ 
-            0_l & I_l & q_1I_l & \cdots & q_{n-3}I_l & 0_l \\ 
-            \vdots & \ddots & \ddots & \ddots & \vdots & \vdots \\
-            0_l & 0_l & 0_l & \ddots & q_1I_l & 0_l \\
-            0_l & 0_l & 0_l & \cdots & I_l & 0_l \\
-        \end{bmatrix} \\
-        &= 
-        \begin{bmatrix}
-            \A_o\B_o \\ q_1\A_o\B_o + \A^2_o\B_o \\ q_2\A_o\B_o + q_1\A^2_o\B_o + \A^3_o\B_o \\ \cdots \\ q_{n-2}\A_o\B_o + q_{n-3}\A^2_o\B_o + \cdots + q_1\A^{n-2}_o\B_o + \A^{n-1}_o\B_o \\ 0 \\      
-        \end{bmatrix}^T
-    \end{split}
-\end{equation*}
-Where by the Cayley-Hamilton theorem we can rewrite penultimate column as
-\begin{equation*}
-    \begin{bmatrix}
-            \A_o\B_o \\ q_1\A_o\B_o + \A^2_o\B_o \\ q_2\A_o\B_o + q_1\A^2_o\B_o + \A^3_o\B_o \\ \vdots \\ -\A^n_o\B_o \\ 0 \\      
-        \end{bmatrix}^T
-\end{equation*}
+The calculation that shows that this transformation holds can be found in \autoref{ap:ssmo-transformation-matrix}. It should be noted that $\mathbf{A}$ and $\mathbf{B}$ are independent of $o$ and since all observers \eqref{eqn:ssmo-observer} share the same characteristic polynomial \eqref{eqn:ssmo-char-poly}, $\mathbf{A}$ and $\mathbf{B}$ are the same for all observers. This means that only one copy of the matrices needs to be stored and all state estimates $\hat{x}$ from the transformation matrices.
 
-We now expand
-\begin{equation*}
-    \begin{split}
-        \A_oR_pR_q &= 
-        \begin{bmatrix}
-            \A_o\B_o & \A^2_o\B_o & \A^{3}_o\B_o & \cdots & \A^{n}_o\B_o \\
-        \end{bmatrix}
-        \begin{bmatrix}
-            I_l & q_1I_l & q_2I_l & \cdots & q_{n-1}I_l \\
-            0_l & I_l & q_1I_l & \cdots & q_{n-2}I_l \\
-            \vdots & \ddots & \ddots & \ddots & \vdots \\
-            0_l & \cdots & 0_l & I_l & q_1I_l \\
-            0_l & \cdots & 0_l & 0_l & I_l \\
-        \end{bmatrix} \\
-        &=
-        \begin{bmatrix}
-            \A_o\B_o \\ 
-            q_1\A_o\B_o + \A^2_o\B_o \\ 
-            q_2\A_o\B_o + q_1\A^2\B_o + \A^3_o\B_o \\ \vdots \\ 
-            q_{n-1}\A_o\B_o + q_{n-2}\A^2_o\B_o + \cdots + \A^{n-1}_o\B_o \\
-            q_{n-1}\A_o\B_o + q_{n-2}\A^2_o\B_o + \cdots + \A^{n-1}_o\B_o + \A^n_o\B_o \\
-        \end{bmatrix}^T,
-    \end{split}
-\end{equation*}
-where the bottom two rows can be simplified by using the Cayley-Hamilton theorem
-\begin{equation*}
-    \begin{split}
-        \A_oR_pR_q &= 
-        \begin{bmatrix}
-            \A_o\B_o \\ 
-            q_1\A_o\B_o + \A^2_o\B_o \\ 
-            q_2\A_o\B_o + q_1\A^2\B_o + \A^3_o\B_o \\ \vdots \\ 
-            \A^{n}_o\B_o \\
-            0 \\
-        \end{bmatrix}^T,
-    \end{split}
-\end{equation*}
-which is equal to $R_oR_q\A_o$. We can now conclude that the matrix $T_o=R_oR_q$ satisfies \eqref{eqn:A-transformation}. Now we will show the same for
-\begin{equation}\label{eqn:B-transformation}
-    \begin{split}
-        T_o\mathbf{B} &= \B_o \\
-        R_pR_q\mathbf{B} &= \B_o.
-    \end{split}
-\end{equation}
-Let us expand
-\begin{equation*}
-    \begin{split}
-        R_pR_q\mathbf{B} &=
-        \begin{bmatrix}
-            \B_o & \A_o\B_o & \A^{2}_o\B_o & \cdots & \A^{n-1}_o\B_o \\
-        \end{bmatrix}
-        \begin{bmatrix}
-            I_l & q_1I_l & q_2I_l & \cdots & q_{n-1}I_l \\
-            0_l & I_l & q_1I_l & \cdots & q_{n-2}I_l \\
-            \vdots & \ddots & \ddots & \ddots & \vdots \\
-            0_l & \cdots & 0_l & I_l & q_1I_l \\
-            0_l & \cdots & 0_l & 0_l & I_l \\
-        \end{bmatrix}
-        \begin{bmatrix}
-            I_l \\ 0_l \\ \vdots \\ 0_l \\ 0_l \\
-        \end{bmatrix} \\
-        &=
-        \begin{bmatrix}
-            \B_o & \A_o\B_o & \A^{2}_o\B_o & \cdots & \A^{n-1}_o\B_o \\
-        \end{bmatrix}
-        \begin{bmatrix}
-            I_l \\ 0_l \\ \vdots \\ 0_l \\ 0_l \\
-        \end{bmatrix} = \B_o \\
-    \end{split}
-\end{equation*}
-which shows that \eqref{eqn:B-transformation} holds. It should be noted that $\mathbf{A}$ and $\mathbf{B}$ are independent of $o$ and since all observers \eqref{eqn:ssmo-observer} share the same characteristic polynomial \eqref{eqn:ssmo-char-poly}, $\mathbf{A}$ and $\mathbf{B}$ are the same for all observers. This means that only one copy of the matrices needs to be stored and all state estimates $\hat{x}$ from the transformation matrices.
-
-\subsection{Observer architecture}
+\subsection{Observer architecture}\label{subsec:ssmo-architecture}
 Let us set the initial conditions of all state estimates to be equal, we will choose $0$ for simplicity. When all initial conditions are zero $z$ will also be the same for all state estimates, 
 \begin{equation*}
     \dot{z} = \mathbf{A}z + \mathbf{B}\eta, \quad \eta = 
@@ -261,7 +126,7 @@ where
     \begin{minipage}[t]{0.4\textwidth}
     \centering
     % Second tikzpicture
-        \begin{equation}
+        \begin{equation}\label{eqn:T-ssmo}
             \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=2cm,minimum height=7mm}]
             
             % Define the displacement as a coordinate
@@ -269,7 +134,7 @@ where
         
             \matrix (mLP) [draw,matrix of math nodes]
                 {
-                T^\mcP_{|\mcP|} \\
+                T^\mcP_{N_P} \\
                 };
         
             \matrix (dots2) [draw,matrix of math nodes] at ($(mLP.south west)+(displacement)$)
@@ -284,7 +149,7 @@ where
         
             \matrix (mLJ) [draw,matrix of math nodes] at ($(mLp.south west)+(displacement)$)
                 {
-                T^\mcJ_{|\mcJ|} \\
+                T^\mcJ_{N_J} \\
                 };
         
             \matrix (dots1) [draw,matrix of math nodes] at ($(mLJ.south west)+(displacement)$)
@@ -297,16 +162,12 @@ where
                 T^\mcJ_1 \\
                 };
 
-            \matrix (m0) [draw,matrix of math nodes] at ($(mLj.south west)+(displacement)$)
-                {
-                0 \\
-                };
             
-            \draw[dashed](m0.north east)--(mLP.north east);
-            \draw[dashed](m0.north west)--(mLP.north west);
-            \draw[dashed](m0.south east)--(mLP.south east);
+            \draw[dashed](mLj.north east)--(mLP.north east);
+            \draw[dashed](mLj.north west)--(mLP.north west);
+            \draw[dashed](mLj.south east)--(mLP.south east);
             
-            \node at ($(-5,-2.4)$) {$T=$};
+            \node at ($(-4,-1.8)$) {$T=$};
             
             \end{tikzpicture}
         \end{equation}
@@ -318,7 +179,7 @@ The structure of the storage matrix $\tilde{x}_{SSMO}$ is the same as $\tilde{x}
     \centering
     \begin{tabular}{c|c|c}
        Matrix  & Dimensions & Number of elements \\ \hline
-       $\Tilde{x}_{SSMO}$  & $ n_x \times 1 \times N_S$ & $_xN_S$ \\
+       $\Tilde{x}_{SSMO}$  & $ n_x \times 1 \times N_S$ & $n_xN_S$ \\
        $\mathbf{A}$ & $n_xN_O \times n_xN_O$ & $n_x^2N_O^2$ \\ 
        $\mathbf{B}$ & $n_xN_O \times n_x$ & $n_x^2N_O$ \\
        $T$ & $n_x \times n_xN_O \times N_S$ & $n_x^2N_ON_S$ \\
@@ -331,22 +192,39 @@ The structure of the storage matrix $\tilde{x}_{SSMO}$ is the same as $\tilde{x}
 Let us now compare the sizes of the 2D-CMO, 3D-CMO and SSMO as presented in Tables \ref{tab:2D-CMO-dimensions}, \ref{tab:3D-CMO-dimensions} and \ref{tab:SSMO-dimensions} respectively. First, the total number of elements for each MO is derived from the matrices that are needed to construct it. 
 \begin{table}[h]
     \centering
-    \begin{tabular}{c|c}
+    \begin{tabular}{|c|c|}
+        \toprule
         Multi-Observer & Total number of Elements \\
-        \hline
-        2D-CMO & $n_x^2N_S^2 + N_S(n_x+2n_u)$ \\
-        3D-CMO & $n_xN_s(1+2n_x)$ \\
-        SSMO   & $n_xN_S(1+n_xN_O) + n_x^2N_O(N_O+1)$ \\
+        \midrule
+        2D-CMO & $n_xN_S + n_x^2N_S^2 + 2n_uN_S$ \\
+        3D-CMO & $n_xN_S + 2n_x^2N_S$ \\
+        SSMO   & $n_xN_S + n_x^2N_O^2 + n_x^2N_O + n_x^2N_ON_S$ \\
+        \bottomrule
     \end{tabular}
     \caption{Total number of elements in each MO implementation}
     \label{tab:my_label}
 \end{table}
 
-We now use the for $N_S$ as in equation \eqref{eqn:NS-approximation} to compare number of Gigabytes required to store the MO. The comparison is made for different combinations of the number of state variables $n_x$ and number of total system outputs $N_O$. Both of these values are ranged from $1$ to $100$ and the storage size for each combination is compared.
+We now use the for $N_S$ as in equation \eqref{eqn:NS-approximation} to compare number of Gigabytes required to store the MO. This value is derived from the number of elements, each element requires 8 bytes to be stored in for example a python float or a Matlab double. The comparison is made for different combinations of the number of state variables $n_x$ and number of total system outputs $N_O$. Both of these values are ranged from $1$ to $50$ and the storage size for each combination is compared.
 
-\begin{figure}
+Figure \ref{fig:MO-storage}, where the colour indicates the total size of the MO, shows the result of this comparison. The 2D CMO performs very poorly, as to be expected due to the $N_S^2$ term appearing in it's $A$ matrix (see \autoref{tab:2D-CMO-dimensions}). The 3D CMO and the SSMO perform similarly. The size of all MOs increases much more with an increasing $N_O$ as compared to a growing $n_x$, which is not strange considering $N_O$ influences the number of combinations that need to be made from all sensors.
+
+
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\linewidth]{}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \includegraphics[width=\linewidth]{report/Figures/sizeComparison60.png}
+    \caption{Storage requirements for different MOs}
+    \label{fig:MO-storage}
 \end{figure}
+
+
+In Figure \ref{fig:ssmo-vs-3dcmo} the SSMO size is divided by the 3D CMO size, the plot shows the ratio between the two MOs. The figure clearly shows that the 3D CMO uses less memory than the SSMO under every circumstance. The difference becomes more pronounced for larger values of $N_O$. This can be attributed to the size of the $T$ matrix in Equation \ref{eqn:T-ssmo}, where its size $n_x^2N_ON_S$ can be viewed as $n_x^3N_S$ on the diagonal in Figure \ref{fig:ssmo-vs-3dcmo}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\linewidth]{report/Figures/ssmo_vs_3dcmo.png}
+    \caption{Ratio between the required memory for an SSMO and 3D CMO respectively}
+    \label{fig:ssmo-vs-3dcmo}
+\end{figure}
+
+It should also be noted that none of the MOs can be implemented in scenarios with a large $N_O$, since the required memory is enormous. Even the super computer Frontier with 9.6 Petabytes ($10^6$ Gigabytes) of random access memory would not be able to run such an MO \cite{FrontierDocumentation}.

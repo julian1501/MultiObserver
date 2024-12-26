@@ -47,7 +47,26 @@ Let us now consider the definition of Lyapunov stability as in \cite[Th. 8.2]{He
 \begin{equation}\label{eqn:feedback-control-law}
     u = Kx \implies x = Ax + BKx \implies \dot{x} = (A+BK)x
 \end{equation}
-can be used to stabilize the system, if and only if the system \eqref{eqn:standard-noiseless-system} is stabilizable \cite[Th. 14.5]{Hespanha2018LinearTheory}. As can be seen in the equation, the control law \eqref{eqn:feedback-control-law} requires knowing the full state $x$, which can be very costly or not possible to measure. So we will now work towards creating a state estimate $\hat{x} \rightarrow x$ as $t \rightarrow \infty$.
+can be used to stabilize the system, if and only if the system \eqref{eqn:standard-noiseless-system} is stabilizable \cite[Th. 14.5]{Hespanha2018LinearTheory}. As can be seen in the equation, the control law \eqref{eqn:feedback-control-law} requires measuring the full state $x$, which can be very costly or not possible to measure. Figure \ref{fig:feedback-diagram} shows a simple feed back controlled system, where it can also be seen that $y$ feeds into the controller and can thus only stabilize the system when $y=x$. So we will now work towards creating a state estimate $\hat{x} \rightarrow x$ as $t \rightarrow \infty$.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        block/.style={rectangle, draw=black!60, very thick, minimum size=7mm},
+        ]
+        \node (plant) at (0,0) [block] {Plant};
+        \node (sensors) at (4,0) [block] {Sensors};
+        \node (controller) at (-4,0) [block] {Controller};
+
+        \draw[->] (plant) -- (sensors);
+        \draw[->] (sensors) -- node[auto] {$y$} (6,0);
+        \draw[->] (sensors) -- (4,-1) -- node[auto] {$y$} (-4,-1) -- (controller);
+        \draw[->] (controller) -- node[auto] {$u$} (plant);
+        
+    \end{tikzpicture}
+    \caption{Feedback control system}
+    \label{fig:feedback-diagram}
+\end{figure}
  
 \subsection{Observability}
 We now aim to reconstruct the full state $x$ from the output $y$ and the input $u$. The following derivation is based on \cite{StephenBoyd2009ObservabilitySlides}, consider system \eqref{eqn:standard-noiseless-system} where $x$ is unknown and $y$ and $u$ are known. The derivatives of $y$ 
@@ -103,11 +122,68 @@ is the \textit{observability matrix} and
     CA^{n-2}B & CA^{n-3}B & CA^{n-4}B & \hdots & D
 \end{bmatrix}.
 \]
-Isolating x results in
+Isolating $x$ results in
 \begin{equation}\label{eqn:state-estimation-w-observability-matrix}
     x = \mathcal{O}^{-1}(\mathbf{y}-\mathcal{K}\mathbf{u}).
 \end{equation}
 As can be seen in \eqref{eqn:state-estimation-w-observability-matrix} observability matrix $\mathcal{O}$ is required to be invertible to reconstruct $x$ from $y$ and $u$. If a system's $A$ and $C$ matrix fulfil this requirement, the system can be described as \textit{observable}. The invertibility requirement is equivalent to the statement that the matrix $\mathcal{O}$ needs to be full rank \cite[Section 2.9]{Lay2016LinearApplications}, this theorem that can also be found in \cite[Corollary 3.8]{Antsaklis2006LinearProcessing}. The implication of this is that it is only possible to reconstruct the state $x$ if the pair $A,C$ is observable. \\
+
+\begin{example}\label{ex:single-ouptut-observability}
+    Let us work out an example on a double mass-spring-damper system as described in Chapter \ref{ch:system-definition}, with the properties: $m_i=1 \text{[kg]}, k_i=15\text{[N/m]}$ and $c_i=2 \text{[Ns/m]}$ for $i=1,2$ and where the position of the first mass is measured. This leads to the following system matrices:
+\begin{equation*}
+    A =
+    \begin{bmatrix}
+        0 & 1 & 0 & 0 \\
+        -15 & -2 & 15 & 2 \\
+        0 & 0 & 0 & 1 \\
+        0 & 0 & -15 & -2 \\
+    \end{bmatrix}, \quad
+    C =
+    \begin{bmatrix}
+        1 & 0 & 0 & 0 \\
+    \end{bmatrix}.
+\end{equation*}
+We now compute the observability matrix
+\begin{equation*}
+    \mathcal{O} = 
+    \begin{bmatrix}
+        C \\ CA \\ CA^2 \\ CA^3 \\
+    \end{bmatrix} =
+    \begin{bmatrix}
+        1 & 0 & 0 & 0 \\
+        0 & 1 & 0 & 0 \\
+        -15 & -2 & 15 & 2 \\
+        30 & -11 & -60 & 7 \\
+    \end{bmatrix}
+\end{equation*}
+which has rank$(4)$ and so the pair $(A,C)$ is observable.
+\end{example}
+
+Example \ref{ex:single-ouptut-observability} considers a system with only one output, we will now investigate the case with multiple outputs. The following derivation follows \cite[Section 3.4 D 2]{Antsaklis2006LinearProcessing}. Let us expand the observability matrix \eqref{observability-matrix} for a system where $n_y>1$, a system with more than one output.
+\begin{equation*}
+\mathcal{O}=
+\begin{bmatrix}
+    C \\
+    CA \\
+    \vdots \\
+    CA^{n-1}
+\end{bmatrix}    
+=
+\begin{bmatrix}
+    c_1 \\
+    \vdots \\
+    c_{n_y} \\
+    c_1A \\
+    \vdots \\
+    c_{n_y}A \\
+    \vdots \\
+    c_1A^{n-1}\\
+    \vdots \\
+    c_{n_y}A^{n-1} \\
+\end{bmatrix}_{n_xn_y \times n_x}.
+\end{equation*}
+The same rank condition still holds, the system is fully observable as long as the $\mathcal{O}$ matrix is full rank. This implies that certain combinations of sensors that do not suffice on their own can make a system fully observable.
+
 \subsection{Linear single observer}
 Let us now reconstruct the full state of system \eqref{eqn:standard-noiseless-system} from  $y$ and $u$ by defining the state estimate as in \cite[Section 16.5]{Hespanha2018LinearTheory}
 \begin{equation}\label{eqn:stable-simple-state-estimator}
@@ -129,9 +205,33 @@ We now perform the same analysis on the derivative of the state estimation error
 \begin{equation}\label{eqn:error-linear-observer}
     \dot{e} = A\hat{x} + Bu + L(C\hat{x} + Du - Cx - Du) - Ax - Bu = (A+LC)e
 \end{equation}
-which is similar to the solution in \eqref{eqn:zero-input-solution}. From which we can conclude that if $A+LC$ is a stability matrix $e \rightarrow 0$ as $t \rightarrow \infty$.
+which is similar to the solution in \eqref{eqn:zero-input-solution}. From which we can conclude that if $A+LC$ is a stability matrix $e \rightarrow 0$ as $t \rightarrow \infty$. Figure \ref{fig:observer-diagram} shows the observer placed between the sensors and the controller
 
-\subsection{Nonlinear observer}
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[
+        block/.style={rectangle, draw=black!60, very thick, minimum size=7mm},
+        ]
+        \node (plant) at (0,0) [block] {Plant};
+        \node (sensors) at (4,0) [block] {Sensors};
+        \node (observer) at (0,-2) [block] {Observer};
+        \node (controller) at (-4,0) [block] {Controller};
+
+        \draw[->] (plant) -- (sensors);
+        \draw[-] (sensors) -- (4,-2);
+        \draw[->] (4,-2) -- node[auto] {$y$} (observer);
+        \draw[->] (sensors) -- node[auto] {$y$} (6,0);
+        \draw[-] (observer)  -- (-4,-2);
+        \draw[->] (-4,-2) -- node[auto] {$\hat{x}$} (controller);
+        \draw[->] (controller) -- node[pos=0.2,above] {$u$} (plant);
+        \draw[->] (-2,0) -- (-2,-1) -- (0,-1) -- (observer);
+    \end{tikzpicture}
+    \caption{An observer in a control system}
+    \label{fig:observer-diagram}
+\end{figure}
+
+It is important to note that no restrictions are set on the structure of $y$ and therefore $C$ as long as the pair $(A,C)$ is observable. 
+
 Let us now extend the observer \eqref{eqn:unstable-simple-state-estimator} to also correctly estimate systems with a nonlinear contribution $\phi(x)$. Consider the system
 \begin{equation*}\label{eqn:nonlinear-system}
     \dot{x} = Ax + Bu + E\phi(y), \quad y = Cx + Du.
