@@ -15,7 +15,56 @@ $C =
 \begin{bmatrix}
     C_1^T & C_2^T & \cdots & C_i^T \\
 \end{bmatrix}^{T}$
-Let us consider the scenario where an attacker attacks a number of outputs $y_i$, gaining full control the attack signal $\tau_i$. No assumptions are made about $\tau_i$, it can be any unbounded signal. Let us denote the set of attacked outputs as $\mathcal{M} \subset \mathcal{N}$. \\
+Let us consider the scenario where an attacker attacks a number of outputs $y_i$, where the attacker then has full control over the attack signal $\tau_i$. No assumptions are made about $\tau_i$, it can be any unbounded signal. Let us denote the set of attacked outputs as $\mathcal{M} \subset \mathcal{N}$. Figure \ref{fig:attack-diagram} shows an example where $\mathcal{M}=\{1,2,3,4,5\}$ and $\mathcal{N} = \{2,5\}$.  \\
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[
+        sensor/.style={rectangle, draw=black!60, very thick, minimum size=7mm},
+        ]
+        \node (observer) at (10,0) [rectangle,draw=black!60,minimum height=48mm, very thick] {Observer};
+        \node (obin1) at (9.3,2) {};
+        \node (obin2) at (9.3,1) {};
+        \node (obin3) at (9.3,0) {};
+        \node (obin4) at (9.3,-1) {};
+        \node (obin5) at (9.3,-2) {};
+        
+        \node (attacker) at (6.5,3) [sensor] {Attacker};
+        \node (a1s2) at (7,1) {};
+        \draw[-,red] (a1s2.center) edge node[pos=0.65, above] {$y_2 + \tau_2$} (obin2);
+        \node (a2s5) at (6,-2) {};
+        \draw[-,red] (a2s5.center) edge node[pos=0.75, above] {$y_5 + \tau_5$} (obin5);
+        \node (a1) at (6,2.8) {}
+            edge [-,red] (a2s5.center);
+        \node (a2) at (7,2.8) {}
+            edge [-,red] (a1s2.center);
+    
+        
+        \node (sensor3) at (3,0) [sensor] {Sensor 3}
+            edge [-] node[pos=0.08,above] {$y_3$} node[pos=0.85,above] {$y_3$} (obin3);
+        \node (sensor2) at (3,1) [sensor] {Sensor 2}
+            edge [-] node[pos=0.15,above] {$y_2$} (a1s2);
+        \node (sensor1) at (3,2) [sensor] {Sensor 1}
+            edge [-] node[pos=0.08,above] {$y_1$} node[pos=0.85,above] {$y_1$} (obin1);
+        \node (sensor4) at (3,-1) [sensor] {Sensor 4}
+            edge [-] node[pos=0.08,above] {$y_4$} node[pos=0.85,above] {$y_4$} (obin4);
+        \node (sensor5) at (3,-2) [sensor] {Sensor 5}
+            edge [-] node[pos=0.2,above] {$y_5$} (a2s5);
+        \node (plant) at (0,0) [sensor] {Plant}
+            edge [-] (sensor1.west)
+            edge [-] (sensor2.west)
+            edge [-] (sensor3.west)
+            edge [-] (sensor4.west)
+            edge [-] (sensor5.west);
+ 
+        \node (state-estimate) at (13,0) {State estimate};
+        \draw[->] (observer) -- (state-estimate);
+        
+    \end{tikzpicture}
+    \caption{A system with 2 out of 5 outputs attacked}
+    \label{fig:attack-diagram}
+\end{figure}
+
 
 \subsection{Case study: multi-mass-spring-damper system}
 Let us now introduce the system that will be used as a case study: a mass-spring-damper system. This system consists of $b$ mass-spring-dampers in series. Where $x_a,a=1,2,\dots,b$ denotes the position with respect to the previous mass. So the position of a block with respect to the fixed-world is

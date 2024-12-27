@@ -62,9 +62,102 @@ We can now select the final state estimate as
 \begin{equation}
     \hat{x} = \hat{x}_{\sigma}.
 \end{equation}
-This selection procedure selects the observer which has the smallest difference between itself and its sub-observers. 
+This selection procedure selects the observer which has the smallest difference between itself and its sub-observers.
 
-\subsection{Observer architecture}
+\begin{figure}[h]
+    \centering
+    % 0.2422    0.1504    0.6603
+    % 0.1540    0.5902    0.9218
+    % 0.5044    0.7993    0.3480
+    % 0.9769    0.9839    0.0805
+
+    \begin{tikzpicture}[
+        block/.style={rectangle, draw=black!60, very thick, minimum size=9mm},
+        1/.style={draw=parula1, very thick},
+        2/.style={}
+        ]
+        % Input layer
+        \node (y1) at (0,1.8) [block,draw=parula1] {$C_1x$};
+        \node (y2) at (0,0.6) [block,draw=parula2] {$C_2x$};
+        \node (y3) at (0,-0.6) [block,draw=parula3] {$C_3x$};
+        \node (y4) at (0,-1.8) [block,draw=parula4] {$C_4x$};
+        % Observer layer
+        \node (xj1) at (3,4.6) [block] {$\hat{x}^J_1$};
+        \node (xj2) at (3,3.4) [block] {$\hat{x}^J_2$};
+        \node (xj3) at (3,2.2) [block] {$\hat{x}^J_3$};
+        \node (xj4) at (3,0.9) [block] {$\hat{x}^J_4$};
+        \node (xp1) at (3,-0.9) [block] {$\hat{x}^P_1$};
+        \node (xp2) at (3,-2.2) [block] {$\hat{x}^P_2$};
+        \node (xp3) at (3,-3.4) [block] {$\hat{x}^P_3$};
+        \node (xp4) at (3,-4.6) [block] {$\hat{x}^P_4$};
+
+        % Selection layer
+        \node (pi1) at (6,3) [block] {$\pi_1$};
+        \node (pi2) at (6,1) [block] {$\pi_2$};
+        \node (pi3) at (6,-1) [block] {$\pi_3$};
+        \node (pi4) at (6,-3) [block] {$\pi_4$};
+
+        % Final estimate
+        \node (sigma) at (9,0) [block] {$\sigma$};
+
+        % lines input -> observer
+        \draw[-,draw=black!30] (y1.east) -- (xj1.west);
+        \draw[-,draw=black!30] (y2.east) -- (xj1.west);
+        \draw[-,draw=black!30] (y3.east) -- (xj1.west);
+        
+        \draw[-,draw=black!30] (y1.east) -- (xj2.west);
+        \draw[-,draw=black!30] (y2.east) -- (xj2.west);
+        \draw[-,draw=black!30] (y4.east) -- (xj2.west);
+
+        \draw[-,draw=parula1] (y1.east) -- (xj3.west);
+        \draw[-,draw=parula3] (y3.east) -- (xj3.west);
+        \draw[-,draw=parula4] (y4.east) -- (xj3.west);
+
+        \draw[-,draw=black!30] (y2.east) -- (xj4.west);
+        \draw[-,draw=black!30] (y3.east) -- (xj4.west);
+        \draw[-,draw=black!30] (y4.east) -- (xj4.west);
+
+        \draw[-,draw=parula1] (y1.east) -- (xp1.west);
+
+        \draw[-,draw=black!30] (y2.east) -- (xp2.west);
+
+        \draw[-,draw=parula3] (y3.east) -- (xp3.west);
+
+        \draw[-,draw=parula4] (y4.east) -- (xp4.west);
+
+        % lines observer -> selection
+        \draw[-,draw=black!30] (xj1.east) -- (pi1.west);
+        \draw[-,draw=black!30] (xj2.east) -- (pi2.west);
+        \draw[-,draw=black] (xj3.east) -- (pi3.west);
+        \draw[-,draw=black!30] (xj4.east) -- (pi4.west);
+
+        \draw[-,draw=black!30] (xp1.east) -- (pi1.west);
+        \draw[-,draw=black!30] (xp2.east) -- (pi1.west);
+        \draw[-,draw=black!30] (xp3.east) -- (pi1.west);
+
+        \draw[-,draw=black!30] (xp1.east) -- (pi2.west);
+        \draw[-,draw=black!30] (xp2.east) -- (pi2.west);
+        \draw[-,draw=black!30] (xp4.east) -- (pi2.west);
+
+        \draw[-,draw=black] (xp1.east) -- (pi3.west);
+        \draw[-,draw=black] (xp3.east) -- (pi3.west);
+        \draw[-,draw=black] (xp4.east) -- (pi3.west);
+
+        \draw[-,draw=black!30] (xp2.east) -- (pi4.west);
+        \draw[-,draw=black!30] (xp3.east) -- (pi4.west);
+        \draw[-,draw=black!30] (xp4.east) -- (pi4.west);
+
+        \draw[-,draw=black!30] (pi1.east) -- (sigma.west);
+        \draw[-,draw=black!30] (pi2.east) -- (sigma.west);
+        \draw[-,draw=black] (pi3.east) -- (sigma.west);
+        \draw[-,draw=black!30] (pi4.east) -- (sigma.west);
+        
+    \end{tikzpicture}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Observer architecture}\label{subsec:CMO-architecture}
 The state estimates constructed in \ref{subsec:state-estimates} only serve as a basis of the CMO, in this subsection two different implementations will be discussed. These implementations will be implemented in Matlab in the next chapter \textcolor{red}{ref this shit}. The first one  stores all the observers in a 2D matrix and will thus be known as the 2D-CMO. The second implementation stores the observers in a 3D matrix and will thus be known as the 3D-CMO.
 
 \subsubsection{2D conventional multi-observer}
@@ -109,12 +202,14 @@ The $\Tilde{A}$ matrix stores  all $J$- and $P$-estimates: the top section store
 
 \begin{table}[h]
     \centering
-    \begin{tabular}{c|c|c}
-       Matrix  & Dimensions & Number of elements \\ \hline
+    \begin{tabular}{|c|c|c|}
+       \toprule
+       Matrix  & Dimensions & Number of elements \\ \midrule
        $\Tilde{x}_{2D}$  & $n_xN_S \times 1$ & $n_xN_S$ \\
        $\Tilde{A}_{2D}$ & $n_xN_S \times n_xN_S$ & $n_x^2N_S^2$ \\
        $B_{2D}$ & $n_u \times N_S$ & $n_uN_S$ \\
        $u_{2D}$ & $n_u \times N_S$ & $n_uN_S$ \\
+       \bottomrule
     \end{tabular}
     \caption{2D-CMO system matrix dimensions}
     \label{tab:2D-CMO-dimensions}
@@ -123,7 +218,7 @@ The $\Tilde{A}$ matrix stores  all $J$- and $P$-estimates: the top section store
 
 
 \newpage
-\subsubsection{3D conventional multi-observer}
+\subsubsection{3D conventional multi-observer}\label{subsec:3DCMO-architecture}
 Now the second implementation of the CMO will be discussed. The goal of the 3D-CMO is to reduce the number of zeros required in the $\Tilde{A}_{2D}$\eqref{eqn:2D-CMO}. In order to do so we store all block matrices behind each other. Let us start by defining 
 \begin{center}
     \begin{minipage}[t]{0.4\textwidth}
@@ -238,7 +333,7 @@ Another operation is required for the summands that are equal for each observer,
         
             \matrix (mLCP) [draw,matrix of math nodes]
                 {
-                -L_{\cP}^PC_{\cP}^P \\
+                -L_{N_P}^PC_{N_P}^P \\
                 };
         
             \matrix (dots2) [draw,matrix of math nodes] at ($(mLCP.south west)+(displacement)$)
@@ -253,7 +348,7 @@ Another operation is required for the summands that are equal for each observer,
         
             \matrix (mLCJ) [draw,matrix of math nodes] at ($(mLCp.south west)+(displacement)$)
                 {
-                -L_{\cJ}^JC_{\cJ}^J \\
+                -L_{N_J}^JC_{N_J}^J \\
                 };
         
             \matrix (dots1) [draw,matrix of math nodes] at ($(mLCJ.south west)+(displacement)$)
@@ -290,7 +385,7 @@ and
         
             \matrix (mLP) [draw,matrix of math nodes]
                 {
-                -L_{\cP}^P \\
+                -L_{N_P}^P \\
                 };
         
             \matrix (dots2) [draw,matrix of math nodes] at ($(mLP.south west)+(displacement)$)
@@ -305,7 +400,7 @@ and
         
             \matrix (mLJ) [draw,matrix of math nodes] at ($(mLp.south west)+(displacement)$)
                 {
-                -L_{\cJ}^J \\
+                -L_{N_J}^J \\
                 };
         
             \matrix (dots1) [draw,matrix of math nodes] at ($(mLJ.south west)+(displacement)$)
@@ -338,7 +433,7 @@ and
         
             \matrix (mLP) [draw,matrix of math nodes]
                 {
-                v_{\cP}^P + \tau_{\cP}^P \\
+                v_{N_P}^P + \tau_{N_P}^P \\
                 };
         
             \matrix (dots2) [draw,matrix of math nodes] at ($(mLP.south west)+(displacement)$)
@@ -353,7 +448,7 @@ and
         
             \matrix (mLJ) [draw,matrix of math nodes] at ($(mLp.south west)+(displacement)$)
                 {
-                v_{\cJ}^J + \tau_{\cJ}^J \\
+                v_{N_J}^J + \tau_{N_J}^J \\
                 };
         
             \matrix (dots1) [draw,matrix of math nodes] at ($(mLJ.south west)+(displacement)$)
