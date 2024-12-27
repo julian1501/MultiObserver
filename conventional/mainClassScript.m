@@ -14,16 +14,17 @@ if lower(inputs{3}) == 'max'
 else
     numAttackedOutputs = str2num(inputs{3});
 end
-if lower(inputs{4}) == 'max'
+attackedOutputs = str2num(inputs{4});
+if lower(inputs{5}) == 'max'
     numOutputsPObservers = numOutputs-2*numAttackedOutputs;
 else
-    numOutputsPObservers = str2num(inputs{4});
+    numOutputsPObservers = str2num(inputs{5});
 end
-eigenvalueOptions = str2num(inputs{5});
-tspan = str2num(inputs{6});
-x0Options = str2num(inputs{7})';
-whichMO = str2num(inputs{8});
-linear = str2num(inputs{9});
+eigenvalueOptions = str2num(inputs{6});
+tspan = str2num(inputs{7});
+x0Options = str2num(inputs{8})';
+whichMO = str2num(inputs{9});
+linear = str2num(inputs{10});
 
 
 %% CALCULATIONS
@@ -49,7 +50,7 @@ if sys.D ~= 0
 end
 
 % setup the attack
-Attack = attack(numOutputs,numAttackedOutputs);
+Attack = attack(numOutputs,numAttackedOutputs,attackedOutputs);
 
 % setup the J and P observers
 Pmo = mo(sys,Attack,numOutputs,numOutputsPObservers);

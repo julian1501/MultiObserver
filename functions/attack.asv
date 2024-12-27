@@ -76,7 +76,7 @@ classdef attack
                error('The number of outputs is not larger then twice the number of attacked outputs %3.0f <= %3.0f',numOutputs,numAttackedOutputs); 
             end
             
-            if size(attackedOutputs) == [0,0]
+            if attackedOutputs == []
                 attackedOutputsA = selectAB(obj);
             else
                 attackedOutputsA = attackedOutputs;
