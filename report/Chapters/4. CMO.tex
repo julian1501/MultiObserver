@@ -17,9 +17,15 @@ The multi-observer described in this section is based on \cite[III B]{Chong2015O
         y_i &= C_ix + Du + v_i + \tau_i \quad i  \in \{1,2,\dots,N_O\}.
     \end{split}
 \end{equation*}
-Let us define $\mathcal{J} \subset \{1,2,\dots,N\}$ and $\mathcal{P} \subset \{1,2,\dots,N\}$ as all sets with  $J=N_O-N_M$ and  $P=1$ elements respectively. $P$ could also be taken as any value smaller than $J$, we restrict ourselves to systems that are fully observable trough any single output $y_i = C_ix$. The cardinalities of $\mathcal{J}$ and $\mathcal{P}$ are 
+Let us define 
+\begin{equation}\label{eqn:observer-sets}
+    \begin{split}
+        \mathcal{J} \subset \{1,2,\dots,N\}, \quad \mathcal{P} \subset \{1,2,\dots,N\}
+    \end{split}
+\end{equation}
+ as all sets with  $J=N_O-N_M$ and  $P=1$ elements respectively. $P$ could also be taken as any value smaller than $J$, we restrict ourselves to systems that are fully observable trough any single output $y_i = C_ix$. The cardinalities of $\mathcal{J}$ and $\mathcal{P}$ are 
 \begin{equation}\label{eqn:multi-observer-sizes}
-    N_J = \cJ={N_O \choose J}={N_O \choose N_O-N_M}, \quad N_P = \cP = {N_O \choose P} = N_O.
+    N_J = \cJ=\binom{N_O}{J}=\binom{N_O}{N_O-N_M}, \quad N_P = \cP = \binom{N_O}{P} = N_O.
 \end{equation}
 For example, $N_O=17$ and $N_M=8$ ($N_O>2N_M$) leads to $N_J=24310$ and $N_P=17$.
 We now define the $j=1,2,\dots,N_J$ $J$\textit{-observers} as
@@ -64,101 +70,9 @@ We can now select the final state estimate as
 \end{equation}
 This selection procedure selects the observer which has the smallest difference between itself and its sub-observers.
 
-\begin{figure}[h]
-    \centering
-    % 0.2422    0.1504    0.6603
-    % 0.1540    0.5902    0.9218
-    % 0.5044    0.7993    0.3480
-    % 0.9769    0.9839    0.0805
-
-    \begin{tikzpicture}[
-        block/.style={rectangle, draw=black!60, very thick, minimum size=9mm},
-        1/.style={draw=parula1, very thick},
-        2/.style={}
-        ]
-        % Input layer
-        \node (y1) at (0,1.8) [block,draw=parula1] {$C_1x$};
-        \node (y2) at (0,0.6) [block,draw=parula2] {$C_2x$};
-        \node (y3) at (0,-0.6) [block,draw=parula3] {$C_3x$};
-        \node (y4) at (0,-1.8) [block,draw=parula4] {$C_4x$};
-        % Observer layer
-        \node (xj1) at (3,4.6) [block] {$\hat{x}^J_1$};
-        \node (xj2) at (3,3.4) [block] {$\hat{x}^J_2$};
-        \node (xj3) at (3,2.2) [block] {$\hat{x}^J_3$};
-        \node (xj4) at (3,0.9) [block] {$\hat{x}^J_4$};
-        \node (xp1) at (3,-0.9) [block] {$\hat{x}^P_1$};
-        \node (xp2) at (3,-2.2) [block] {$\hat{x}^P_2$};
-        \node (xp3) at (3,-3.4) [block] {$\hat{x}^P_3$};
-        \node (xp4) at (3,-4.6) [block] {$\hat{x}^P_4$};
-
-        % Selection layer
-        \node (pi1) at (6,3) [block] {$\pi_1$};
-        \node (pi2) at (6,1) [block] {$\pi_2$};
-        \node (pi3) at (6,-1) [block] {$\pi_3$};
-        \node (pi4) at (6,-3) [block] {$\pi_4$};
-
-        % Final estimate
-        \node (sigma) at (9,0) [block] {$\sigma$};
-
-        % lines input -> observer
-        \draw[-,draw=black!30] (y1.east) -- (xj1.west);
-        \draw[-,draw=black!30] (y2.east) -- (xj1.west);
-        \draw[-,draw=black!30] (y3.east) -- (xj1.west);
-        
-        \draw[-,draw=black!30] (y1.east) -- (xj2.west);
-        \draw[-,draw=black!30] (y2.east) -- (xj2.west);
-        \draw[-,draw=black!30] (y4.east) -- (xj2.west);
-
-        \draw[-,draw=parula1] (y1.east) -- (xj3.west);
-        \draw[-,draw=parula3] (y3.east) -- (xj3.west);
-        \draw[-,draw=parula4] (y4.east) -- (xj3.west);
-
-        \draw[-,draw=black!30] (y2.east) -- (xj4.west);
-        \draw[-,draw=black!30] (y3.east) -- (xj4.west);
-        \draw[-,draw=black!30] (y4.east) -- (xj4.west);
-
-        \draw[-,draw=parula1] (y1.east) -- (xp1.west);
-
-        \draw[-,draw=black!30] (y2.east) -- (xp2.west);
-
-        \draw[-,draw=parula3] (y3.east) -- (xp3.west);
-
-        \draw[-,draw=parula4] (y4.east) -- (xp4.west);
-
-        % lines observer -> selection
-        \draw[-,draw=black!30] (xj1.east) -- (pi1.west);
-        \draw[-,draw=black!30] (xj2.east) -- (pi2.west);
-        \draw[-,draw=black] (xj3.east) -- (pi3.west);
-        \draw[-,draw=black!30] (xj4.east) -- (pi4.west);
-
-        \draw[-,draw=black!30] (xp1.east) -- (pi1.west);
-        \draw[-,draw=black!30] (xp2.east) -- (pi1.west);
-        \draw[-,draw=black!30] (xp3.east) -- (pi1.west);
-
-        \draw[-,draw=black!30] (xp1.east) -- (pi2.west);
-        \draw[-,draw=black!30] (xp2.east) -- (pi2.west);
-        \draw[-,draw=black!30] (xp4.east) -- (pi2.west);
-
-        \draw[-,draw=black] (xp1.east) -- (pi3.west);
-        \draw[-,draw=black] (xp3.east) -- (pi3.west);
-        \draw[-,draw=black] (xp4.east) -- (pi3.west);
-
-        \draw[-,draw=black!30] (xp2.east) -- (pi4.west);
-        \draw[-,draw=black!30] (xp3.east) -- (pi4.west);
-        \draw[-,draw=black!30] (xp4.east) -- (pi4.west);
-
-        \draw[-,draw=black!30] (pi1.east) -- (sigma.west);
-        \draw[-,draw=black!30] (pi2.east) -- (sigma.west);
-        \draw[-,draw=black] (pi3.east) -- (sigma.west);
-        \draw[-,draw=black!30] (pi4.east) -- (sigma.west);
-        
-    \end{tikzpicture}
-    \caption{Caption}
-    \label{fig:enter-label}
-\end{figure}
 
 \subsection{Observer architecture}\label{subsec:CMO-architecture}
-The state estimates constructed in \ref{subsec:state-estimates} only serve as a basis of the CMO, in this subsection two different implementations will be discussed. These implementations will be implemented in Matlab in the next chapter \textcolor{red}{ref this shit}. The first one  stores all the observers in a 2D matrix and will thus be known as the 2D-CMO. The second implementation stores the observers in a 3D matrix and will thus be known as the 3D-CMO.
+The state estimates constructed in \ref{subsec:state-estimates} only serve as a basis of the CMO, in this subsection two different implementations will be discussed. These implementations will be implemented in Matlab in the next chapter \ref{ch:matlab-implementation}. The first one  stores all the observers in a 2D matrix and will thus be known as the 2D-CMO. The second implementation stores the observers in a 3D matrix and will thus be known as the 3D-CMO.
 
 \subsubsection{2D conventional multi-observer}
 \textcolor{red}{decide if I want to keep this in, would require fintuning the implementation and adding the nonlinearity}
@@ -481,12 +395,14 @@ We can now construct all observers \eqref{eqn:cmo-single-J-observer}\eqref{eqn:c
 Let us now look at the sizes of all matrices that are required for state estimation. The matrices $L_{3D}$ and $\eta_{3D}$ are not taken into account, since they are only used to model the state estimators and would not be required in a physical implementation.
 \begin{table}[h]
     \centering
-    \begin{tabular}{c|c|c}
-       Matrix  & Dimensions & Number of elements \\ \hline
-       $\Tilde{x}_{3D}$  & $ n_x \times 1 \times N_S$ & $n_xN_S$ \\
-       $\Tilde{A}_{3D}$ & $n_x \times n_x \times N_S$ & $n_x^2N_S$ \\ 
-       $F_{3D}$ & $n_x \times n_x \times N_S$ & $n_x^2N_S$ \\
-       
+    \begin{tabular}{|c|c|c|}
+        \toprule
+        Matrix  & Dimensions & Number of elements \\
+        \midrule
+        $\Tilde{x}_{3D}$  & $ n_x \times 1 \times N_S$ & $n_xN_S$ \\
+        $\Tilde{A}_{3D}$ & $n_x \times n_x \times N_S$ & $n_x^2N_S$ \\ 
+        $F_{3D}$ & $n_x \times n_x \times N_S$ & $n_x^2N_S$ \\
+        \bottomrule
     \end{tabular}
     \caption{3D-CMO system matrix dimensions}
     \label{tab:3D-CMO-dimensions}
@@ -503,7 +419,7 @@ which is the total number of systems needed for this multi-observer.\\
 From the combinatoric nature of equation \eqref{eqn:multi-observer-sizes} it can be seen that the number of observers required to provide the secure state-estimate grows rapidly with the number of outputs $N$. Let us look more closely at $\cJ$ when $M$ is the largest integer so that $N>2M$ holds and thus equation \eqref{eqn:multi-observer-sizes} holds.
 \begin{equation*}
     \begin{split}
-        N_J &= {N_O \choose N_O-N_M}  = \frac{N_O!}{(N_O-M)!N_M!} = {N_O \choose N_M} \\
+        N_J &= \binom{N_O}{N_O-N_M}  = \frac{N_O!}{(N_O-M)!N_M!} = \binom{N_O}{N_M} \\
     \end{split}
 \end{equation*}
 which follows from the symmetry property of a combination \cite[Section 1.1]{Mazur2010PrinciplesCombinatorics}. Substituting this into $N_S$ results in
@@ -532,3 +448,4 @@ which can be further simplified into
 \begin{equation}\label{eqn:NS-approximation}
     N_S \approx \sqrt{\frac{2}{\pi N_O}}2^{N_O}
 \end{equation}
+From equation \eqref{eqn:NS-approximation} we can conclude that the amount of observers required for secure state estimation scales with approximately $2^{N_O}$ when $N_P=1$, which is not favourable.
