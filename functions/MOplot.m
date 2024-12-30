@@ -137,7 +137,7 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
     if MO.Attack.numAttacks == 0
         lgd = legend([leg(end-2:end)],'System response','MO estimate','Error');
     elseif MO.Attack.numAttacks > 0
-        lgd = legend([leg(1:2) leg(end-2:end)],'J-observers','P-Observers','System response','MO estimate','Error');
+        lgd = legend([leg(1:2) leg(end-2:end)],'J-observers','P-observers','System response','MO estimate','Error');
     end
 
     lgd.Layout.Tile = 'east';
