@@ -8,7 +8,11 @@ The \texttt{attack} class defines an attack on the system, the outputs that are 
 
 All MOs are based on a common set of $J$-observers and $P$-observers as defined in Subsection \ref{subsec:state-estimates}. Since all MOs observe the same system, these observers can be defined once and used by all MOs. A separate \texttt{mo} object needs to be generated for both the $J$ and $P$-observers. The \texttt{mo} defines observers for each combination as defined in \eqref{eqn:observer-sets}, based on a given number of outputs for each observer (size of each combination). The class generates an $L$ matrix that places the eigenvalues of $A + LC$ at specified locations. Usually, the size of $C$ does not match the number of outputs $N_O$. The \texttt{mo} class automatically creates a set of outputs based on the provided $C$ where the number of rows matches $N_O$.
 
-\textcolor{red}{2D CMO}
+\textcolor{red}{2D CMO}\\
+...\\
+...\\
+...\\
+...\\
 
 The \texttt{cmo3d} class defines the 3D CMO based on the two \texttt{mo} objects for the $J$ and $P$-observers and the system. It generates the system matrices \eqref{eqn:x3d}\eqref{eqn:A-tilde-3D}\eqref{eqn:F-3d}\eqref{eqn:L-3d}\eqref{eqn:eta-3d} and uses the \texttt{attack} object to create a 3D attack vector that stores the ones and zeros for each specific observer.
 
@@ -20,15 +24,15 @@ All MOs can be simulated under the same conditions and the results can be compar
 \begin{figure}[ht]
     \centering
     \includegraphics[width=\linewidth]{report/Figures/symplot_5o0a.png}
-    \caption{An unattacked, noiseless double mass spring damper and an observer}
+    \caption{An unattacked, noiseless double mass-spring-damper system and an observer.}
     \label{fig:unattacked-system-plot}
 \end{figure}
 
-Let us now introduce the attack as in Figure \ref{fig:attack-diagram}, so outputs 2 and 5 are under attack. The attack signal $\tau_j=t,j=2,5$ is injected into both outputs. 
+Let us now introduce the attack as in Figure \ref{fig:attack-diagram}, so outputs $2$ and $5$ are under attack. The attack signal $\tau_j=t,j=2,5$ is injected into both outputs. Figure \ref{fig:attacked-system-plot} shows the result of such an attack, all but one of the red dashed $J$-estimates diverge from the actual state (the one that converges overlaps with the light blue line). The MO is able to correctly select the correct state estimate from the observer that uses the outputs $1,3$ and $4$ to construct its state estimate. The blue dashed lines show the $P$-estimators, each constructed with a single output. In this case three of them converge and the other two diverge. 
 
-\begin{figure}
+\begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{report/Figures/symplot_5o2a}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \caption{An attacked noiseless double mass-spring-damper system and a multi-observer. Outputs 2 and 5 are under attack with attack signal $\tau=t$.}
+    \label{fig:attacked-system-plot}
 \end{figure}
