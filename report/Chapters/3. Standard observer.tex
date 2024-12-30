@@ -49,7 +49,7 @@ Let us now consider the definition of Lyapunov stability as in \cite[Th. 8.2]{He
 \end{equation}
 can be used to stabilize the system, if and only if the system \eqref{eqn:standard-noiseless-system} is stabilizable \cite[Th. 14.5]{Hespanha2018LinearTheory}. As can be seen in the equation, the control law \eqref{eqn:feedback-control-law} requires measuring the full state $x$, which can be very costly or not possible to measure. Figure \ref{fig:feedback-diagram} shows a simple feed back controlled system, where it can also be seen that $y$ feeds into the controller and can thus only stabilize the system when $y=x$. So we will now work towards creating a state estimate $\hat{x} \rightarrow x$ as $t \rightarrow \infty$.
 
-\begin{figure}[H]
+\begin{figure}[ht]
     \centering
     \begin{tikzpicture}[
         block/.style={rectangle, draw=black!60, very thick, minimum size=7mm},
@@ -129,7 +129,7 @@ Isolating $x$ results in
 As can be seen in \eqref{eqn:state-estimation-w-observability-matrix} observability matrix $\mathcal{O}$ is required to be invertible to reconstruct $x$ from $y$ and $u$. If a system's $A$ and $C$ matrix fulfil this requirement, the system can be described as \textit{observable}. The invertibility requirement is equivalent to the statement that the matrix $\mathcal{O}$ needs to be full rank \cite[Section 2.9]{Lay2016LinearApplications}, this theorem that can also be found in \cite[Corollary 3.8]{Antsaklis2006LinearProcessing}. The implication of this is that it is only possible to reconstruct the state $x$ if the pair $A,C$ is observable. \\
 
 \begin{example}\label{ex:single-ouptut-observability}
-    Let us work out an example on a double mass-spring-damper system as described in Chapter \ref{ch:system-definition}, with the properties: $m_i=1 \text{[kg]}, k_i=15\text{[N/m]}$ and $c_i=2 \text{[Ns/m]}$ for $i=1,2$ and where the position of the first mass is measured. This leads to the following system matrices:
+    Let us work out an example on the system presented in Example \ref{ex:system} where only the position of the first mass is measured. This leads to the following system matrices:
 \begin{equation*}
     A =
     \begin{bmatrix}
@@ -156,10 +156,10 @@ We now compute the observability matrix
         30 & -11 & -60 & 7 \\
     \end{bmatrix}
 \end{equation*}
-which has rank$(4)$ and so the pair $(A,C)$ is observable.
+which has rank $4$ and so the pair $(A,C)$ is observable.
 \end{example}
 
-Example \ref{ex:single-ouptut-observability} considers a system with only one output, we will now investigate the case with multiple outputs. The following derivation follows \cite[Section 3.4 D 2]{Antsaklis2006LinearProcessing}. Let us expand the observability matrix \eqref{observability-matrix} for a system where $n_y>1$, a system with more than one output.
+Example \ref{ex:single-ouptut-observability} considers a system with only one output, we will now investigate the case with multiple outputs. The following derivation follows \cite[Section 3.4 D 2]{Antsaklis2006LinearProcessing}. Let us expand the observability matrix \eqref{eqn:observability-matrix} for a system where $n_y>1$, a system with more than one output.
 \begin{equation*}
 \mathcal{O}=
 \begin{bmatrix}
@@ -207,7 +207,7 @@ We now perform the same analysis on the derivative of the state estimation error
 \end{equation}
 which is similar to the solution in \eqref{eqn:zero-input-solution}. From which we can conclude that if $A+LC$ is a stability matrix $e \rightarrow 0$ as $t \rightarrow \infty$. Figure \ref{fig:observer-diagram} shows the observer placed between the sensors and the controller
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \begin{tikzpicture}[
         block/.style={rectangle, draw=black!60, very thick, minimum size=7mm},
