@@ -100,7 +100,7 @@ function dx = multiObserverODE(sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO)
     % Calculations for the CMO3D
     if whichMO(2) == 1
         xcmo3d = reshape(x(xcmo3dStart:xcmo3dEnd),sys.nx,1,CMO3D.numObservers);
-        Attack3d = attackFunction(t,CMO3D.attack);
+        Attack3d = attackFunction(t,CMO3D.attack3d);
         phi = NLspring(sys,y+a);
 
         dxcmo3d = pagemtimes(CMO3D.ApLC,xcmo3d) - pagemtimes(CMO3D.LC,xsys) - pagemtimes(CMO3D.L,Attack3d);

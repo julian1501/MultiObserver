@@ -6,7 +6,7 @@ classdef mo
 % observers and includes attack handling, observer matrices (A and L), as 
 % well as the setup for different system outputs.
 %
-% Documentation written by ChatGPT.
+% Documentation written with help of ChatGPT.
 %
 % Properties:
 % -----------

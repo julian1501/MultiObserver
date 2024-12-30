@@ -104,7 +104,7 @@ classdef cmo3d
         LC
         C
         L
-        attack
+        attack3d
         B
         E
         x0
@@ -139,7 +139,7 @@ classdef cmo3d
             obj.ApLC = cat(3,ApLCJ,ApLCP);
             obj.LC   = cat(3,LCJ,LCP);
             obj.L    = cat(3,Jmo.Li,PmoLPadded);
-            obj.attack = cat(3,Jmo.attack3d,PAttackPadded);
+            obj.attack3d = cat(3,Jmo.attack3d,PAttackPadded);
             obj.B    = repmat(sys.B,1,1,obj.numObservers);
             obj.E    = repmat(sys.E,1,1,obj.numObservers);
             

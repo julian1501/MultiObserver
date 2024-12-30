@@ -71,9 +71,10 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
     numberOfColumns = ceil(sqrt(sys.nx));
     numberOfRows = ceil(sys.nx/numberOfColumns);
     
-    fig = figure();
+    fig = tiledlayout('flow');
     sgtitle({[char(sys.Name),' observed by a ' char(MO.Name) ' ', num2str(MO.numOutputs),' outputs.'],...
-        [ 'Number of attacks =',num2str(MO.Attack.numAttacks),',|J|=',num2str(Jmo.numOutputsObservers),' and |P|=',num2str(Pmo.numOutputsObservers)]});
+        [ 'Number of attacks = ',num2str(MO.Attack.numAttacks)]});
+        %,',N_J=',num2str(Jmo.numOutputsObservers),' and N_P=',num2str(Pmo.numOutputsObservers)]});
     
     % cmoEstimate = 
     trueResponse = x(1:sys.nx,:);
@@ -83,9 +84,9 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
 
     % create tiled plot
     for l = 1:1:sys.nx
+        nexttile
         leg = [];
         % select subplot to edit
-        subplot(numberOfRows,numberOfColumns,l);
         
         % plot all p and j estimators
         for k=1:1:min(5,Jmo.numObservers)
@@ -114,7 +115,7 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
             hold on;
         end
         grid on;
-        legend([leg(1:2) leg(end-2:end)],'J-observers','P-Observers','System response','MO estimate','Error')
+        
         ylim([-yl yl])
 
         xlabel('Time')
@@ -132,8 +133,15 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
 
     end
     
-    
-    
+    % select the correct plots to add to legend
+    if MO.Attack.numAttacks == 0
+        lgd = legend([leg(end-2:end)],'System response','MO estimate','Error');
+    elseif MO.Attack.numAttacks > 0
+        lgd = legend([leg(1:2) leg(end-2:end)],'J-observers','P-Observers','System response','MO estimate','Error');
+    end
+
+    lgd.Layout.Tile = 'east';
+
     set(gcf, 'Position', 0.7*get(0, 'Screensize'));
     hold off;
 end
