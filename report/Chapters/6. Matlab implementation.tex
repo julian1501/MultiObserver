@@ -15,13 +15,20 @@ The \texttt{cmo3d} class defines the 3D CMO based on the two \texttt{mo} objects
 The \texttt{ssmo} class defines the SSMO based on the \texttt{mo} objects. It generates the shared system matrices \eqref{eqn:controllable-canonical-form} and all transformation matrices \eqref{eqn:ssmo-transformation}. 
 
 \subsection{Running a simulation}
-All MOs can be simulated under the same conditions and the results can be compared. The file \texttt{mainClassScript.m} \ref{ap:matlab-code}, generates all MOs and solves the ODEs as in equation \eqref{eqn:standard-system}, \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer}. Figure \ref{fig:unattacked-system-plot} displays the solution of this ODE for the system as in Example \ref{ex:system}. The observer quickly approaches the system state and the error decays to zero.
+All MOs can be simulated under the same conditions and the results can be compared. The file \texttt{mainClassScript.m} in Appendix \ref{ap:matlab-code}, generates all MOs and solves the ODEs as in equation \eqref{eqn:standard-system}, \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer}. Figure \ref{fig:unattacked-system-plot} displays the solution of this ODE for the system as in Example \ref{ex:system}. The observer quickly approaches the system state and the error decays to zero.
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\linewidth]{report/Figures/systemplot}
+    \includegraphics[width=\linewidth]{report/Figures/symplot_5o0a.png}
     \caption{An unattacked, noiseless double mass spring damper and an observer}
     \label{fig:unattacked-system-plot}
 \end{figure}
 
-Let us now introduce the attack as in Figure \ref{fig:attack-diagram}
+Let us now introduce the attack as in Figure \ref{fig:attack-diagram}, so outputs 2 and 5 are under attack. The attack signal $\tau_j=t,j=2,5$ is injected into both outputs. 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{report/Figures/symplot_5o2a}
+    \caption{Caption}
+    \label{fig:enter-label}
+\end{figure}
