@@ -2,7 +2,7 @@
 In this chapter the state-sharing multi-observer (SSMO) will be discussed, aiming to reduce the required memory to store the CMO. The SSMO described in this chapter will provide the estimates as described in \autoref{subsec:state-estimates} and will employ the same selection procedure as described in \autoref{subsec:estimate-selection}.
 
 \subsection{Constructing the state-estimates}
-Let
+The SSMO follows the definition as in \cite{Chong2023MemoryAlgorithms}. Let
 \begin{equation}\label{eqn:ssmo-observer}
     \begin{split}
         \dot{\hat{x}}_o &= \A_o\hat{x}_o - L_oC_ox + Bu -L_o(v_o + \tau_o), \quad \A_o=A+L_{o}C_{o} \\
@@ -41,10 +41,11 @@ Let us now derive transformation matrices $T_o$ that transform all $\A_o$ and $\
         I_l \\ 0_l \\ \vdots \\ 0_l \\ 0_l \\
     \end{bmatrix}
 \end{equation}
-where $l=N$. The transformation matrices for each observer are $T_o=R_pR_q$,
-\begin{equation}
+where $l=N$. The transformation matrices for each observer are,
+\begin{equation}\label{eqn:ssmo-transformation}
     \begin{split}
-         R_p &=
+        T_o &= R_pR_q\\
+        R_p &=
         \begin{bmatrix}
             \B_o & \A_o\B_o & \A^{2}_o\B_o & \cdots & \A^{n-1}_o\B_o \\
         \end{bmatrix} \\
@@ -177,12 +178,14 @@ The structure of the storage matrix $\tilde{x}_{SSMO}$ is the same as $\tilde{x}
 
 \begin{table}[h]
     \centering
-    \begin{tabular}{c|c|c}
-       Matrix  & Dimensions & Number of elements \\ \hline
+    \begin{tabular}{|c|c|c|}
+        \toprule
+       Matrix  & Dimensions & Number of elements \\ \midrule
        $\Tilde{x}_{SSMO}$  & $ n_x \times 1 \times N_S$ & $n_xN_S$ \\
        $\mathbf{A}$ & $n_xN_O \times n_xN_O$ & $n_x^2N_O^2$ \\ 
        $\mathbf{B}$ & $n_xN_O \times n_x$ & $n_x^2N_O$ \\
        $T$ & $n_x \times n_xN_O \times N_S$ & $n_x^2N_ON_S$ \\
+       \bottomrule
     \end{tabular}
     \caption{SSMO system matrix dimensions}
     \label{tab:SSMO-dimensions}
@@ -227,4 +230,4 @@ In Figure \ref{fig:ssmo-vs-3dcmo} the SSMO size is divided by the 3D CMO size, t
     \label{fig:ssmo-vs-3dcmo}
 \end{figure}
 
-It should also be noted that none of the MOs can be implemented in scenarios with a large $N_O$, since the required memory is enormous. Even the super computer Frontier with 9.6 Petabytes ($10^6$ Gigabytes) of random access memory would not be able to run such an MO \cite{FrontierDocumentation}.
+It should also be noted that none of the MOs can be implemented in scenarios with a large $N_O$, since the required memory is enormous. Even the super computer Frontier with 9.6 Petabytes ($10^6$ Gigabytes) of random access memory would not be able to run such an MO \cite{2024FrontierDocumentation}.
