@@ -1,4 +1,4 @@
-function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys)
+function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys,wb)
 % selectBestEstimate Function
 %
 % The 'selectBestEstimate' function determines the best state estimate 
@@ -103,7 +103,7 @@ function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,Psubse
     
     % Initialize PiJ, the array that will house all Pi j (the maximum
     % difference between a J observer and all its P observers).
-    PiJ = zeros(Jmo.numObservers,1);
+    PiJ = gpuArray(zeros(Jmo.numObservers,1));
 
     % create emtpy array to store best estimate and which j supplies it
     bestStateEstimate = zeros(sys.nx,tsteps);
@@ -111,6 +111,19 @@ function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,Psubse
 
     
     for t = 1:1:tsteps
+        % update wait bar and catch exception if the user closed it
+        try
+            waitbar(t/tsteps,wb,sprintf('Selector is currently at timestep: %d/%d',t,tsteps))
+        catch ME
+            switch ME.identifier
+                case 'MATLAB:waitbar:InvalidSecondInput'
+                    error('User terminated the solver.')
+                otherwise
+                    rethrow(ME)
+            end
+    
+        end
+
         xJ3D = reshape(xJ(:,t),sys.nx,1,[]);
         xP3D = reshape(xP(:,t),sys.nx,1,[]);
         for j = 1:1:Jmo.numObservers

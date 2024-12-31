@@ -2,7 +2,7 @@ clearvars; close all;
 
 % initialize bools indicating user input (dialog) and if the results should
 % be plotted (plot)
-dialog = true; Plot = true;
+dialog = true; plot = true;
 fprintf(['\n' repmat('-',1,100) '\n'])
 inputs = inputDialog(dialog);
 
@@ -77,32 +77,23 @@ end
 x0 = x0setup(x0Options,whichMO,sys,Jmo,Pmo);
 
 % create waitbar
-wb = waitbar(0,'Solver is currently at time: 0','Name','Solving the ODE');
+wb = waitbar(0,'0','Name','Solving the ODE');
 
 
-[t,x] = ode45(@(t,x) multiObserverODE(wb,tspan(2),sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,noiseInt,Jmo,Pmo),tspan,x0);
+[t,x] = ode45(@(t,x) multiObserverODE(wb,tspan(1),sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,noiseInt),tspan,x0);
 t = t';
 x = x';
-
-close(wb)
 
 state = x(1:sys.nx,:);
 CMO3Dest = x(sys.nx+1:end-size(SSMO.A,1),:);
 SSMOz = x(end-size(SSMO.A,1)+1:end,:);
 SSMOest = flatten(pagemtimes(SSMO.T,SSMOz));
 
-% create waitbar
-wb = waitbar(0,'Selection is currently at time: 0','Name','Selecting best estimates 3D-CMO');
-CMO3DbestEst = selectBestEstimate([state; CMO3Dest],size(t,2),PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys,wb);
+CMO3DbestEst = selectBestEstimate([state; CMO3Dest],size(t,2),PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys);
 CMO3Derr = state - CMO3DbestEst;
-close(wb)
-
-% create waitbar
-wb = waitbar(0,'Selection is currently at time: 0','Name','Selecting best estimates SSMO');
-SSMObestEst = selectBestEstimate([state; SSMOest],size(t,2),PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys,wb);
+SSMObestEst = selectBestEstimate([state; SSMOest],size(t,2),PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys);
 SSMOerr = state - SSMObestEst;
-close(wb)
-
+err = 0; bestEst = 0;
 % calculate difference
 diff = CMO3Dest - SSMOest;
 score = max(max(abs(diff)));
@@ -114,15 +105,15 @@ else
 end
 
 %% 2D CMO plot
-if Plot && whichMO(1) == 1
+if plot && whichMO(1) == 1
       MOplot(t,[state; CMO2Dest],bestEst,sys,CMO2D,Jmo,Pmo);
 end
 %% 3D CMO plot
-if Plot && whichMO(2) == 1
+if plot && whichMO(2) == 1
       MOplot(t,[state; CMO3Dest],CMO3Derr,CMO3DbestEst,sys,CMO3D,Jmo,Pmo);
 end
 %% SSMO plot
-if Plot && whichMO(3) == 1
+if plot && whichMO(3) == 1
       MOplot(t,[state; SSMOest],SSMOerr,SSMObestEst,sys,SSMO,Jmo,Pmo);
 end
 

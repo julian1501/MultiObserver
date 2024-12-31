@@ -104,7 +104,8 @@ classdef ssmo
         B
         COutputs
         Attack
-
+        Jmo
+        Pmo
     end
 
     methods
@@ -117,6 +118,8 @@ classdef ssmo
             obj.Attack = Jmo.Attack;
             obj.numOutputs = Jmo.numOutputs;
             obj.COutputs = Jmo.COutputs;
+            obj.Jmo = Jmo;
+            obj.Pmo = Pmo;
 
             % Pad the L matrices so that they are compatible with the full output
             LJpadded = pad3DL(Jmo);

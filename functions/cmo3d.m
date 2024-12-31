@@ -109,6 +109,8 @@ classdef cmo3d
         E
         x0
         Attack
+        Jmo
+        Pmo
     end
 
     methods
@@ -120,6 +122,8 @@ classdef cmo3d
             obj.Attack = Jmo.Attack;
             obj.numObservers = Jmo.numObservers + Pmo.numObservers;
             obj.numOutputs = Jmo.numOutputs;
+            obj.Jmo = Jmo;
+            obj.Pmo = Pmo;
             
 
             [ApLCJ,LCJ] = ApLCSetup(Jmo);

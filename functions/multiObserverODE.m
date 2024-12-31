@@ -1,4 +1,4 @@
-function dx = multiObserverODE(sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO)
+function dx = multiObserverODE(wb,tmax,sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,noiseInt,Jmo,Pmo)
 % multiObserverODE Function
 %
 % The 'multiObserverODE' function computes the time derivative of the system 
@@ -70,23 +70,51 @@ function dx = multiObserverODE(sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO)
 % -------------
 % NLspring.m, attackFunction.m, cmo3d.m, ssmo.m
 
+    % update wait bar and catch exception if the user closed it
+    try
+        waitbar(t/tmax,wb,sprintf('Solver is currently at time: %2.4f',t))
+    catch ME
+        switch ME.identifier
+            case 'MATLAB:waitbar:InvalidSecondInput'
+                error('User terminated the solver.')
+            otherwise
+                rethrow(ME)
+        end
 
+    end
+
+    % extract Jmo and Pmo for noise
     xsys = x(1:sys.nx);
     y = sys.COutputs*xsys;
+    [v,~,~,v3D] = noise(Attack.numOutputs,noiseInt,Jmo,Pmo);
     a = attackFunction(t,Attack.attackList);
     if sys.NLsize > 0
         dxsys = sys.A*xsys + sys.E*NLspring(sys,y);
     else
         dxsys = sys.A*xsys;
     end
-
-    sxcmo2dStart = sys.nx + 1;
-    placeholder = 0;
-    xcmo2dEnd   = sys.nx + placeholder*sys.nx;
-    xcmo3dStart = xcmo2dEnd + 1;
-    xcmo3dEnd   = xcmo2dEnd + CMO3D.numObservers*sys.nx;
-    xssmoStart  = xcmo3dEnd + 1;
-    xssmoEnd    = xcmo3dEnd + (sys.NLsize + SSMO.numOutputs)*sys.nx;
+    
+    if whichMO(1) == 1
+        xcmo2dStart = sys.nx + 1;
+        xcmo2dEnd   = sys.nx + placeholder*sys.nx;
+    else
+        xcmo2dEnd = sys.nx;
+    end
+    
+    if whichMO(2) == 1
+        xcmo3dStart = xcmo2dEnd + 1;
+        xcmo3dEnd   = xcmo2dEnd + CMO3D.numObservers*sys.nx;
+    else
+        xcmo3dEnd = xcmo2dEnd;
+    end
+    
+    if whichMO(3) == 1
+        xssmoStart = xcmo3dEnd + 1;
+        xssmoEnd    = xcmo3dEnd + (sys.NLsize + SSMO.numOutputs)*sys.nx;
+    else
+        xssmoStart = xcmo3dEnd;
+    end
+    
 
     % Calculations for the CMO2D
 %     if whichMO(1) == 1
@@ -101,9 +129,9 @@ function dx = multiObserverODE(sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO)
     if whichMO(2) == 1
         xcmo3d = reshape(x(xcmo3dStart:xcmo3dEnd),sys.nx,1,CMO3D.numObservers);
         Attack3d = attackFunction(t,CMO3D.attack3d);
-        phi = NLspring(sys,y+a);
+        phi = NLspring(sys,y+a+v);
 
-        dxcmo3d = pagemtimes(CMO3D.ApLC,xcmo3d) - pagemtimes(CMO3D.LC,xsys) - pagemtimes(CMO3D.L,Attack3d);
+        dxcmo3d = pagemtimes(CMO3D.ApLC,xcmo3d) - pagemtimes(CMO3D.LC,xsys) - pagemtimes(CMO3D.L,Attack3d + v3D);
 
         if ~sys.Linear
             dxcmo3d = dxcmo3d +  pagemtimes(CMO3D.E,phi);
@@ -116,7 +144,7 @@ function dx = multiObserverODE(sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO)
     % Calculations for the SSMO
     if whichMO(3) == 1
         xssmo = x(xssmoStart:xssmoEnd);
-        dxssmo = SSMO.A*xssmo + SSMO.B*([NLspring(sys,y+a) ;y] + [zeros(sys.NLsize,1) ;a]); 
+        dxssmo = SSMO.A*xssmo + SSMO.B*([NLspring(sys,y+a+v) ;y+v] + [zeros(sys.NLsize,1) ;a]); 
     else
         dxssmo = [];
     end

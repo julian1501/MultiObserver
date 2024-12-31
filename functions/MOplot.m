@@ -142,6 +142,6 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
 
     lgd.Layout.Tile = 'east';
 
-    set(gcf, 'Position', 0.7*get(0, 'Screensize'));
-    hold off;
+    set(gcf, 'Position', 0.6*get(0, 'Screensize'));
+    hold on;
 end
