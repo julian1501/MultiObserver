@@ -6,11 +6,11 @@ In this section the CMO will be introduced and two implementations will be discu
         &= (A+LC)e - L\tau,
     \end{split}
 \end{equation*}
-which does not guarantee $e \rightarrow 0$ as $t \rightarrow \infty$. The CMO aims to still provide a correct state estimate even when a subset $\mathcal{M} \subset \mathcal{N}$ outputs are under attack, where $2|\mathcal{M}| < |\mathcal{N}|$. 
+which does not guarantee $e \rightarrow 0$ as $t \rightarrow \infty$. The CMO aims to still provide a correct state estimate even when a subset $\mathcal{M} \subset \mathcal{N}$ outputs are under attack, where $2|\mathcal{M}| < |\mathcal{N}|$, with $\mathcal{M}$ as in Equation \ref{eqn:M-definition}. 
 
 \subsection{Constructing the state estimates}
 \label{subsec:state-estimates}
-The multi-observer described in this section is based on \cite[III B]{Chong2015ObservabilityAttacks}. This CMO is able to correctly estimate the state when up to $N_M = |\mathcal{M}|$ outputs are under attack. $N_M$ is required to satisfy $2N_M<N_O$, in other words: more than half the sensors need to remain attack free at all times. Consider system \eqref{eqn:standard-system} with $N_O$ outputs
+The multi-observer described in this section is based on \cite[Section 3B]{Chong2015ObservabilityAttacks}. This CMO is able to correctly estimate the state when up to $N_M = |\mathcal{M}|$ outputs are under attack. $N_M$ is required to satisfy $2N_M<N_O$, in other words: more than half the sensors need to remain attack free at all times. Consider system \eqref{eqn:standard-system} with $N_O$ outputs
 \begin{equation*}
     \begin{split}
     \dot{x} &= Ax + Bu + E\phi(y) + w \\
@@ -20,7 +20,7 @@ The multi-observer described in this section is based on \cite[III B]{Chong2015O
 Let us define 
 \begin{equation}\label{eqn:observer-sets}
     \begin{split}
-        \mathcal{J} \subset \{1,2,\dots,N\}, \quad \mathcal{P} \subset \{1,2,\dots,N\}
+        \mathcal{J} \subset \{1,2,\dots,N_O\}, \quad \mathcal{P} \subset \{1,2,\dots,N_O\}
     \end{split}
 \end{equation}
  as all sets with  $J=N_O-N_M$ and  $P=1$ elements respectively. $P$ could also be taken as any value smaller than $J$, we restrict ourselves to systems that are fully observable trough any single output $y_i = C_ix$. The cardinalities of $\mathcal{J}$ and $\mathcal{P}$ are 
@@ -39,8 +39,8 @@ where $j$ is a single combination out of all outputs and $L_j$ is an output inje
 Substituting $\hat{y}_j^J$ and $y_j$ in $\dot{\hat{x}}_j^J$ leads to
 \begin{equation}\label{eqn:cmo-single-J-observer}
     \begin{split}
-        \dot{\hat{x}}_j^{\mcJ} &= Ax_j^{\mcJ} + Bu + E\phi(y) + L_j^{\mcJ}(C\hat{x}_j^{\mcJ} + Du - C_j^{\mcJ}x - Du - v_j^{\mcJ}) \\
-        \dot{\hat{x}}_j^{\mcJ} &= (A + L_j^{\mcJ}C_j^{\mcJ})\hat{x}_j - L_j^JC_j^{\mcJ}x + Bu + E\phi(y) - L_j^{\mcJ}(v_j^{\mcJ} + \tau_j^{\mcJ}). \\
+        \dot{\hat{x}}_j^{\mcJ} &= Ax_j^{\mcJ} + Bu + E\phi(y) + L_j^{\mcJ}(C\hat{x}_j^{\mcJ} + Du - C_j^{\mcJ}x - Du - v_j^{\mcJ} - \tau^{\mcJ}_j) \\
+        \dot{\hat{x}}_j^{\mcJ} &= (A + L_j^{\mcJ}C_j^{\mcJ})\hat{x}^{\mcJ}_j - L_j^JC_j^{\mcJ}x + Bu + E\phi(y) - L_j^{\mcJ}(v_j^{\mcJ} + \tau_j^{\mcJ}). \\
     \end{split}    
 \end{equation}
 Doing the same for the the $p=1,2,\dots,N_P$ $P$\textit{-observers} leads to
@@ -53,29 +53,64 @@ Where $C_p$ and $C_i$ are the rows. All observers in \eqref{eqn:cmo-single-J-obs
 \label{subsec:estimate-selection}
 Now that all state estimates are constructed, a 'final' estimate $\hat{x}$ needs to be selected from all $\hat{x}_j^{\mcJ}$ First, a comparison will be made between all $J$-observers and the $P$-observers that are \textit{sub-observers}, implying that all outputs used to construct the state estimate $\hat{x}_p^{\mcP}$ are also used in the state estimate $\hat{x}_j^{\mcJ}$. For example, when $N_O=4$ $N_M=1$ one of the $J$-observer uses $j=\{1,2,4\}$ as outputs. The $P$-estimates would be constructed with $p \in \{1,2,4\}$. Let us define 
 \begin{equation*}
-   \pi_{j} = \max_{p \subset j} |\hat{x}_{j} - \hat{x}_{p}|
+   \pi_{j} = \max_{p \subset j} |\hat{x}^{\mcJ}_{j} - \hat{x}^{\mcP}_{p}|
 \end{equation*}
 so the largest difference between the $j$-estimate and its $p$-estimates, where the $p$-observers are all a sub-observers of the $j$-observer. We now collect all $\pi_j$ in
 \begin{equation*}
-   \pi_{\mathcal{J}} = \max_{\mathcal{P} \subset \mathcal{J}} |\hat{x}_{\mathcal{J}} - \hat{x}_{\mathcal{P}}|
+   \pi_{\mathcal{J}} = \max_{\mathcal{P} \subset \mathcal{J}} |\hat{x}^{\mathcal{J}} - \hat{x}^{\mathcal{P}}|
 \end{equation*}
 
-where $\hat{x}_{\mathcal{J}}$ are all state estimates from \eqref{eqn:cmo-single-J-observer} and $\hat{x}_{\mathcal{P}}$ are all sub-observers off each $j \in \mcJ$. Let us now choose the smallest $\pi_J$
+where $\hat{x}^{\mathcal{J}}$ are all state estimates from \eqref{eqn:cmo-single-J-observer} and $\hat{x}^{\mathcal{P}}$ are all sub-observers of each $j \in \mcJ$. Let us now choose the smallest $\pi_J$
 \begin{equation}
-    \sigma = \arg \min \pi_{\mathcal{J}}, \quad \sigma \subset \{1,2,\dots,N_J\}.
+    \sigma = {\arg \min}(\pi_{\mathcal{J}}), \quad \sigma \subset \{1,2,\dots,N_J\}.
 \end{equation}
 We can now select the final state estimate as
 \begin{equation}
-    \hat{x} = \hat{x}_{\sigma}.
+    \hat{x} = \hat{x}^{\mcJ}_{\sigma}.
 \end{equation}
 This selection procedure selects the observer which has the smallest difference between itself and its sub-observers.
 
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[
+        node distance=1.5cm,
+        block/.style={rectangle, draw=black!60, very thick, minimum size=7mm, text centered},
+        ]
+    
+    % System Block
+    \node (system) [block, text width=4cm] {System \\ $\dot{x} = Ax + Bu + E\phi(y)$ \\ $y_i = C_ix + Du + \tau_i$\\$i=1,2,\dots,N_O$};
+    
+    % Outputs Block
+    \node (outputs) [block, right=of system, text width=4cm] {Outputs \\ $y_1, y_2, \dots, y_{N_O}$};
+    
+    % Observers Section
+    \node (Jobservers) [block, below=of outputs, xshift=4cm, text width=6cm] {$J$-Observers \\ $\dot{\hat{x}}_j^{\mcJ} = (A + L_j^{\mcJ}C_j^{\mcJ})\hat{x}^{\mcJ}_j - L_j^JC_j^{\mcJ}x + Bu + E\phi(y) - L_j^{\mcJ}(v_j^{\mcJ} + \tau_j^{\mcJ})$ \\ $j=1,2,\dots,N_J$};
+    \node (Pobservers) [block, below=of outputs, xshift=-4cm, text width=6cm] {$P$-Observers \\ $\dot{\hat{x}}_p^{\mcP} = (A + L_p^{\mcP}C_p^{\mcP})\hat{x}_p^{\mcP} - L_p^{\mcP}C_p^{\mcP}x + Bu + E\phi(y) - L_p^{\mcP}(v_p^{\mcP} + \tau_p^{\mcP}).$ \\ $p=1,2,\dots,N_P$};
+    
+    % Comparison Block
+    \node (comparison) [block, below=of Jobservers, xshift=-4cm, text width=4cm] {Comparison \\ $\pi_j = \max_{p \subset j} |\hat{x}_j - \hat{x}_p|$ \\ $\sigma = \arg \min \pi_{\mathcal{J}}$};
+    
+    % Final Estimate Block
+    \node (finalestimate) [block, right=of comparison, text width=4cm] {Final Estimate \\ $\hat{x} = \hat{x}^{\mcJ}_\sigma$};
+    
+    % Arrows
+    \draw [->] (system) -- (outputs);
+    \draw [->] (outputs) -- (Jobservers);
+    \draw [->] (outputs) -- (Pobservers);
+    \draw [->] (Jobservers) -- (comparison);
+    \draw [->] (Pobservers) -- (comparison);
+    \draw [->] (comparison) -- (finalestimate);
+    
+    \end{tikzpicture}
+    \caption{Multi-observer diagram}
+    \label{fig:multi-observer-diagram}
+\end{figure}
 
 \subsection{Observer architecture}\label{subsec:CMO-architecture}
 The state estimates constructed in \ref{subsec:state-estimates} only serve as a basis of the CMO, in this subsection two different implementations will be discussed. These implementations will be implemented in Matlab in the next chapter \ref{ch:matlab-implementation}. The first one  stores all the observers in a 2D matrix and will thus be known as the 2D-CMO. The second implementation stores the observers in a 3D matrix and will thus be known as the 3D-CMO.
 
 \subsubsection{2D conventional multi-observer}
-\textcolor{red}{decide if I want to keep this in, would require fintuning the implementation and adding the nonlinearity}
 Let us write all observers \eqref{eqn:cmo-single-J-observer}\eqref{eqn:cmo-single-P-observer} in the following form
 \begin{equation*}
     \dot{\Tilde{x}}_{2D} = \Tilde{A}_{2D}\Tilde{x}_{2D} + F_{2D}\eta_{2D}
@@ -97,9 +132,9 @@ where
             \vdots & \vdots &  & \vdots & \vdots & \ddots & \vdots \\
             -L_{N_P}^{\mcP}C_{N_P}^{\mcP} & 0 & \cdots & 0 & 0 & \cdots & A + L_{N_P}^{\mcP}C_{N_P}^{\mcP} \\
         \end{bmatrix} \\
-        \eta &= 
+        \eta_{2D} &= 
         \begin{bmatrix}
-            u \\ v_1^{\mcJ} + \tau_1^{\mcJ} \\ \vdots \\ v_{N_J}^{\mcJ} + \tau_{N_J}^J \\ v_1^{\mcP} + \tau_1^{\mcP} \\ \vdots \\ v_{N_P}^{\mcP} + \tau_{N_P}^{\mcP} \\ w \\
+            u \\ v_1^{\mcJ} + \tau_1^{\mcJ} \\ \vdots \\ v_{N_J}^{\mcJ} + \tau_{N_J}^J \\ v_1^{\mcP} + \tau_1^{\mcP} \\ \vdots \\ v_{N_P}^{\mcP} + \tau_{N_P}^{\mcP}\\
         \end{bmatrix}, \quad 
         F_{2D} = 
         \begin{bmatrix}
@@ -112,8 +147,11 @@ where
         \end{bmatrix}\\
     \end{split}
 \end{equation}
-The $\Tilde{A}$ matrix stores  all $J$- and $P$-estimates: the top section stores the $J$-observers and on the bottom the $P$-observers. Multiplying this $\Tilde{A}_{2D}$ matrix by $\Tilde{x}_{2D}$ leads to the state estimators presented in \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer} without inputs, noise and attacks. The vector $\eta$ stacks the input and sum of sensor noise and attack signal on top of each other and the matrix $E$ stores all factors that need to be multiplied with $\eta$ to arrive at \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer}.
-
+The $\Tilde{A}$ matrix stores  all $J$- and $P$-estimates: the top section stores the $J$-observers and on the bottom the $P$-observers. Multiplying this $\Tilde{A}_{2D}$ matrix by $\Tilde{x}_{2D}$ leads to the state estimators presented in \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer} without inputs, noise and attacks. The vector $\eta$ stacks the input and sum of sensor noise and attack signal on top of each other and the matrix $E$ stores all factors that need to be multiplied with $\eta$ to arrive at \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer}. For convenience we define
+\begin{equation*}
+    N_S = N_J + N_P,
+\end{equation*}
+the total number of observers.
 \begin{table}[h]
     \centering
     \begin{tabular}{|c|c|c|}
@@ -247,7 +285,7 @@ Another operation is required for the summands that are equal for each observer,
         
             \matrix (mLCP) [draw,matrix of math nodes]
                 {
-                -L_{N_P}^PC_{N_P}^P \\
+                L_{N_P}^PC_{N_P}^P \\
                 };
         
             \matrix (dots2) [draw,matrix of math nodes] at ($(mLCP.south west)+(displacement)$)
@@ -257,12 +295,12 @@ Another operation is required for the summands that are equal for each observer,
         
             \matrix (mLCp) [draw,matrix of math nodes] at ($(dots2.south west)+(displacement)$)
                 {
-                -L_{1}^PC_{1}^P \\
+                L_{1}^PC_{1}^P \\
                 };
         
             \matrix (mLCJ) [draw,matrix of math nodes] at ($(mLCp.south west)+(displacement)$)
                 {
-                -L_{N_J}^JC_{N_J}^J \\
+                L_{N_J}^JC_{N_J}^J \\
                 };
         
             \matrix (dots1) [draw,matrix of math nodes] at ($(mLCJ.south west)+(displacement)$)
@@ -272,7 +310,7 @@ Another operation is required for the summands that are equal for each observer,
         
             \matrix (mLCj) [draw,matrix of math nodes] at ($(dots1.south west)+(displacement)$)
                 {
-                -L_1^JC_1^J \\
+                L_1^JC_1^J \\
                 };
             
             
@@ -299,7 +337,7 @@ and
         
             \matrix (mLP) [draw,matrix of math nodes]
                 {
-                -L_{N_P}^P \\
+                L_{N_P}^P \\
                 };
         
             \matrix (dots2) [draw,matrix of math nodes] at ($(mLP.south west)+(displacement)$)
@@ -309,12 +347,12 @@ and
         
             \matrix (mLp) [draw,matrix of math nodes] at ($(dots2.south west)+(displacement)$)
                 {
-                -L_{1}^P \\
+                L_{1}^P \\
                 };
         
             \matrix (mLJ) [draw,matrix of math nodes] at ($(mLp.south west)+(displacement)$)
                 {
-                -L_{N_J}^J \\
+                L_{N_J}^J \\
                 };
         
             \matrix (dots1) [draw,matrix of math nodes] at ($(mLJ.south west)+(displacement)$)
@@ -324,7 +362,7 @@ and
         
             \matrix (mLj) [draw,matrix of math nodes] at ($(dots1.south west)+(displacement)$)
                 {
-                -L_1^J \\
+                L_1^J \\
                 };
             
             \draw[dashed](mLj.north east)--(mLP.north east);
@@ -389,7 +427,7 @@ and
 We can now construct all observers \eqref{eqn:cmo-single-J-observer}\eqref{eqn:cmo-single-P-observer} with the 3D matrices \eqref{eqn:x3d}\eqref{eqn:A-tilde-3D}\eqref{eqn:F-3d}\eqref{eqn:L-3d}\eqref{eqn:eta-3d}
 
 \begin{equation*}
-    \dot{\tilde{x}}_{3D} = \pamu(\tilde{A}_{3D},\tilde{x}_{3D},3) + \pamu(F_{3D},x,3) + \pamu(L_{3D},\eta_{3D},3) + \texttt{rep}(Bu + E\phi(y),N_S).
+    \dot{\tilde{x}}_{3D} = \pamu(\tilde{A}_{3D},\tilde{x}_{3D},3) - \pamu(F_{3D},x,3) - \pamu(L_{3D},\eta_{3D},3) + \texttt{rep}(Bu + E\phi(y),N_S).
 \end{equation*}
 
 Let us now look at the sizes of all matrices that are required for state estimation. The matrices $L_{3D}$ and $\eta_{3D}$ are not taken into account, since they are only used to model the state estimators and would not be required in a physical implementation.
@@ -410,12 +448,6 @@ Let us now look at the sizes of all matrices that are required for state estimat
 
 
 \subsection{Number of observers}
-Let us define
-\begin{equation}
-    N_S = N_J + N_P
-\end{equation}
-which is the total number of systems needed for this multi-observer.\\
-
 From the combinatoric nature of equation \eqref{eqn:multi-observer-sizes} it can be seen that the number of observers required to provide the secure state-estimate grows rapidly with the number of outputs $N$. Let us look more closely at $\cJ$ when $M$ is the largest integer so that $N>2M$ holds and thus equation \eqref{eqn:multi-observer-sizes} holds.
 \begin{equation*}
     \begin{split}
@@ -438,7 +470,7 @@ This requires taking a factorial of a non-integer, which is not defined. We ther
 \begin{equation}\label{eqn:stirlings-formula}
     n! \sim \sqrt{2\pi n} \left( \frac{n}{e} \right)^n,
 \end{equation}
-where the $\sim$ implies that the ratio between the two sides of the equation approaches $1$ as $N_O \rightarrow \infty$. Let us now substitute \eqref{eqn:stirlings-formula} into \eqref{eqn:simplified-NS}
+where the $\sim$ implies that the ratio between the two sides of the equation approaches $1$ as $N_O \rightarrow \infty$. A table comparing the values of the combination and Stirling's approximation can be found in Appendix \ref{ap:matlab-code}. Let us now substitute \eqref{eqn:stirlings-formula} into \eqref{eqn:simplified-NS}
 \begin{equation*}
     \begin{split}
         N_S \approx  \frac{\sqrt{2 \pi N_O}( \frac{N_O}{e} )^{N_O}}{\left( \sqrt{\pi N_O}(\frac{1}{2} \frac{N_O}{e} )^{\frac{1}{2}N_O} \right)^2} &= \frac{\sqrt{2 \pi N_O}}{\pi N_O} \frac{( \frac{N_O}{e} )^{N_O}}{(\frac{1}{2} \frac{N_O}{e} )^{N_O}} = \sqrt{\frac{2}{\pi N_O}} \frac{( \frac{N_O}{e} )^{N_O}}{(\frac{1}{2})^{N_O} (\frac{N_O}{e} )^{N_O}} \\
