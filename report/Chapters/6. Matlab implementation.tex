@@ -21,6 +21,7 @@ The \texttt{ssmo} class defines the SSMO based on the \texttt{mo} objects. It ge
 \subsection{Running a simulation}
 All MOs can be simulated under the same conditions and the results can be compared. The file \texttt{mainClassScript.m} in Appendix \ref{ap:matlab-code}, generates all MOs and solves the ODEs as in equation \eqref{eqn:standard-system}, \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer}. Figure \ref{fig:unattacked-system-plot} displays the solution of this ODE for the system as in Example \ref{ex:system}. The observer quickly approaches the system state and the error decays to zero.
 
+\newpage
 \begin{figure}[ht]
     \centering
     \includegraphics[width=\linewidth]{report/Figures/symplot_5o0a.png}
@@ -29,10 +30,11 @@ All MOs can be simulated under the same conditions and the results can be compar
 \end{figure}
 
 Let us now introduce the attack as in Figure \ref{fig:attack-diagram}, so outputs $2$ and $5$ are under attack. The attack signal $\tau_j=t,j=2,5$ is injected into both outputs. Figure \ref{fig:attacked-system-plot} shows the result of such an attack, all but one of the red dashed $J$-estimates diverge from the actual state (the one that converges overlaps with the light blue line). The MO is able to correctly select the correct state estimate from the observer that uses the outputs $1,3$ and $4$ to construct its state estimate. The blue dashed lines show the $P$-estimators, each constructed with a single output. In this case three of them converge and the other two diverge. 
-
-\begin{figure}[h]
+\newpage
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\linewidth]{report/Figures/symplot_5o2a}
-    \caption{An attacked noiseless double mass-spring-damper system and a multi-observer. Outputs 2 and 5 are under attack with attack signal $\tau=t$.}
+    \caption{An attacked noiseless double mass-spring-damper system and a multi-observer. Outputs 2 and 5 are under attack with attack signal $\tau=t$.} 
     \label{fig:attacked-system-plot}
 \end{figure}
+

@@ -3,47 +3,109 @@ This chapter first discussed the motivation for full state estimation. It also i
 
 
 \subsection{Motivation for full state estimation}
-Let us first discuss why there is a need for state estimation, consider the CLTI system
+Let us first discuss why there is a need for state estimation, consider the continious linear time invariant system
 \begin{equation}\label{eqn:standard-noiseless-system}
-    \dot{x} = Ax + Bu, \quad y = Cx + Du.
+    \dot{x}(t) = Ax(t) + Bu(t), \quad y(t) = Cx(t) + Du(t).
 \end{equation}
 The solution to this system can be written as
 \begin{equation*}
     \begin{split}
-        x &= e^{tA}x_{0} + \int_{0}^{t}e^{(t-\tau)A}Bu(\tau)d\tau \\
-        y &= Ce^{tA}x_{0} + \int_{0}^{t}Ce^{(t-\tau)A}Bu(\tau)d\tau + Du.
+        x(t) &= e^{tA}x_{0} + \int_{0}^{t}e^{(t-\tau)A}Bu(\tau)d\tau \\
+        y(t) &= Ce^{tA}x_{0} + \int_{0}^{t}Ce^{(t-\tau)A}Bu(\tau)d\tau + Du(t).
     \end{split}
 \end{equation*}
-where $x_0 = x(0)$ \cite[Eqn. 6.4]{Hespanha2018LinearTheory}. When there is no input, i.e. $u=0$, system \eqref{eqn:standard-noiseless-system} reduces to
+where $x_0 = x(0)$ \cite[Eqn. 6.4]{Hespanha2018LinearTheory}. When there is no input, i.e. $u(t)=0$ for $t \geq 0$, system \eqref{eqn:standard-noiseless-system} reduces to
 \begin{equation*}
-    \dot{x} = Ax, \quad y = Cx
+    \dot{x}(t) = Ax(t), \quad y(t) = Cx(t)
 \end{equation*}
 which has the solution
 \begin{equation}\label{eqn:zero-input-solution}
-    x = e^{tA}x_0, \quad y = Ce^{tA}x_0.
+    x(t) = e^{tA}x_0, \quad y(t) = Ce^{tA}x_0.
 \end{equation}
-Let us now consider the definition of Lyapunov stability as in \cite[Th. 8.2]{Hespanha2018LinearTheory}, which states that a system is stable if and only if all the eigenvalues $\lambda_i,i=1,2,\dots,n$ of $A$ have strictly negative real parts. The matrix exponential in equation \eqref{eqn:zero-input-solution} computed by writing the matrix $A$ into its Jordan normal form $J=PAP^{-1}$, the solution can then be written as
+Let us now consider the definition of Lyapunov stability as in \cite[Th. 8.2]{Hespanha2018LinearTheory}, which states that a system is stable if and only if all the eigenvalues $\lambda_i,i=1,2,\dots,n$ of $A$ have strictly negative real parts. The matrix exponential in equation \eqref{eqn:zero-input-solution} computed by writing the matrix $A$ into its Jordan normal form $J=PAP^{-1}$, where $P$ is a change of basis matrix. The solution can then be written as 
 \begin{equation}\label{eqn:jordan-form-exponential}
-    x = P^{-1}e^{tJ}Px_0
+    x(t) = P^{-1}e^{tJ}Px_0
 \end{equation}
-\cite[Section 7.3]{Hespanha2018LinearTheory}. When all eigenvalues of $A$ have an algebraic multiplicity of one (no duplicate eigenvalues), the matrix $J$ is of the form
-\begin{equation}\label{eqn:diagonal-matrix-exponential}
+\cite[Section 7.3]{Hespanha2018LinearTheory}. The matrix $J$ takes the following form
+\begin{equation}\label{eqn:jordan-matrix}
     J =
     \begin{bmatrix}
-        \lambda_1 & 0 & \cdots & 0 \\
-        0 & \lambda_2 & \cdots & 0 \\
+        J_1 & 0 & \cdots & 0 \\
+        0 & J_2 & \cdots & 0 \\
         \vdots & \vdots & \ddots & \vdots \\
-        0 & 0 & \cdots & \lambda_n \\
-    \end{bmatrix} \implies 
-    e^{tJ} = 
-    \begin{bmatrix}
-        e^{t\lambda_1} & 0 & \cdots & 0 \\
-        0 & e^{t\lambda_2} & \cdots & 0 \\
-        \vdots & \vdots & \ddots & \vdots \\
-        0 & 0 & \cdots & e^{t\lambda_n} \\
+        0 & 0 & \cdots & J_l \\
     \end{bmatrix}
 \end{equation}
-\cite[Section 7.1]{Hespanha2018LinearTheory}. Substituting equation \eqref{eqn:diagonal-matrix-exponential} into equation \eqref{eqn:jordan-form-exponential} shows that if all eigenvalues of $A$ have strictly negative real parts, $x \rightarrow 0$ as $t \rightarrow \infty$. If the matrix $A$ is not stable, but stability properties are still desired. The control law
+where each $J_i$ is a Jordan block that has the form
+\begin{equation}\label{eqn:jordan-block}
+    J_i = 
+    \begin{bmatrix}
+        \lambda_i & 1 & 0 & \cdots & 0 \\
+        0 & \lambda_i & 1 & \cdots & 0 \\
+        0 & 0 & \lambda_i & \cdots & 0 \\
+        \vdots & \vdots & \vdots & \ddots & \vdots \\
+        0 & 0 & 0 & \cdots & \lambda_i \\
+    \end{bmatrix}, \quad i=1,2,\dots,l.
+\end{equation}
+The size of each Jordan block $J_i$ is determined by the algebraic and geometric multiplicities of the eigenvalues of matrix $A$. The algebraic multiplicity of an eigenvalue indicates the number of times an eigenvalue appears. Or in other words, the number of duplicate eigenvalues. The geometric multiplicity indicates the number of independent eigenvalues associated with a certain eigenvalue.  The number of Jordan blocks for each eigenvalue is equal to the geometric multiplicity of that eigenvalue. An eigenvalue with an algebraic multiplicity of $3$ and a geometric multiplicity of $2$ corresponds to one $1 \times 1$ and one $2 \times 2$ Jordan block \cite[Section 7.1] {Hespanha2018LinearTheory}.
+
+Substituting equation \eqref{eqn:jordan-block} into \eqref{eqn:jordan-matrix} gives the full Jordan matrix. This can be substituted into equation \eqref{eqn:jordan-form-exponential} shows that if all eigenvalues of $A$ have strictly negative real parts, $x \rightarrow 0$ as $t \rightarrow \infty$. A matrix that satisfies these requirements is also knows as a stability matrix or a stable matrix. 
+
+\begin{example}\label{ex:stability-example}
+    Let us take a closer look at the stability of the system presented in Example \ref{ex:system} and Equation \eqref{eqn:example-system}. The eigenvalues and eigenvectors of the matrix $A$ are as in Table \ref{tab:eigen-example-system}. $\lambda_1=\lambda_3$ and $\lambda_2=\lambda_4$ so the algebraic multiplicity of both eigenvalues is $2$. $\mathbf{v}_1=-\mathbf{v}_3$ and $\mathbf{v}_2=-\mathbf{v}_4$ so the geometric multiplicity of both eigenvalues is 1, since the eigenvectors are dependent on each other.
+    \begin{table}[ht]
+        \centering
+        \begin{tabular}{|c|c|c|c|c|}
+           \toprule
+           $i$ & $1$ & $2$ & $3$ & $4$ \\
+           \midrule
+           $\lambda_i$ & $-1 + 3.7417i$ & $-1 - 3.7417i$ & $-1 + 3.7417i$ & $-1 - 3.7417i$ \\
+           $\mathbf{v}_i$ & $\begin{bmatrix}
+               0.0645 + 0.2415i \\ -0.9682 \\ 0 \\ 0 \\
+           \end{bmatrix}$ & $\begin{bmatrix}
+               0.0645 - 0.2415i \\ -0.9682 \\ 0 \\ 0 \\
+           \end{bmatrix}$ & $\begin{bmatrix}
+               -0.0645 - 0.2415i \\ 0.9682 \\ 0 \\ 0 \\
+           \end{bmatrix}$ & $\begin{bmatrix}
+               -0.0645 + 0.2415i \\ 0.9682 \\ 0 \\ 0 \\
+           \end{bmatrix}$ \\
+           \bottomrule
+        \end{tabular}
+        \caption{Eigenvalues and eigenvectors of the $A$ matrix in \eqref{eqn:example-system}}
+        \label{tab:eigen-example-system}
+    \end{table}
+    This leads to the following change of basis matrix
+    \begin{equation*}
+        P = 
+        \begin{bmatrix}
+            0.2679 + 1.0022i & 0.5000 + 0.0620i &  0.2679 - 1.0022i &  0.5000 - 0.0620i \\
+            3.4821 - 2.0045i  & 0.9306i &  3.4821 + 2.0045i & 0.9306i \\
+            0&  0.5000 + 0.1336i  & 0  &  0.5000 - 0.1336i \\
+            0 &  2.0045i &  0 & 2.0045i \\
+        \end{bmatrix}
+    \end{equation*}
+    and the Jordan normal form
+    \begin{equation*}
+        J =
+        \begin{bmatrix}
+            -1.0000 - 3.7417i &  1 &  0 &   0 \\
+            0 & -1.0000 - 3.7417i &  0 &  0 \\
+            0 &  0 & -1.0000 + 3.7417i  & 1 \\
+            0 &  0 &  0 & -1.0000 + 3.7417i \\
+        \end{bmatrix}.
+    \end{equation*}
+    Let us choose the following initial conditions $x(0)=x_0=\begin{bmatrix}
+        0.3 & -0.1 & 0.5 & 0.2 
+    \end{bmatrix}^T$ and calculate the right-hand side of Equation \eqref{eqn:jordan-form-exponential} for a number of values of $0\leq t \leq 5$, the results are plotted in Figure \ref{fig:system-response}.
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[width=0.9\linewidth]{report/Figures/system-response.png}
+        \caption{Time response of a double mass-spring-damper system calculated using Equation \eqref{eqn:jordan-form-exponential}.}
+        \label{fig:system-response}
+    \end{figure}
+\end{example}
+
+If the matrix $A$ is not stable, but stability properties are still desired. The control law
 \begin{equation}\label{eqn:feedback-control-law}
     u = Kx \implies x = Ax + BKx \implies \dot{x} = (A+BK)x
 \end{equation}
@@ -76,10 +138,10 @@ y &= Cx + Du \\
 \dot{y} &= C\dot{x} + Du =  CAx + CBu + D\dot{u} \\
 \Ddot{y} &= CA\dot{x} + CBu + Du = CA^{2}x + CABu + CB\dot{u} + D\Ddot{u} \\
 \vdots \\
-y^{(n)} &= CA^{n}x + CA^{n-1}Bu + CA^{n-2}B\dot{u} + \dots + CABu^{(n-2)} + CBu^{(n-1)} + Du^{(n)}
+y^{(n_x)} &= CA^{n_x}x + CA^{n_x-1}Bu + CA^{n_x-2}B\dot{u} + \dots + CABu^{(n_x-2)} + CBu^{(n_x-1)} + Du^{(n_x)}
 \end{split}
 \]
-will be used to reconstruct $x$ from $y$ and $u$. These derivatives can be combined into
+will be used to reconstruct $x$ from the derivatives of $y$ and $u$. These derivatives of $y$ can be combined into
 \[ \mathbf{y} =  \mathcal{O}x + \mathcal{K}\mathbf{u}
 ,\]
 where
@@ -126,7 +188,7 @@ Isolating $x$ results in
 \begin{equation}\label{eqn:state-estimation-w-observability-matrix}
     x = \mathcal{O}^{-1}(\mathbf{y}-\mathcal{K}\mathbf{u}).
 \end{equation}
-As can be seen in \eqref{eqn:state-estimation-w-observability-matrix} observability matrix $\mathcal{O}$ is required to be invertible to reconstruct $x$ from $y$ and $u$. If a system's $A$ and $C$ matrix fulfil this requirement, the system can be described as \textit{observable}. The invertibility requirement is equivalent to the statement that the matrix $\mathcal{O}$ needs to be full rank \cite[Section 2.9]{Lay2016LinearApplications}, this theorem that can also be found in \cite[Corollary 3.8]{Antsaklis2006LinearProcessing}. The implication of this is that it is only possible to reconstruct the state $x$ if the pair $A,C$ is observable. \\
+As can be seen in \eqref{eqn:state-estimation-w-observability-matrix} observability matrix $\mathcal{O}$ is required to be invertible to reconstruct $x$ from the derivatives of $y$ and $u$. If a system's $A$ and $C$ matrix fulfil this requirement, the system can be described as \textit{observable}. The invertibility requirement is equivalent to the statement that the matrix $\mathcal{O}$ needs to be full rank \cite[Section 2.9]{Lay2016LinearApplications}, this theorem that can also be found in \cite[Corollary 3.8]{Antsaklis2006LinearProcessing}. The implication of this is that it is only possible to reconstruct the state $x$ if the pair $(A,C)$ is observable. \\
 
 \begin{example}\label{ex:single-ouptut-observability}
     Let us work out an example on the system presented in Example \ref{ex:system} where only the position of the first mass is measured. This leads to the following system matrices:
@@ -184,7 +246,7 @@ Example \ref{ex:single-ouptut-observability} considers a system with only one ou
 \end{equation*}
 The same rank condition still holds, the system is fully observable as long as the $\mathcal{O}$ matrix is full rank. This implies that certain combinations of sensors that do not suffice on their own can make a system fully observable.
 
-\subsection{Linear single observer}
+\subsection{Single observer}
 Let us now reconstruct the full state of system \eqref{eqn:standard-noiseless-system} from  $y$ and $u$ by defining the state estimate as in \cite[Section 16.5]{Hespanha2018LinearTheory}
 \begin{equation}\label{eqn:stable-simple-state-estimator}
     \dot{\hat{x}} = A\hat{x} + Bu, \quad \hat{y} = C\hat{x} + Du.
@@ -248,7 +310,7 @@ Note that the input to the nonlinearity is $y$. Let us now substitute these defi
         &= (A+LC)e.
     \end{split}
 \end{equation*}
-It is now evident why $\phi(y)$ is used in equation \eqref{eqn:nonlinear-system}, otherwise $e \rightarrow 0$ as $t \rightarrow \infty$ cannot be guaranteed. Because $\phi(y) - \phi(x)$ does not necessarily equal $0$. This does set certain requirements on $y$, variables that affect the nonlinearity need to be measured directly. For the multi mass-spring-damper system as in Chapter \ref{ch:system-definition} this means that all positions $x_a,a=1,2,\dots,b$ need to be measured directly. \\
+It is now evident why $\phi(y)$ is used in equation \eqref{eqn:nonlinear-system}, otherwise $e \rightarrow 0$ as $t \rightarrow \infty$ cannot be guaranteed. Because $\phi(y)$ does not necessarily equal $\phi(x)$, $\phi(y) - \phi(x)$ does not necessarily equal $0$. This does set certain requirements on $y$, variables that affect the nonlinearity need to be measured directly. For the multi mass-spring-damper system as in Chapter \ref{ch:system-definition} this means that all positions $x_a,a=1,2,\dots,b$ need to be measured directly. \\
 
 \subsection{Eigenvalue placement}
 Since we have full control over $L$, we will now discuss methods to place eigenvalues of $A+LC$ at desired locations and what constraints are limiting our control over these eigenvalues.
@@ -288,6 +350,7 @@ Since we have full control over $L$, we will now discuss methods to place eigenv
             A_{21} + L_2 C_o & A_u
         \end{bmatrix}
     \end{split}
+    \textcolor{red}{equation incomplete}
     \end{equation}  
 where the pair $(A_o,C_o)$ is observable. A similarity transformation leaves the eigenvalues unchanged \cite[Section 5.2]{Lay2016LinearApplications}. The lower triangular structure of the matrix implies that the eigenvalues of $A_u$ remain the same, which leads to a contradiction: not all the eigenvalues of $A+LC$ have been influenced. Thus, if the pair $(A,C)$ is observable there exists an $L$ that can influence all eigenvalues of $A+LC$.
 \end{proof}
