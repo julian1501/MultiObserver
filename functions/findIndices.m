@@ -1,4 +1,4 @@
-function [numOfPsubsetsInJ, PsubsetOfJIndices] = findIndices(Jmo,Pmo)
+function [numOfPsubsetsInJ, PsubsetOfJIndices, whichJuseP] = findIndices(Jmo,Pmo)
 % findIndices Function
 %
 % The 'findIndices' function determines which observers from a smaller set 
@@ -98,5 +98,20 @@ function [numOfPsubsetsInJ, PsubsetOfJIndices] = findIndices(Jmo,Pmo)
             end
         end
         PsubsetOfJIndices(j,:) = newRow;
+    end
+    
+    whichJuseP = [];
+    for p = 1:1:Pmo.numObservers
+        CpIndices = Pmo.CiIndices(p,:);
+        newRow = [];
+
+        for j = 1:1:Jmo.numObservers
+            CjIndices = Jmo.CiIndices(j,:);
+            isPSubset = isSubsetOf(CjIndices,CpIndices);
+            if isPSubset
+                newRow(1,end+1) = j;
+            end
+        end
+        whichJuseP(p,:) = newRow;
     end
 end

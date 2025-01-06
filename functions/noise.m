@@ -1,4 +1,4 @@
-function [v,vJ,vP,v3D] = noise(numOutputs, intensity,Jmo,Pmo)
+function [v,vJ,vP,v3D,v2D] = noise(numOutputs, intensity,Jmo,Pmo)
     % doc
     v = intensity.*wgn(numOutputs,1,0);
     
@@ -33,5 +33,6 @@ function [v,vJ,vP,v3D] = noise(numOutputs, intensity,Jmo,Pmo)
     padding = zeros(size(vJ,1)-size(vP,1),1,size(vP,3));
     vPpadded = cat(1,vP,padding);
     v3D = cat(3,vJ,vPpadded);
+    v2D = cat(1,reshape(vJ,[],1,1),reshape(vP,[],1,1));
 
 end

@@ -1,4 +1,4 @@
-function [bestStateEstimate, jBestEstimate] = selectBestEstimate(x,tsteps,PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys,wb)
+function [bestStateEstimate, jBestEstimate] = sbeCPU(x,tsteps,PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys,wb)
 % selectBestEstimate Function
 %
 % The 'selectBestEstimate' function determines the best state estimate 

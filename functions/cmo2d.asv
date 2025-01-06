@@ -38,14 +38,20 @@ classdef cmo2d
 %    x0
 %    PSubsetOfJIndices
 %
-% See also: cmo3d,  ssmo
+% Example: 
+%    Line 1 of example
+%    Line 2 of example
+%    Line 3 of example
+%
+% Other m-files required: none
+% Subfunctions: none
+% MAT-files required: none
+%
+% See also: OTHER_FUNCTION_NAME1,  OTHER_FUNCTION_NAME2
 
     properties
-        Name
         sys
         numObservers
-        numOutputs
-        Attack % class
         A
         F
         attack
@@ -57,11 +63,10 @@ classdef cmo2d
 
     methods
         function obj = cmo2d(sys,Jmo,Pmo)
-            obj.Name = "2D-CMO";
+            %UNTITLED Construct an instance of this class
+            %   Detailed explanation goes here
             obj.sys = sys;
             obj.numObservers = Jmo.numObservers + Pmo.numObservers;
-            obj.numOutputs = Jmo.numOutputs;
-            obj.Attack = Jmo.Attack;
             
             [ApLCJ,LCJ] = ApLCSetup(Jmo);
             [ApLCP,LCP] = ApLCSetup(Pmo);
@@ -71,23 +76,15 @@ classdef cmo2d
             A22 = A13';
 
             % reshape all matrices to 2d format
-            ApLCJ = diag3d(ApLCJ);
+            ApLCJ = flatten(ApLCJ);
             LCJ = flatten(LCJ);
-            ApLCP = diag3d(ApLCP);
-            LCP = flatten(LCP);
+            ApLCP = flatten(Ap)
 
             obj.A = [-LCJ, ApLCJ,   A13;
                      -LCP,   A22, ApLCP];
 
-            B = repmat(sys.B,Jmo.numObservers+Pmo.numObservers,1);
-            LJ = diag3d(Jmo.Li);
-            LP = diag3d(Pmo.Li);
-            L12 = zeros(size(LJ,1),size(LP,2));
-            L21 = zeros(size(LP,1),size(LJ,2));
-            L = [-LJ,L12; L21,-LP];
-            obj.F = [B L];
-
-            obj.attack = cat(1,reshape(Jmo.attack3d,[],1,1),reshape(Pmo.attack3d,[],1,1));
+            B = repmat(sysB,1+numJObservers+numPObservers,1);
+            obj.F = FSetup(B,Jmo.Li,Pmo.Li,obj);
             
         end
 

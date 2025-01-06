@@ -1,4 +1,4 @@
-function x0 = x0setup(x0input,whichMO,sys,Jmo,Pmo)
+function [x0, xIds] = x0setup(x0input,whichMO,sys,Jmo,Pmo)
 % x0setup Function
 %
 % This function sets up the initial state vector 'x0' based on the input 
@@ -64,23 +64,33 @@ function x0 = x0setup(x0input,whichMO,sys,Jmo,Pmo)
 
 
     x0sys = x0input(1:sys.nx);
+%     xIds = struct([]);
     numObservers = Jmo.numObservers + Pmo.numObservers;
     if whichMO(1) == 1
         x0cmo2d = zeros(numObservers*sys.nx,1);
+        xIds.xcmo2dStart = sys.nx + 1;
+        xIds.xcmo2dEnd   = sys.nx + numObservers*sys.nx;
     else
         x0cmo2d = [];
+        xIds.xcmo2dEnd = sys.nx;
     end
 
     if whichMO(2) == 1
         x0cmo3d = zeros(sys.nx,1,numObservers,1);
+        xIds.xcmo3dStart = xIds.xcmo2dEnd + 1;
+        xIds.xcmo3dEnd   = xIds.xcmo2dEnd + numObservers*sys.nx;
     else
         x0cmo3d = [];
+        xIds.xcmo3dEnd = xIds.xcmo2dEnd;
     end
 
     if whichMO(3) == 1
         x0ssmo = zeros(sys.nx*(Jmo.numOutputs + sys.NLsize),1);
+        xIds.xssmoStart = xIds.xcmo3dEnd + 1;
+        xIds.xssmoEnd    = xIds.xcmo3dEnd + (sys.NLsize + Jmo.numOutputs)*sys.nx;
     else
         x0ssmo = [];
+        xIds.xssmoStart = xIds.xcmo3dEnd;
     end
     
     x0 = [x0sys(:); x0cmo2d(:); x0cmo3d(:); x0ssmo(:)];

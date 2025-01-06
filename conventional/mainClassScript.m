@@ -43,11 +43,17 @@ fprintf('The number of P observers is: %3.0f \n',numPObservers)
 % system definition
 sys = msd(linear,sysNum,1,15,2.0);
 
+% check if the system is stable
 if ~isMatrixStable(sys.A)
     warning('The system is unstable')
 end
 if sys.D ~= 0
     error('Implementation for systems with D still needs work.')
+end
+
+% check if there is no nonlinearity in the 2D CMO
+if ~linear && whichMO(1) == 1
+    error('The 2D CMO does not support nonlinear systems.')
 end
 
 % setup the attack
@@ -59,12 +65,12 @@ Jmo = mo(sys,Attack,numOutputs,numOutputsJObservers);
 
 % find which P observers are subobservers of J
 sys.COutputs = Jmo.COutputs;
-[numOfPsubsetsInJ,PsubsetOfJIndices] = findIndices(Jmo,Pmo);
+[numOfPsubsetsInJ,PsubsetOfJIndices,whichJuseP] = findIndices(Jmo,Pmo);
 
 % Setup the different type of multi-observers
 CMO2D = 0; CMO3D = 0; SSMO = 0;
 if whichMO(1) == 1
-    CMO2D = 0;
+    CMO2D = cmo2d(sys,Jmo,Pmo);
 end
 if whichMO(2) == 1
     CMO3D = cmo3d(sys,Jmo,Pmo);
@@ -74,48 +80,73 @@ if whichMO(3) == 1
 end
 
 
-x0 = x0setup(x0Options,whichMO,sys,Jmo,Pmo);
+[x0, xIds] = x0setup(x0Options,whichMO,sys,Jmo,Pmo);
+
 
 % create waitbar
 wb = waitbar(0,'Solver is currently at time: 0','Name','Solving the ODE');
 
 
-[t,x] = ode45(@(t,x) multiObserverODE(wb,tspan(2),sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,noiseInt,Jmo,Pmo),tspan,x0);
+[t,x] = ode45(@(t,x) multiObserverODE(wb,tspan(2),sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,noiseInt,Jmo,Pmo,xIds),tspan,x0);
 t = t';
 x = x';
 
 close(wb)
 
 state = x(1:sys.nx,:);
-CMO3Dest = x(sys.nx+1:end-size(SSMO.A,1),:);
-SSMOz = x(end-size(SSMO.A,1)+1:end,:);
-SSMOest = flatten(pagemtimes(SSMO.T,SSMOz));
+if whichMO(1) == 1
+    CMO2Dest = x(xIds.xcmo2dStart:xIds.xcmo2dEnd,:);
+    % create waitbar
+    wb = waitbar(0,'Selection is currently at time: 0','Name','Selecting best estimates 2D-CMO');
+    CMO2DbestEst = sbeCPU([state; CMO2Dest],size(t,2),PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys,wb);
+    CMO2Derr = state - CMO2DbestEst;
+    close(wb)
+end
 
-% create waitbar
-wb = waitbar(0,'Selection is currently at time: 0','Name','Selecting best estimates 3D-CMO');
-CMO3DbestEst = selectBestEstimate([state; CMO3Dest],size(t,2),PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys,wb);
-CMO3Derr = state - CMO3DbestEst;
-close(wb)
+if whichMO(2) == 1
+    CMO3Dest = x(xIds.xcmo3dStart:xIds.xcmo3dEnd,:);
+    % create waitbar
+    wb = waitbar(0,'Selection is currently at time: 0','Name','Selecting best estimates 3D-CMO');
+    CMO3DbestEst = sbeCPU([state; CMO3Dest],size(t,2),PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys,wb);
+    CMO3Derr = state - CMO3DbestEst;
+    close(wb)
+end
 
-% create waitbar
-wb = waitbar(0,'Selection is currently at time: 0','Name','Selecting best estimates SSMO');
-SSMObestEst = selectBestEstimate([state; SSMOest],size(t,2),PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys,wb);
-SSMOerr = state - SSMObestEst;
-close(wb)
+if whichMO(3) == 1
+    SSMOz = x(xIds.xssmoStart:xIds.xssmoEnd,:);
+    SSMOest = flatten(pagemtimes(SSMO.T,SSMOz));
+    % create waitbar
+    wb = waitbar(0,'Selection is currently at time: 0','Name','Selecting best estimates SSMO');
+    SSMObestEst = sbeCPU([state; SSMOest],size(t,2),PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys,wb);
+    SSMOerr = state - SSMObestEst;
+    close(wb)
+end
 
 % calculate difference
-diff = CMO3Dest - SSMOest;
-score = max(max(abs(diff)));
-disp(score)
-if score < 1e-3
-    disp('Tolerance within numerical tolerance.')
-else
-    disp('The solutions are not similar.')
+if sum(whichMO) > 1
+    if whichMO(1) + whichMO(2) == 2
+        diff = sqrt((CMO2Dest - CMO3Dest).^2);
+    elseif whichMO(1) + whichMO(3) == 2
+        diff = sqrt((CMO2Dest - SSMOest).^2);
+    elseif whichMO(2) + whichMO(3) == 2
+        diff = sqrt((CMO3Dest - SSMOest).^2);
+    elseif sum(whichMO) == 3
+        ... % Standard deviation?
+        diff = 0;
+    end
+    sco = max(max(diff));
+    disp(sco)
+    if sco < 1e-3
+        disp('Tolerance within numerical tolerance.')
+    else
+        disp('The solutions are not similar.')
+    end
 end
+
 
 %% 2D CMO plot
 if Plot && whichMO(1) == 1
-      MOplot(t,[state; CMO2Dest],bestEst,sys,CMO2D,Jmo,Pmo);
+      MOplot(t,[state; CMO2Dest],CMO2Derr,CMO2DbestEst,sys,CMO2D,Jmo,Pmo);
 end
 %% 3D CMO plot
 if Plot && whichMO(2) == 1

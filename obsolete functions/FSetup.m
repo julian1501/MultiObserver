@@ -1,4 +1,4 @@
-function E = ESetup(Bstar,LJ,LP,CMOstruct)
+function F = FSetup(Bstar,LJ,LP,CMOstruct)
     % This function defines the 'input-matrix' E based on the A,B and L
     % matrices of the system.
     numObservers = CMOstruct.numPObservers+CMOstruct.numJObservers;    
@@ -11,10 +11,10 @@ function E = ESetup(Bstar,LJ,LP,CMOstruct)
     %       rows of CJ.
     Esize1 = (numObservers+1)*CMOstruct.numOriginalStates;
     Esize2 = CMOstruct.numOriginalInputs + CMOstruct.numPObservers*CMOstruct.numOutputsPObservers + CMOstruct.numJObservers*CMOstruct.numOutputsJObservers + CMOstruct.numOriginalStates;
-    E = zeros(Esize1,Esize2);
+    F = zeros(Esize1,Esize2);
     
     % Add Bbar and Bbar to first column
-    E(:,1:CMOstruct.numOriginalInputs) = Bstar;
+    F(:,1:CMOstruct.numOriginalInputs) = Bstar;
     
     % Add Lj's to central section
     for l = 1:1:CMOstruct.numJObservers
@@ -22,7 +22,7 @@ function E = ESetup(Bstar,LJ,LP,CMOstruct)
         rowEnd   = rowStart + CMOstruct.numOriginalStates-1;
         colStart = CMOstruct.numOriginalInputs + (l-1)*CMOstruct.numOutputsJObservers + 1;
         colEnd   = colStart + CMOstruct.numOutputsJObservers - 1;
-        E(rowStart:rowEnd,colStart:colEnd) = -LJ(:,:,l);
+        F(rowStart:rowEnd,colStart:colEnd) = -LJ(:,:,l);
     end
     % Add Lp's to central section
     for l = 1:1:CMOstruct.numPObservers
@@ -30,10 +30,10 @@ function E = ESetup(Bstar,LJ,LP,CMOstruct)
         rowEnd   = rowStart + CMOstruct.numOriginalStates-1;
         colStart = CMOstruct.numOriginalInputs + CMOstruct.numJObservers*CMOstruct.numOutputsJObservers + (l-1)*CMOstruct.numOutputsPObservers + 1;
         colEnd   = colStart + CMOstruct.numOutputsPObservers - 1;
-        E(rowStart:rowEnd,colStart:colEnd) = -LP(:,:,l);
+        F(rowStart:rowEnd,colStart:colEnd) = -LP(:,:,l);
     end
 
     % Add In to right top slice
-    E(1:CMOstruct.numOriginalStates,end-CMOstruct.numOriginalStates+1:end) = eye(CMOstruct.numOriginalStates);
+    F(1:CMOstruct.numOriginalStates,end-CMOstruct.numOriginalStates+1:end) = eye(CMOstruct.numOriginalStates);
 
 end

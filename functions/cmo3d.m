@@ -115,8 +115,6 @@ classdef cmo3d
 
     methods
         function obj = cmo3d(sys,Jmo,Pmo)
-            %UNTITLED9 Construct an instance of this class
-            %   Detailed explanation goes here
             obj.sys = sys;
             obj.Name = '3D-CMO';
             obj.Attack = Jmo.Attack;
