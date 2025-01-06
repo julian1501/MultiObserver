@@ -427,7 +427,7 @@ and
 We can now construct all observers \eqref{eqn:cmo-single-J-observer}\eqref{eqn:cmo-single-P-observer} with the 3D matrices \eqref{eqn:x3d}\eqref{eqn:A-tilde-3D}\eqref{eqn:F-3d}\eqref{eqn:L-3d}\eqref{eqn:eta-3d}
 
 \begin{equation*}
-    \dot{\tilde{x}}_{3D} = \pamu(\tilde{A}_{3D},\tilde{x}_{3D},3) - \pamu(F_{3D},x,3) - \pamu(L_{3D},\eta_{3D},3) + \texttt{rep}(Bu + E\phi(y),N_S).
+    \dot{\tilde{x}}_{3D} = \pamu(\tilde{A}_{3D},\tilde{x}_{3D},3) - \pamu(F_{3D},x,3) - \pamu(L_{3D},\eta_{3D},3) + \texttt{rep}(Bu,N_S).
 \end{equation*}
 
 Let us now look at the sizes of all matrices that are required for state estimation. The matrices $L_{3D}$ and $\eta_{3D}$ are not taken into account, since they are only used to model the state estimators and would not be required in a physical implementation.

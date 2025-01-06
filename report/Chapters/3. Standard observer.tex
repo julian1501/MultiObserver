@@ -221,7 +221,7 @@ We now compute the observability matrix
 which has rank $4$ and so the pair $(A,C)$ is observable.
 \end{example}
 
-Example \ref{ex:single-ouptut-observability} considers a system with only one output, we will now investigate the case with multiple outputs. The following derivation follows \cite[Section 3.4 D 2]{Antsaklis2006LinearProcessing}. Let us expand the observability matrix \eqref{eqn:observability-matrix} for a system where $n_y>1$, a system with more than one output.
+Example \ref{ex:single-ouptut-observability} considers a system with only one output, we will now investigate the case with multiple outputs. Let us expand the observability matrix \eqref{eqn:observability-matrix} for a system where $n_y>1$, a system with more than one output.
 \begin{equation*}
 \mathcal{O}=
 \begin{bmatrix}
@@ -244,7 +244,7 @@ Example \ref{ex:single-ouptut-observability} considers a system with only one ou
     c_{n_y}A^{n-1} \\
 \end{bmatrix}_{n_xn_y \times n_x}.
 \end{equation*}
-The same rank condition still holds, the system is fully observable as long as the $\mathcal{O}$ matrix is full rank. This implies that certain combinations of sensors that do not suffice on their own can make a system fully observable.
+The same rank condition still holds, the system is fully observable as long as the $\mathcal{O}$ matrix is full rank. This implies that certain combinations of sensors that do not suffice on their own can make a system fully observable \cite[Section 3.4 D 2]{Antsaklis2006LinearSystems}.
 
 \subsection{Single observer}
 Let us now reconstruct the full state of system \eqref{eqn:standard-noiseless-system} from  $y$ and $u$ by defining the state estimate as in \cite[Section 16.5]{Hespanha2018LinearTheory}
