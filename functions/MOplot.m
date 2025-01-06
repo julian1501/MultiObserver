@@ -89,31 +89,50 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
         % select subplot to edit
         
         % plot all p and j estimators
-        for k=1:1:min(5,Jmo.numObservers)
-            leg(2*k-1) = plot(t,JEstimates((k-1)*sys.nx+l,:),LineStyle="--",Color='red');
-            hold on;
-            if k < Pmo.numObservers
-                leg(2*k) = plot(t,PEstimates((k-1)*sys.nx+l,:),LineStyle="--",Color='blue');
+        try             
+            for k=1:1:min(5,Jmo.numObservers)
+                leg(2*k-1) = plot(t,JEstimates((k-1)*sys.nx+l,:),LineStyle="--",Color='red');
                 hold on;
+                if k < Pmo.numObservers
+                    leg(2*k) = plot(t,PEstimates((k-1)*sys.nx+l,:),LineStyle="--",Color='blue');
+                    hold on;
+                end
+        
             end
-    
+        catch ME
+            if strcmp(ME.identifier,"Unrecognized function or variable")
+                warning("No Jmo supplied, will plot without Jmo.")
+            end
         end
     
         % plot system response
         leg(end + 1) = plot(t,trueResponse(l,:),LineWidth=2,Color='black');
         hold on;
         
-        % plot the cmo estimate
-        if size(estimate,2) > 1
-            leg(end + 1) = plot(t,estimate(l,:),LineWidth=1,Color='cyan');
-            hold on;
+        % plot the cmo final estimate
+        try
+            if size(estimate,2) > 1
+                leg(end + 1) = plot(t,estimate(l,:),LineWidth=1,Color='cyan');
+                hold on;
+            end
+        catch ME
+            if strcmp(ME.identifier,'Unrecognized function or variable')
+                warning("No final esitmate is supplied, will plot without it.")
+            end
         end
     
         % plot error
-        if size(estimate,2) > 1
-            leg(end + 1) = plot(t,err(l,:),LineWidth=1,Color="#EDB120");
-            hold on;
+        try
+            if size(estimate,2) > 1
+                leg(end + 1) = plot(t,err(l,:),LineWidth=1,Color="#EDB120");
+                hold on;
+            end
+        catch ME
+            if strcmp(ME.identifier,"Unrecognized function or variable")
+                warning("No error is supplied, will plot without it.")
+            end
         end
+        
         grid on;
         
         ylim([-yl yl])
@@ -142,6 +161,6 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
 
     lgd.Layout.Tile = 'east';
 
-    set(gcf, 'Position', 0.6*get(0, 'Screensize'));
+    set(gcf, 'Position', 0.4*get(0, 'Screensize'));
     hold on;
 end
