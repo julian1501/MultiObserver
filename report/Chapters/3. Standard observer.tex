@@ -131,7 +131,7 @@ can be used to stabilize the system, if and only if the system \eqref{eqn:standa
 \end{figure}
  
 \subsection{Observability}
-We now aim to reconstruct the full state $x$ from the output $y$ and the input $u$. The following derivation is based on \cite{StephenBoyd2009ObservabilitySlides}, consider system \eqref{eqn:standard-noiseless-system} where $x$ is unknown and $y$ and $u$ are known. The derivatives of $y$ 
+We now aim to reconstruct the full state $x$ from the output $y$ and the input $u$. The following derivation is based on \cite{StephenBoyd2009LectureEstimation}, consider system \eqref{eqn:standard-noiseless-system} where $x$ is unknown and $y$ and $u$ are known. The derivatives of $y$ 
 \[
 \begin{split}
 y &= Cx + Du \\
@@ -188,7 +188,7 @@ Isolating $x$ results in
 \begin{equation}\label{eqn:state-estimation-w-observability-matrix}
     x = \mathcal{O}^{-1}(\mathbf{y}-\mathcal{K}\mathbf{u}).
 \end{equation}
-As can be seen in \eqref{eqn:state-estimation-w-observability-matrix} observability matrix $\mathcal{O}$ is required to be invertible to reconstruct $x$ from the derivatives of $y$ and $u$. If a system's $A$ and $C$ matrix fulfil this requirement, the system can be described as \textit{observable}. The invertibility requirement is equivalent to the statement that the matrix $\mathcal{O}$ needs to be full rank \cite[Section 2.9]{Lay2016LinearApplications}, this theorem that can also be found in \cite[Corollary 3.8]{Antsaklis2006LinearProcessing}. The implication of this is that it is only possible to reconstruct the state $x$ if the pair $(A,C)$ is observable. \\
+As can be seen in \eqref{eqn:state-estimation-w-observability-matrix} observability matrix $\mathcal{O}$ is required to be invertible to reconstruct $x$ from the derivatives of $y$ and $u$. If a system's $A$ and $C$ matrix fulfil this requirement, the system can be described as \textit{observable}. The invertibility requirement is equivalent to the statement that the matrix $\mathcal{O}$ needs to be full rank \cite[Section 2.9]{Lay2016LinearApplications}, this theorem that can also be found in \cite[Corollary 3.8]{Antsaklis2006LinearSystems}. The implication of this is that it is only possible to reconstruct the state $x$ if the pair $(A,C)$ is observable. 
 
 \begin{example}\label{ex:single-ouptut-observability}
     Let us work out an example on the system presented in Example \ref{ex:system} where only the position of the first mass is measured. This leads to the following system matrices:
@@ -299,7 +299,7 @@ Let us now extend the observer \eqref{eqn:unstable-simple-state-estimator} to al
     \dot{x} = Ax + Bu + E\phi(y), \quad y = Cx + Du.
 \end{equation*}
 The observer will be constructed as
-\begin{equation}
+\begin{equation}\label{eqn:nonlinear-single-observer}
     \dot{\hat{x}} = A\hat{x} + Bu + E\phi(y) + L(\hat{y} - y), \quad \hat{y} = C\hat{x} + Du.
 \end{equation}
 Note that the input to the nonlinearity is $y$. Let us now substitute these definitions into the derivative of the error $e=\hat{x}-x$
@@ -310,7 +310,7 @@ Note that the input to the nonlinearity is $y$. Let us now substitute these defi
         &= (A+LC)e.
     \end{split}
 \end{equation*}
-It is now evident why $\phi(y)$ is used in equation \eqref{eqn:nonlinear-system}, otherwise $e \rightarrow 0$ as $t \rightarrow \infty$ cannot be guaranteed. Because $\phi(y)$ does not necessarily equal $\phi(x)$, $\phi(y) - \phi(x)$ does not necessarily equal $0$. This does set certain requirements on $y$, variables that affect the nonlinearity need to be measured directly. For the multi mass-spring-damper system as in Chapter \ref{ch:system-definition} this means that all positions $x_a,a=1,2,\dots,b$ need to be measured directly. \\
+It is now evident why $\phi(y)$ is used in equation \eqref{eqn:nonlinear-system}, otherwise $e \rightarrow 0$ as $t \rightarrow \infty$ cannot be guaranteed. Because $\phi(y)$ does not necessarily equal $\phi(x)$, $\phi(y) - \phi(x)$ does not necessarily equal $0$. This does set certain requirements on $y$, variables that affect the nonlinearity need to be measured directly. For the multi mass-spring-damper system as in Chapter \ref{ch:system-definition} this means that all positions $x_a,a=1,2,\dots,b$ need to be measured directly. 
 
 \subsection{Eigenvalue placement}
 Since we have full control over $L$, we will now discuss methods to place eigenvalues of $A+LC$ at desired locations and what constraints are limiting our control over these eigenvalues.
@@ -320,7 +320,7 @@ Since we have full control over $L$, we will now discuss methods to place eigenv
     If the pair $(A,C)$\eqref{eqn:standard-noiseless-system} is observable there exists an $L \in \mathbb{R}^{n \times m}$ that influences all eigenvalues of $A+LC$.
 \end{theorem}
 \begin{proof}
-    This proof is based on \cite[Section 4.2]{Antsaklis2006LinearProcessing}. Suppose that the pair $(A,C)$ is not fully observable and that all eigenvalues of $A+LC$  have been influenced by $L$, it will be shown that this leads to a contradiction. There exists a similarity transformation that separates the observable from the unobservable part: the observable decomposition \cite[Section 16.1]{Hespanha2018LinearTheory}. Performing this transformation on the pair $(A,C)$ leads to
+    This proof is based on \cite[Section 4.2]{Antsaklis2006LinearSystems}. Suppose that the pair $(A,C)$ is not fully observable and that all eigenvalues of $A+LC$  have been influenced by $L$, it will be shown that this leads to a contradiction. There exists a similarity transformation that separates the observable from the unobservable part: the observable decomposition \cite[Section 16.1]{Hespanha2018LinearTheory}. Performing this transformation on the pair $(A,C)$ leads to
     \begin{equation}
     \begin{split}
         \begin{bmatrix}
@@ -355,7 +355,7 @@ Since we have full control over $L$, we will now discuss methods to place eigenv
 where the pair $(A_o,C_o)$ is observable. A similarity transformation leaves the eigenvalues unchanged \cite[Section 5.2]{Lay2016LinearApplications}. The lower triangular structure of the matrix implies that the eigenvalues of $A_u$ remain the same, which leads to a contradiction: not all the eigenvalues of $A+LC$ have been influenced. Thus, if the pair $(A,C)$ is observable there exists an $L$ that can influence all eigenvalues of $A+LC$.
 \end{proof}
 
-An analytical method to place the eigenvalues at arbitrary locations in a MIMO system is presented in \cite[Section 4.2 B]{Antsaklis2006LinearProcessing}, where the system is first transformed into \textit{observer form} by a similarity transformation. After this transformation the deriving the matrix $L$ is convenient. Another option is numerically deriving $L$. Matlab provides the function \texttt{place}, based on the algorithm presented in \cite{Kautsky1985KautskyNV85}.
+An analytical method to place the eigenvalues at arbitrary locations in a MIMO system is presented in \cite[Section 4.2 B]{Antsaklis2006LinearSystems}, where the system is first transformed into \textit{observer form} by a similarity transformation. After this transformation the deriving the matrix $L$ is convenient. Another option is numerically deriving $L$. Matlab provides the function \texttt{place}, based on the algorithm presented in \cite{Kautsky1985RobustFeedback}.
 
 \textcolor{red}{Unsatisfying conclusion, would prefer to show an actual strategy to choose the eigenvalues.}
 
