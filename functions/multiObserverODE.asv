@@ -113,11 +113,9 @@ function dx = multiObserverODE(wb,tmax,sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,n
 
         if ~sys.Linear
             y3D = get3Dy(y,Jmo,Pmo);
-            numObservers = Jmo.numObservers + Pmo.numObservers;
-            phi = zeros(sys.NLsize,1,numObservers);
-            for i = 1:1:numObservers
-                yi = y3D(:,:,i) + Attack3d(:,:,i) + v3D(:,:,i);
-                phi(:,:,i) = NLspring(sys,yi);
+            phi = zeros(sys.NLsize)
+            for i = 1:1:Jmo.numObservers+Pmo.numObservers
+                phi = NLspring(sys,y3D+Attack3d+v3D);
             end
             dxcmo3d = dxcmo3d +  pagemtimes(CMO3D.E,phi);
         end

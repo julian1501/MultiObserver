@@ -67,7 +67,7 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
 % mo, 3dcmo, ssmo
     
     fig = tiledlayout('flow');
-    sgtitle({[char(sys.Name),' observed by a ' char(MO.Name) ' ', num2str(MO.numOutputs),' outputs.'],...
+    sgtitle({[char(sys.Name),' observed by a ' char(MO.Name) ' with ', num2str(MO.numOutputs),' outputs.'],...
         [ 'Number of attacks = ',num2str(MO.Attack.numAttacks)]});
         %,',N_J=',num2str(Jmo.numOutputsObservers),' and N_P=',num2str(Pmo.numOutputsObservers)]});
     
@@ -86,10 +86,10 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
         % plot all p and j estimators
         try             
             for k=1:1:min(5,Jmo.numObservers)
-                leg(2*k-1) = plot(t,JEstimates((k-1)*sys.nx+l,:),LineStyle="--",Color='red');
+                leg(2*k-1) = plot(t,JEstimates((k-1)*sys.nx+l,:),LineStyle="--",Color=[1 0 0 0.5]);
                 hold on;
                 if k < Pmo.numObservers
-                    leg(2*k) = plot(t,PEstimates((k-1)*sys.nx+l,:),LineStyle="--",Color='blue');
+                    leg(2*k) = plot(t,PEstimates((k-1)*sys.nx+l,:),LineStyle="--",Color=[0 0 1 0.5]);
                     hold on;
                 end
         

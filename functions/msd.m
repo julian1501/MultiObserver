@@ -151,7 +151,7 @@ classdef msd
                     E = [];
                 elseif ~linear
                     A = [0, 1; -k(1)/m(1), -c(1)/m(1)];
-                    E = [0 0; 0 -1];
+                    E = [0; -1];
                 end
                 B = [0; 1/m(1)];
                 % C should contain all rows that are valid outputs all rows should
