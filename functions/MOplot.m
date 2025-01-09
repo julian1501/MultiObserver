@@ -66,11 +66,6 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
 % ---------
 % mo, 3dcmo, ssmo
     
-    % decide on what size grid should be used based on number of states in
-    % system
-    numberOfColumns = ceil(sqrt(sys.nx));
-    numberOfRows = ceil(sys.nx/numberOfColumns);
-    
     fig = tiledlayout('flow');
     sgtitle({[char(sys.Name),' observed by a ' char(MO.Name) ' ', num2str(MO.numOutputs),' outputs.'],...
         [ 'Number of attacks = ',num2str(MO.Attack.numAttacks)]});

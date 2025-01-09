@@ -103,7 +103,7 @@ function [bestStateEstimate, jBestEstimate] = sbeCPU(x,tsteps,PsubsetOfJIndices,
     
     % Initialize PiJ, the array that will house all Pi j (the maximum
     % difference between a J observer and all its P observers).
-    PiJ = gpuArray(zeros(Jmo.numObservers,1));
+    PiJ = zeros(Jmo.numObservers,1);
 
     % create emtpy array to store best estimate and which j supplies it
     bestStateEstimate = zeros(sys.nx,tsteps);
