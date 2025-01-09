@@ -3,7 +3,7 @@ Let us define the following continuous nonlinear time invariant multiple-input m
 \begin{equation}\label{eqn:standard-system}
     \begin{split}
         \dot{x}(t) &= Ax(t) + Bu(t) + E\phi(x) \\
-        y_i(t) &= C_ix(t) + Du(t) + v_i(t) + \tau_i(t) \quad i \in \mathcal{N} = \{1,2,\dots,N\}.
+        y_i(t) &= C_ix(t) + Du(t) + v_i(t) + \tau_i(t) \quad i \in \mathcal{N} = \{1,2,\dots,N_O\}.
     \end{split}
 \end{equation}
 Where $x \in \mathbb{R}^{n_x}$, $y \in \mathbb{R}^{n_y}$, $u \in \mathbb{R}^{n_u}$ and the nonlinearity $\phi(x) \in \mathbb{R}^{n_{\phi}}$. The $(t)$ indicating time dependency will be omitted from now on. Each $i$ indicates a single output, so each $y_i$ corresponds to a $C_i \in \mathbb{R}^{1 \times n_x}$. The variables without subscript $y$ and $C$, denote all $y_i$ and $C_i$ stacked on top of each other 
@@ -19,7 +19,7 @@ Let us consider the scenario where an attacker attacks a number of outputs $y_i$
 \begin{equation}\label{eqn:M-definition}
     \mathcal{M} \subset \mathcal{N}.
 \end{equation}
-Figure \ref{fig:attack-diagram} shows an example where $\mathcal{N}=\{1,2,3,4,5\}$ and $\mathcal{M} = \{2,5\}$.  \\
+Figure \ref{fig:attack-diagram} shows an example where $\mathcal{N}=\{1,2,3,4,5\}$ and $\mathcal{M} = \{2,5\}$.
 
 \begin{figure}[ht]
     \centering
@@ -178,9 +178,9 @@ We will now construct the $C$ matrix, in order to do so let us note that only th
         1 & 0 & 1 & 0 & \cdots & 1 & 0 & 1 & 0 \\
     \end{bmatrix}
 \end{equation}
-where each row is a single output. In system as in Figure \ref{fig:mass-spring-damper-system-series} the $D$ matrix is equal to $0$.\\ 
+where each row is a single output. In system as in Figure \ref{fig:mass-spring-damper-system-series} the $D$ matrix is equal to $0$.
 \begin{example}\label{ex:system}
-    Let us define a system with two masses and the properties: $m_i=1 \text{[kg]}, k_i=15\text{[N/m]}$ and $c_i=2 \text{[Ns/m]}$ for $i=1,2$. We now construct the system matrices as
+    Let us define a linear system with two masses and the properties: $m_i=1 \text{[kg]}, k_i=15\text{[N/m]}$ and $c_i=2 \text{[Ns/m]}$ for $i=1,2$. We now construct the system matrices as
     \begin{equation}\label{eqn:example-system}
     A =
     \begin{bmatrix}

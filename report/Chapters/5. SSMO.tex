@@ -1,32 +1,32 @@
 \section{State-sharing multi-observer}\label{ch:ssmo}
-In this chapter the state-sharing multi-observer (SSMO) will be discussed, aiming to reduce the required memory to store the CMO. The SSMO described in this chapter will provide the estimates as described in \autoref{subsec:state-estimates} and will employ the same selection procedure as described in \autoref{subsec:estimate-selection}.
+In this chapter, the state-sharing multi-observer (SSMO) will be discussed, aiming to reduce the required memory to store the CMO. The SSMO described in this chapter will provide the estimates as described in \autoref{subsec:state-estimates} and will employ the same selection procedure as described in \autoref{subsec:estimate-selection}.
 
 \subsection{Constructing the state-estimates}
-The SSMO follows the definition as in \cite{Chong2023MemoryAlgorithms}. Let
+The SSMO follows the definition as in \cite{Chong2023MemoryAlgorithms}. Consider the observers
 \begin{equation}\label{eqn:ssmo-observer}
     \begin{split}
-        \dot{\hat{x}}_o &= \A_o\hat{x}_o - L_oC_ox + Bu -L_o(v_o + \tau_o), \quad \A_o=A+L_{o}C_{o} \\
+        \dot{\hat{x}}_{j/p} &= \A_o\hat{x}_{j/p} - L_{j/p}C_{j/p}x + Bu -L_{j/p}(v_{j/p} + \tau_{j/p}), \quad \A_{j/p}=A+L_{j/p}C_{j/p} \\
     \end{split}
 \end{equation}
-be a set of observers that contains all $J$- and $P$-observers \eqref{eqn:cmo-single-J-observer}\eqref{eqn:cmo-single-P-observer}, such that $\mcO=\mcJ\bigcup\mcP$ and $o=1,2,\dots,|\mcO|$. All $L_o$ must be selected in such a way that all $\A_o$ share the same characteristic polynomial
+where $j=1,2,\dots,N_J$, $p=1,2,\dots,N_P$ and $j/p$ indicates that the equation holds for both $J$ and $P$-observers. All $L_{j/p}$ must be selected in such a way that all $\A_{j/p}$ share the same characteristic polynomial
 \begin{equation}\label{eqn:ssmo-char-poly}
     \det(sI-\A) = p(s) = s^n + q_1s^{n-1} + \dots + q_{n-1}s + q_n
 \end{equation}
-and thus all have equal eigenvalues. Let us now define a matrix $\Tilde{L}_{o}$ such that $\Tilde{L}_oy=L_oy_o$. This can be achieved by padding $L_o$ with zero vectors $z \in \mathbb{R}^{n \times 1}$ \cite{Chong2023MemoryAlgorithms}. Let us now rewrite the observer \eqref{eqn:ssmo-observer} into the following form
+and thus all have equal eigenvalues. Let us now define a matrix $\Tilde{L}_{j/p}$ such that $\Tilde{L}_{j/p}y=L_{j/p}y_{j/p}$. This can be achieved by padding $L_o$ with zero vectors $z \in \mathbb{R}^{n \times 1}$ \cite{Chong2023MemoryAlgorithms}. Let us now rewrite the observer \eqref{eqn:ssmo-observer} into the following form
 \begin{equation}\label{eqn:ssmo-standard-system-form}
-    \dot{\hat{x}}_o = \A_o\hat{x}_o + \B_o\eta_o, \quad
-    \B_o =
+    \dot{\hat{x}}_{j/p} = \A_{j/p}\hat{x}_{j/p} + \B_{j/p}\eta_{j/p}, \quad
+    \B_{j/p} =
     \begin{bmatrix}
-        E & B & -\Tilde{L}_o \\
+        E & B & -\Tilde{L}_{j/p} \\
     \end{bmatrix}, \quad \eta_o =
     \begin{bmatrix}
         \phi(y) \\
         u \\
-        y_o + v_o + \tau_o
+        C_{j/p}x_{j/p} + v_{j/p} + \tau_{j/p}
     \end{bmatrix}.
 \end{equation}
 
-Let us now derive transformation matrices $T_o$ that transform all $\A_o$ and $\B_o$ as in \eqref{eqn:ssmo-standard-system-form} into controllable canonical form as in \cite[Sec. 4.3.2]{Hespanha2018LinearTheory}
+Let us now derive transformation matrices $T_{j/p}$ that transform all $\A_{j/p}$ and $\B_{j/p}$ as in \eqref{eqn:ssmo-standard-system-form} into controllable canonical form as in \cite[Sec. 4.3.2]{Hespanha2018LinearTheory}
 \begin{equation}\label{eqn:controllable-canonical-form}
     \mathbf{A} =
     \begin{bmatrix}
@@ -44,10 +44,10 @@ Let us now derive transformation matrices $T_o$ that transform all $\A_o$ and $\
 where $l=N$. The transformation matrices for each observer are,
 \begin{equation}\label{eqn:ssmo-transformation}
     \begin{split}
-        T_o &= R_pR_q\\
-        R_p &=
+        T_{j/p} &= R_oR_q\\
+        R_o &=
         \begin{bmatrix}
-            \B_o & \A_o\B_o & \A^{2}_o\B_o & \cdots & \A^{n-1}_o\B_o \\
+            \B_{j/p} & \A_{j/p}\B_{j/p} & \A^{2}_{j/p}\B_{j/p} & \cdots & \A^{n-1}_{j/p}\B_{j/p} \\
         \end{bmatrix} \\
         R_q &=
         \begin{bmatrix}
@@ -59,17 +59,61 @@ where $l=N$. The transformation matrices for each observer are,
         \end{bmatrix}.
     \end{split}
 \end{equation}
-The calculation that shows that this transformation holds can be found in \autoref{ap:ssmo-transformation-matrix}. It should be noted that $\mathbf{A}$ and $\mathbf{B}$ are independent of $o$ and since all observers \eqref{eqn:ssmo-observer} share the same characteristic polynomial \eqref{eqn:ssmo-char-poly}, $\mathbf{A}$ and $\mathbf{B}$ are the same for all observers. This means that only one copy of the matrices needs to be stored and all state estimates $\hat{x}$ from the transformation matrices.
+The calculation showing that this transformation holds can be found in \autoref{ap:ssmo-transformation-matrix}. It should be noted that $\mathbf{A}$ and $\mathbf{B}$ are independent of $o$ and since all observers \eqref{eqn:ssmo-observer} share the same characteristic polynomial \eqref{eqn:ssmo-char-poly}, $\mathbf{A}$ and $\mathbf{B}$ are the same for all observers. This means that only one copy of the matrices needs to be stored and all state estimates $\hat{x}$ can be recovered using the transformation matrices $T^{\mcJ/\mcP}_{j/p}$
 
-\subsection{Observer architecture}\label{subsec:ssmo-architecture}
-Let us set the initial conditions of all state estimates to be equal, we will choose $0$ for simplicity. When all initial conditions are zero $z$ will also be the same for all state estimates, 
 \begin{equation*}
+    \hat{x}_{j/p} = T_{j/p} z,
+\end{equation*}
+where $z$ is the shared state which is governed by the differential equation
+\begin{equation}\label{eqn:ssmo-z}
     \dot{z} = \mathbf{A}z + \mathbf{B}\eta, \quad \eta = 
     \begin{bmatrix}
-        u \\ y + v + \tau
+        u \\ Cx + v + \tau
     \end{bmatrix}.
-\end{equation*}
-We then transform $z$ into the original state estimates by
+\end{equation}
+An important requirement is that all state estimates $\hat{x}^{\mcJ/\mcP}_{j/p}(0)$ share the same initial condition, for simplicity it will be set to $0$.
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[
+        node distance=1.5cm,
+        block/.style={rectangle, draw=black!60, very thick, minimum size=7mm, text centered},
+        ]
+    
+    % System Block
+    \node (system) [block, text width=4cm] {System \\ $\dot{x}(t) = Ax(t) + Bu(t)$ \\ $y_i = C_ix + Du + \tau_i$\\$i=1,2,\dots,N_O$};
+    
+    % Outputs Block
+    \node (outputs) [block, right=of system, text width=4cm] {Outputs and input \\ $y_1, y_2, \dots, y_{N_O}$ and $u$};
+
+    \node (shared-state) [block, below=of outputs, text width=4cm] {Shared state \\ $\dot{z} = \mathbf{A}z + \mathbf{B}\eta, \quad \eta = \begin{bmatrix} u \\ y \end{bmatrix}$};
+    
+    % Observers Section
+    \node (Jobservers) [block, below=of shared-state, xshift=4cm, text width=4cm] {$J$-Observers \\ $\hat{x}_j^{\mcJ} = T^{\mcJ}_{j}z$ \\ $j=1,2,\dots,N_J$};
+    \node (Pobservers) [block, below=of shared-state, xshift=-4cm, text width=4cm] {$P$-Observers \\ $\hat{x}_p^{\mcP} = T^{\mcP}_{p}z$ \\ $p=1,2,\dots,N_P$};
+    
+    % Comparison Block
+    \node (comparison) [block, below=of Jobservers, xshift=-4cm, text width=4cm] {Comparison \\ $\pi_j = \max_{p \subset j} |\hat{x}^{\mcJ}_j - \hat{x}^{\mcP}_p|$ \\ $\sigma = \arg \min \pi_{\mathcal{J}}$};
+    
+    % Final Estimate Block
+    \node (finalestimate) [block, right=of comparison, text width=4cm] {Final Estimate \\ $\hat{x} = \hat{x}^{\mcJ}_\sigma$};
+    
+    % Arrows
+    \draw [->] (system) -- (outputs);
+    \draw [->] (outputs) -- (shared-state);
+    \draw [->] (shared-state) -- (Jobservers);
+    \draw [->] (shared-state) -- (Pobservers);
+    \draw [->] (Jobservers) -- (comparison);
+    \draw [->] (Pobservers) -- (comparison);
+    \draw [->] (comparison) -- (finalestimate);
+    
+    \end{tikzpicture}
+    \caption{State sharing multi-observer diagram}
+    \label{fig:ssmo-diagram}
+\end{figure}
+
+\subsection{Observer architecture}\label{subsec:ssmo-architecture}
+Let us now discuss the way an SSMO is actually implemented. The calculation of $z$ is straightforward, Equation \ref{eqn:ssmo-z} is used. the state estimates $\hat{x}^{\mcJ/\mcP}_{j/p}$ are calculated with the transformation matrices as follows
 
 \begin{equation*}
     \tilde{x}_{SSMO} = \texttt{pm}(T,z,3),
@@ -176,7 +220,7 @@ where
 \end{center}
 The structure of the storage matrix $\tilde{x}_{SSMO}$ is the same as $\tilde{x}_{3D}$ in \eqref{eqn:A-tilde-3D}. The selection of the final estimate follows the same procedure as described in Section \ref{subsec:estimate-selection}.
 
-\begin{table}[h]
+\begin{table}[ht]
     \centering
     \begin{tabular}{|c|c|c|}
         \toprule
@@ -191,9 +235,9 @@ The structure of the storage matrix $\tilde{x}_{SSMO}$ is the same as $\tilde{x}
     \label{tab:SSMO-dimensions}
 \end{table}
 
-\subsection{Size comparison}
+\subsection{Size comparison}\label{subsec:size-comparison}
 Let us now compare the sizes of the 2D-CMO, 3D-CMO and SSMO as presented in Tables \ref{tab:2D-CMO-dimensions}, \ref{tab:3D-CMO-dimensions} and \ref{tab:SSMO-dimensions} respectively. First, the total number of elements for each MO is derived from the matrices that are needed to construct it. 
-\begin{table}[h]
+\begin{table}[ht]
     \centering
     \begin{tabular}{|c|c|}
         \toprule
