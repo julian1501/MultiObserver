@@ -6,14 +6,14 @@ classdef noise
     end
 
     methods
-        function obj = noise(numOutputs,tspan,stddev)
+        function obj = noise(numOutputs,tspan,var)
             % define number of timesamples for noise
             steps = (tspan(2) - tspan(1))*20;
             stepsize = tspan(2)/steps;
             obj.times = tspan(1):stepsize:tspan(2);
             steps = size(obj.times,2);
             % setup noise vector
-            obj.values = stddev.*randn(numOutputs,steps);
+            obj.values = sqrt(var).*randn(numOutputs,steps);
         end
 
         function interpval = interpNoise(obj,outputs,t)

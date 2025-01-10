@@ -25,7 +25,7 @@ tspan = str2num(inputs{7});
 x0Options = str2num(inputs{8})';
 whichMO = str2num(inputs{9});
 linear = str2num(inputs{10});
-stddev = str2num(inputs{11});
+noiseVariance = str2num(inputs{11});
 
 
 %% CALCULATIONS
@@ -58,7 +58,7 @@ end
 
 % setup the attack and noise
 Attack = attack(numOutputs,numAttackedOutputs,attackedOutputs);
-Noise = noise(numOutputs,tspan,stddev);
+Noise = noise(numOutputs,tspan,noiseVariance);
 
 % setup the J and P observers
 Pmo = mo(sys,Attack,numOutputs,numOutputsPObservers);
