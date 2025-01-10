@@ -1,4 +1,4 @@
-function dx = multiObserverODE(wb,tmax,sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,noiseInt,Jmo,Pmo,xIds)
+function dx = multiObserverODE(wb,tmax,sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,Noise,Jmo,Pmo,xIds)
 % multiObserverODE Function
 %
 % The 'multiObserverODE' function computes the time derivative of the system 
@@ -86,7 +86,6 @@ function dx = multiObserverODE(wb,tmax,sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,n
     % extract Jmo and Pmo for noise
     xsys = x(1:sys.nx);
     y = sys.COutputs*xsys;
-    [v,~,~,v3D,v2D] = noise(Attack.numOutputs,noiseInt,Jmo,Pmo);
     a = attackFunction(t,Attack.attackList);
     if sys.NLsize > 0
         dxsys = sys.A*xsys + sys.E*NLspring(sys,y);
@@ -99,6 +98,7 @@ function dx = multiObserverODE(wb,tmax,sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,n
         xcmo2d = x(xIds.xcmo2dStart:xIds.xcmo2dEnd);
         u2D = zeros(Jmo.sys.nu,1);
         Attack2d = attackFunction(t,CMO2D.attack);
+        v2D = Noise.getMONoise(t,"2D",Jmo,Pmo);
         eta2D = [u2D; v2D + Attack2d];
         dxcmo2d = CMO2D.A*[xsys; xcmo2d] + CMO2D.F*eta2D;
     else
@@ -108,6 +108,7 @@ function dx = multiObserverODE(wb,tmax,sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,n
     % Calculations for the CMO3D
     if whichMO(2) == 1
         xcmo3d = reshape(x(xIds.xcmo3dStart:xIds.xcmo3dEnd),sys.nx,1,CMO3D.numObservers);
+        v3D = Noise.getMONoise(t,"3D",Jmo,Pmo);
         Attack3d = attackFunction(t,CMO3D.attack3d);
         dxcmo3d = pagemtimes(CMO3D.ApLC,xcmo3d) - pagemtimes(CMO3D.LC,xsys) - pagemtimes(CMO3D.L,Attack3d + v3D);
 
@@ -128,6 +129,7 @@ function dx = multiObserverODE(wb,tmax,sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,n
     
     % Calculations for the SSMO
     if whichMO(3) == 1
+        v = Noise.interpval("all",t);
         xssmo = x(xIds.xssmoStart:xIds.xssmoEnd);
         dxssmo = SSMO.A*xssmo + SSMO.B*([NLspring(sys,y+a+v) ;y+v] + [zeros(sys.NLsize,1) ;a]); 
     else

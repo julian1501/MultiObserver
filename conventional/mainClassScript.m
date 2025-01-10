@@ -25,7 +25,7 @@ tspan = str2num(inputs{7});
 x0Options = str2num(inputs{8})';
 whichMO = str2num(inputs{9});
 linear = str2num(inputs{10});
-noiseInt = str2num(inputs{11});
+stddev = str2num(inputs{11});
 
 
 %% CALCULATIONS
@@ -56,8 +56,9 @@ if ~linear && whichMO(1) == 1
     error('The 2D CMO does not support nonlinear systems.')
 end
 
-% setup the attack
+% setup the attack and noise
 Attack = attack(numOutputs,numAttackedOutputs,attackedOutputs);
+Noise = noise(numOutputs,tspan,stddev);
 
 % setup the J and P observers
 Pmo = mo(sys,Attack,numOutputs,numOutputsPObservers);
@@ -87,7 +88,7 @@ end
 wb = waitbar(0,'Solver is currently at time: 0','Name','Solving the ODE');
 
 
-[t,x] = ode45(@(t,x) multiObserverODE(wb,tspan(2),sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,noiseInt,Jmo,Pmo,xIds),tspan,x0);
+[t,x] = ode45(@(t,x) multiObserverODE(wb,tspan(2),sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,Noise,Jmo,Pmo,xIds),tspan,x0);
 t = t';
 x = x';
 
