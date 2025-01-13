@@ -111,8 +111,7 @@ function [Cset,CsetIndices,setAttack] = CsetSetup(CN,Attack,obj)
             numSensorCopies = size(sensorGroups,2);
 
             % make large groups out of the sensorGroups  obj.numOutputsObservers/numSensorCopies
-            newObsvSize = max(obj.numOutputsObservers/numSensorCopies,1);
-            CgroupIndices = nchoosek(1:1:numSensorGroups,newObsvSize);
+            CgroupIndices = nchoosek(1:1:numSensorGroups,max(max(obj.numOutputsObservers/numSensorCopies,),1));
             CsetSize = groupSize*size(CgroupIndices,2);
             CsetIndices = zeros(size(CgroupIndices,1),CsetSize);
             

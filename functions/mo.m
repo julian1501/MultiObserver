@@ -138,6 +138,9 @@ classdef mo
     
             obj.COutputs = CNSetup(obj);
             [Ci,CiIndices,attack3D] = CsetSetup(obj.COutputs,Attack,obj);
+
+            obj.numObservers = size(Ci,3);
+            obj.numOutputsObservers = size(Ci,1);
     
             obj.Ci = Ci;
             obj.CiIndices = CiIndices;

@@ -1,0 +1,22 @@
+function combs = combinations(sensors)
+    % Generate all combinations of a variable number of arrays. This
+    % function is built in from matlab 2023b onwards but it is not in 2022b
+    % so this is a 'custom' implementation. Quick and dirty, copied/inspired
+    % from/by a forum post.
+
+    cellSensors = cellArrays = mat2cell(inputMatrix, ones(1, size(inputMatrix, 1)), size(inputMatrix, 2));
+    
+    numMass = size(sensors,1);
+    grids = cell(1,numMass);
+    for s = 1:1:numMass
+        [grids{s}] = ndgrid(sensors(:,:));
+    end
+
+    numCombinations = numel(grids{1});
+    combs = zeros(numCombinations,numMass);
+
+    for i = 1:1:numMass
+        combs(:,i) = grids{i}(:);
+    end
+    
+end
