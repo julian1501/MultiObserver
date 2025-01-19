@@ -133,6 +133,8 @@ classdef mo
                error('The number of outputs is not larger then twice the number of attacked outputs %3.0f <= %3.0f',numOutputs,numAttackedOutputs); 
             end
             obj.numOutputs = numOutputs;
+
+            
             obj.numOutputsObservers = numOutputsObserver;
             obj.numObservers = nchoosek(numOutputs,numOutputsObserver);
     

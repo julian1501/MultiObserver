@@ -67,7 +67,7 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
 % mo, 3dcmo, ssmo
     
     fig = tiledlayout('flow');
-    sgtitle({[char(sys.Name),' observed by a ' char(MO.Name) ' with ', num2str(MO.numOutputs),' outputs.'],...
+    sgtitle({[char(sys.Name),' observed by a ' char(MO.Name) ' with ', num2str(MO.numOutputs),' sensors.'],...
         [ 'Number of attacks = ',num2str(MO.Attack.numAttacks)]});
         %,',N_J=',num2str(Jmo.numOutputsObservers),' and N_P=',num2str(Pmo.numOutputsObservers)]});
     
