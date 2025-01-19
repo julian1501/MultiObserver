@@ -12,7 +12,7 @@ where $j=1,2,\dots,N_J$, $p=1,2,\dots,N_P$ and $j/p$ indicates that the equation
 \begin{equation}\label{eqn:ssmo-char-poly}
     \det(sI-\A) = p(s) = s^n + q_1s^{n-1} + \dots + q_{n-1}s + q_n
 \end{equation}
-and thus all have equal eigenvalues. Let us now define a matrix $\Tilde{L}_{j/p}$ such that $\Tilde{L}_{j/p}y=L_{j/p}y_{j/p}$. This can be achieved by padding $L_o$ with zero vectors $z \in \mathbb{R}^{n \times 1}$ \cite{Chong2023MemoryAlgorithms}. Let us now rewrite the observer \eqref{eqn:ssmo-observer} into the following form
+and thus all have equal eigenvalues. Let us now define a matrix $\Tilde{L}_{j/p}$ such that $\Tilde{L}_{j/p}y=L_{j/p}y_{j/p}$. This can be achieved by padding $L_o$ with zero vectors $z \in \mathbb{R}^{n \times 1}$ \cite{Chong2023MemoryAlgorithms}. Let us now rewrite the observer \eqref{eqn:ssmo-observer} into the following form \textcolor{red}{remove nonlinearity}
 \begin{equation}\label{eqn:ssmo-standard-system-form}
     \dot{\hat{x}}_{j/p} = \A_{j/p}\hat{x}_{j/p} + \B_{j/p}\eta_{j/p}, \quad
     \B_{j/p} =
@@ -113,7 +113,7 @@ An important requirement is that all state estimates $\hat{x}^{\mcJ/\mcP}_{j/p}(
 \end{figure}
 
 \subsection{Observer architecture}\label{subsec:ssmo-architecture}
-Let us now discuss the way an SSMO is actually implemented. The calculation of $z$ is straightforward, Equation \ref{eqn:ssmo-z} is used. the state estimates $\hat{x}^{\mcJ/\mcP}_{j/p}$ are calculated with the transformation matrices as follows
+Let us now discuss the way an SSMO is actually implemented. The calculation of $z$ is straightforward, Equation \eqref{eqn:ssmo-z} is used. the state estimates $\hat{x}^{\mcJ/\mcP}_{j/p}$ are calculated with the transformation matrices as follows
 
 \begin{equation*}
     \tilde{x}_{SSMO} = \texttt{pm}(T,z,3),
@@ -265,7 +265,7 @@ Figure \ref{fig:MO-storage}, where the colour indicates the total size of the MO
 \end{figure}
 
 
-In Figure \ref{fig:ssmo-vs-3dcmo} the SSMO size is divided by the 3D CMO size, the plot shows the ratio between the two MOs. The figure clearly shows that the 3D CMO uses less memory than the SSMO under every circumstance. The difference becomes more pronounced for larger values of $N_O$. This can be attributed to the size of the $T$ matrix in Equation \ref{eqn:T-ssmo}, where its size $n_x^2N_ON_S$ can be viewed as $n_x^3N_S$ on the diagonal in Figure \ref{fig:ssmo-vs-3dcmo}.
+In Figure \ref{fig:ssmo-vs-3dcmo} the SSMO size is divided by the 3D CMO size, the plot shows the ratio between the two MOs. The figure clearly shows that the 3D CMO uses less memory than the SSMO under every circumstance. The difference becomes more pronounced for larger values of $N_O$. This can be attributed to the size of the $T$ matrix in Equation \ref{eqn:T-ssmo}, where its size $n_x^2N_ON_S$ can be viewed as $n_x^3N_S$ on the diagonal in Figure \eqref{fig:ssmo-vs-3dcmo}.
 
 \begin{figure}[H]
     \centering
