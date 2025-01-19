@@ -320,21 +320,14 @@ Since we have full control over $L$, we will now discuss methods to place eigenv
     If the pair $(A,C)$\eqref{eqn:standard-noiseless-system} is observable there exists an $L \in \mathbb{R}^{n \times m}$ that influences all eigenvalues of $A+LC$.
 \end{theorem}
 \begin{proof}
-    This proof is based on \cite[Section 4.2]{Antsaklis2006LinearSystems}. Suppose that the pair $(A,C)$ is not fully observable and that all eigenvalues of $A+LC$  have been influenced by $L$, it will be shown that this leads to a contradiction. There exists a similarity transformation that separates the observable from the unobservable part: the observable decomposition \cite[Section 16.1]{Hespanha2018LinearTheory}. Performing this transformation on the pair $(A,C)$ leads to
+    This proof is based on \cite[Section 4.2]{Antsaklis2006LinearSystems}. Suppose that the pair $(A,C)$ is not fully observable and that all eigenvalues of $A+LC$  have been influenced by $L$, it will be shown that this leads to a contradiction. There exists a similarity transformation that separates the observable from the unobservable part: the observable decomposition \cite[Section 16.1]{Hespanha2018LinearTheory}. Specifically there exists a matrix $Q$ that
     \begin{equation}
     \begin{split}
-        \begin{bmatrix}
-            \dot{x}_o \\
-            \dot{x}_u
-        \end{bmatrix}
-        &=
+        Q^{-1}(A+LC)Q 
+        &= Q^{-1}AQ + Q^{-1}LCQ =
         \begin{bmatrix}
             A_o & 0 \\
             A_{21} & A_u
-        \end{bmatrix}
-        \begin{bmatrix}
-            x_o \\
-            x_u
         \end{bmatrix}
         + 
         \begin{bmatrix}
@@ -350,7 +343,6 @@ Since we have full control over $L$, we will now discuss methods to place eigenv
             A_{21} + L_2 C_o & A_u
         \end{bmatrix}
     \end{split}
-    \textcolor{red}{equation incomplete}
     \end{equation}  
 where the pair $(A_o,C_o)$ is observable. A similarity transformation leaves the eigenvalues unchanged \cite[Section 5.2]{Lay2016LinearApplications}. The lower triangular structure of the matrix implies that the eigenvalues of $A_u$ remain the same, which leads to a contradiction: not all the eigenvalues of $A+LC$ have been influenced. Thus, if the pair $(A,C)$ is observable there exists an $L$ that can influence all eigenvalues of $A+LC$.
 \end{proof}
@@ -358,5 +350,7 @@ where the pair $(A_o,C_o)$ is observable. A similarity transformation leaves the
 An analytical method to place the eigenvalues at arbitrary locations in a MIMO system is presented in \cite[Section 4.2 B]{Antsaklis2006LinearSystems}, where the system is first transformed into \textit{observer form} by a similarity transformation. After this transformation the deriving the matrix $L$ is convenient. Another option is numerically deriving $L$. Matlab provides the function \texttt{place}, based on the algorithm presented in \cite{Kautsky1985RobustFeedback}.
 
 \textcolor{red}{Unsatisfying conclusion, would prefer to show an actual strategy to choose the eigenvalues.}
+
+\subsection{\textcolor{red}{what eigenvalues to choose}}
 
 

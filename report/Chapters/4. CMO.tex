@@ -10,7 +10,11 @@ which does not guarantee $e \rightarrow 0$ as $t \rightarrow \infty$, since the 
 
 \subsection{Constructing the state estimates}
 \label{subsec:state-estimates}
-The multi-observer described in this section is based on \cite[Section 3B]{Chong2015ObservabilityAttacks}. This CMO is able to correctly estimate the state when up to $N_M = |\mathcal{M}|$ outputs are under attack. $N_M$ is required to satisfy $2N_M<N_O$, in other words: more than half the sensors need to remain attack free at all times. Consider system \eqref{eqn:standard-system} with $N_O$ outputs and no nonlinearity (i.e. $\phi(x)=0 \space \forall \space x \in \mathbb{R}^{n_x}$)
+The multi-observer described in this section is based on \cite[Section 3B]{Chong2015ObservabilityAttacks}. This CMO is able to correctly estimate the state when up to $N_M = |\mathcal{M}|$ outputs are under attack. $N_M$ is required to satisfy 
+\begin{equation}\label{eqn:MO-size-requirement}
+    2N_M<N_O,
+\end{equation}
+in other words: more than half the sensors need to remain attack free at all times. Consider system \eqref{eqn:standard-system} with $N_O$ outputs and no nonlinearity (i.e. $\phi(x)=0 \ \forall \ x \in \mathbb{R}^{n_x}$)
 \begin{equation*}
     \begin{split}
     \dot{x} &= Ax + Bu \\

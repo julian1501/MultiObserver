@@ -1,5 +1,5 @@
 \section{System definition}\label{ch:system-definition}
-Let us define the following continuous nonlinear time invariant multiple-input multiple-output system: \textcolor{red}{decide on how to hande nonlinear stuff throughout the report}
+Let us define the following continuous nonlinear time invariant multiple-input multiple-output system: 
 \begin{equation}\label{eqn:standard-system}
     \begin{split}
         \dot{x}(t) &= Ax(t) + Bu(t) + E\phi(x) \\
@@ -63,7 +63,7 @@ Figure \ref{fig:attack-diagram} shows an example where $\mathcal{N}=\{1,2,3,4,5\
 
 
 \subsection{Case study: multi-mass-spring-damper system}
-Let us now introduce the system that will be used as a case study: a mass-spring-damper system. This system consists of $b$ mass-spring-dampers in series. Where $x_a \in \mathbb{R},a=1,2,\dots,b$ denotes the position with respect to the previous mass. So the position of a block with respect to the fixed-world is
+Let us now introduce the system that will be used as a case study: a mass-spring-damper system. This system consists of $b$ mass-spring-dampers in series. Where $x_a \in \mathbb{R},a=1,2,\dots,b$ denotes the relative position with respect to the previous mass. So the absolute position of a block with respect to the fixed-world is
 \begin{equation}\label{eqn:mass-position-wrt-fixed-world}
     \sum^{a}_{j=1}x_j.
 \end{equation}
@@ -77,17 +77,17 @@ The other variables denote the following: $k_a\in \mathbb{R}>0$ is the linear sp
 
 We will now derive the state-space form of the system as drawn in \autoref{fig:mass-spring-damper-system-series}. We will start by deriving the equation of motion for the first $b-1$ masses. The sum of forces on a single mass is
 \begin{equation}\label{eqn:free-body-equation}
-    m_a\ddot{x}_a = F_a - F_s(x_a,k_a,\eta_a) - F_d(\dot{x}_a,c_a) + F_s(x_{a+1},k_{a+1},\eta_{a+1}) + F_d(\dot{x}_{a+1},c_{a+1}).
+    m_a\ddot{x}_a = F_a - F_s(x_a,k_a,\zeta_a) - F_d(\dot{x}_a,c_a) + F_s(x_{a+1},k_{a+1},\zeta_{a+1}) + F_d(\dot{x}_{a+1},c_{a+1}).
 \end{equation}
-Let us now define the spring and damping forces $F_s(x_a,k_a,\eta_a)$ and $F_d(\dot{x}_a,c_a)$ respectively
+Let us now define the spring and damping forces $F_s(x_a,k_a,\zeta_a)$ and $F_d(\dot{x}_a,c_a)$ respectively
 \begin{equation*}
-    F_s(x_a,k_a,\eta_a) = k_ax_a + k_a \eta_a^2 x_a^3, \quad F_d(\dot{x}_a,c_a) = c_a\dot{x}_a.
+    F_s(x_a,k_a,\zeta_a) = k_ax_a + k_a \zeta_a^2 x_a^3, \quad F_d(\dot{x}_a,c_a) = c_a\dot{x}_a.
 \end{equation*}
 The formula for the nonlinear spring force is taken from the hardening spring example in \cite[Section 1.2.3]{Khalil2002NonlinearSystems}, the damping force is linear. The expressions for the spring force and damping force will be written as $F_s(x_a)$ and $F_d(\dot{x}_a)$ respectively, where the constants $k_a$, $\eta_a$ and $c_a$ are implicitly passed to the function. $F_s$ will be separated into a linear and nonlinear part as
 \begin{equation}\label{eqn:nonlinear-spring}
     \begin{split}
         F_s(x_a) &= F_s^L(x_a) + F_s^{NL}(x_a) \\
-        F_s^L(x_a) &= k_ax_a \quad , F_s^{NL}(x_a) = k_a\eta_a^2x^3_a
+        F_s^L(x_a) &= k_ax_a \quad , F_s^{NL}(x_a) = k_a\zeta_a^2x^3_a
     \end{split}    
 \end{equation}
 
@@ -146,12 +146,23 @@ and
         0 & 0 & \cdots & \frac{1}{m_b} \\
     \end{bmatrix}.
 \end{equation}
-Let us now derive the nonlinear contributions $\phi$ and $E$ from equation \eqref{eqn:standard-system} from equations \eqref{eqn:mass-spring-damper-first-mass-eom},\eqref{eqn:mass-spring-damper-centre-mass-eom},\eqref{eqn:mass-spring-damper-last-mass-eom}.
-\begin{equation}
-    \phi(x) =
+Let us now derive the nonlinear contributions $\phi$ and $E$ from equation \eqref{eqn:standard-system} and from equations \eqref{eqn:mass-spring-damper-first-mass-eom},\eqref{eqn:mass-spring-damper-centre-mass-eom},\eqref{eqn:mass-spring-damper-last-mass-eom}. First we need to define the intermediary matrix
+\begin{equation}\label{eqn:Hx}
+    H_{x} =
     \begin{bmatrix}
-        F_s^{NL}(x_1) & F_s^{NL}(x_2) & \cdots & F_s^{NL}(x_b)
-    \end{bmatrix}^T
+        1 & 0 & 0 & 0 & \cdots & 0 & 0 & 0 & 0 \\
+        0 & 0 & 1 & 0 & \cdots & 0 & 0 & 0 & 0 \\
+        \vdots & \vdots & \vdots & \vdots & \ddots & \vdots & \vdots & \vdots & \vdots \\
+        0 & 0 & 0 & 0 & \cdots & 1 & 0 & 0 & 0 \\
+        0 & 0 & 0 & 0 & \cdots & 0 & 0 & 1 & 0 \\
+    \end{bmatrix}_{n_{\phi} \times n_{x}},
+\end{equation}
+which extracts the first $n_{\phi}$ relative positions from $x$ performing the multiplication $Hx$ and where $n_{\phi}$ denotes the 'size' of the nonlinearity. Performing the function $\phi$ on a vector implies performing $F^{NL}_s$ on every element
+\begin{equation}
+    \phi(H_{x}x) =
+    \begin{bmatrix}
+        F_s^{NL}(x_1) & F_s^{NL}(x_2) & \cdots & F_s^{NL}(x_{n_{\phi}})
+    \end{bmatrix}_{1 \times n_{\phi}}^T
 \end{equation}
 and
 \begin{equation}\label{eqn:msd-E}
@@ -164,10 +175,9 @@ and
         \vdots & \vdots & \vdots & \ddots & \vdots \\
         0 & 0 & 0 & \cdots & 0 \\
         0 & 0 & 0 & \cdots & -\frac{1}{m_b} \\
-    \end{bmatrix}.
+    \end{bmatrix}_{n_x \times n_{\phi}}
 \end{equation}
-
-We will now construct the $C$ matrix, in order to do so let us note that only the absolute positions \eqref{eqn:mass-position-wrt-fixed-world} of each mass are measured. This leads to
+can be defined. We will now construct the $C$ matrix, in order to do so let us note that only the absolute positions \eqref{eqn:mass-position-wrt-fixed-world} of each mass are measured. This leads to
 \begin{equation}\label{eqn:msd-C}
     C = 
     \begin{bmatrix}
