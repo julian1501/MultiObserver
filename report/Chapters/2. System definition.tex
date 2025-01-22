@@ -1,12 +1,12 @@
 \section{System definition}\label{ch:system-definition}
-Let us define the following continuous nonlinear time invariant multiple-input multiple-output system: 
+Let us define the following continuous, nonlinear, time invariant, multiple-input multiple-output system: 
 \begin{equation}\label{eqn:standard-system}
     \begin{split}
         \dot{x}(t) &= Ax(t) + Bu(t) + E\phi(x) \\
         y_i(t) &= C_ix(t) + Du(t) + v_i(t) + \tau_i(t) \quad i \in \mathcal{N} = \{1,2,\dots,N_O\}.
     \end{split}
 \end{equation}
-Where $x \in \mathbb{R}^{n_x}$, $y \in \mathbb{R}^{n_y}$, $u \in \mathbb{R}^{n_u}$ and the nonlinearity $\phi(x) \in \mathbb{R}^{n_{\phi}}$. The $(t)$ indicating time dependency will be omitted from now on. Each $i$ indicates a single output, so each $y_i$ corresponds to a $C_i \in \mathbb{R}^{1 \times n_x}$. The variables without subscript $y$ and $C$, denote all $y_i$ and $C_i$ stacked on top of each other 
+Where $x \in \mathbb{R}^{n_x}$, $y \in \mathbb{R}^{n_y}$, $u \in \mathbb{R}^{n_u}$ and the nonlinearity $\phi(x) \in \mathbb{R}^{n_{\phi}}$. Each $i$ indicates a single output, so each $y_i$ corresponds to a $C_i \in \mathbb{R}^{1 \times n_x}$. The variables without subscript $y$ and $C$, denote all $y_i$ and $C_i$ stacked on top of each other 
 $y = 
 \begin{bmatrix}
     y_1 & y_2 & \cdots & y_{N} \\
@@ -68,14 +68,14 @@ Let us now introduce the system that will be used as a case study: a mass-spring
     \sum^{a}_{j=1}x_j.
 \end{equation}
 The other variables denote the following: $k_a\in \mathbb{R}>0$ is the linear spring constant, $\eta_a\in \mathbb{R}>0$ is the nonlinear spring constant, $c_a\in \mathbb{R}\geq0$ is the damping constant and $F_a$ is a force acting on the mass.
-\begin{figure}[ht]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.9\linewidth]{report/Figures/Mass-spring-damper system.png}
     \caption{Multi-mass-spring-damper system for $b$ mass-spring-dampers in series.}
     \label{fig:mass-spring-damper-system-series}
 \end{figure}
 
-We will now derive the state-space form of the system as drawn in \autoref{fig:mass-spring-damper-system-series}. We will start by deriving the equation of motion for the first $b-1$ masses. The sum of forces on a single mass is
+We will now derive the state-space form of the system as drawn in Figure \ref{fig:mass-spring-damper-system-series}. We will start by deriving the equation of motion for the first $b-1$ masses. The sum of forces on a single mass is
 \begin{equation}\label{eqn:free-body-equation}
     m_a\ddot{x}_a = F_a - F_s(x_a,k_a,\zeta_a) - F_d(\dot{x}_a,c_a) + F_s(x_{a+1},k_{a+1},\zeta_{a+1}) + F_d(\dot{x}_{a+1},c_{a+1}).
 \end{equation}
@@ -91,7 +91,7 @@ The formula for the nonlinear spring force is taken from the hardening spring ex
     \end{split}    
 \end{equation}
 
-We will now apply equation \eqref{eqn:free-body-equation} on the first mass, using the split up $F_s$ as in equation \eqref{eqn:nonlinear-spring}
+We will now apply Equation \eqref{eqn:free-body-equation} on the first mass, using the split up $F_s$ as in Equation \eqref{eqn:nonlinear-spring}
 
 \begin{equation*}
     m_1\Ddot{x}_1 = u_1 - k_1x_1 - c_1\dot{x}_1 + k_2x_2 + c_2\dot{x}_2 - F_s^{NL}(x_1) + F_s^{NL}(x_2), \quad u_1 = F_1,
@@ -113,7 +113,7 @@ which holds for $a \in \{2,3,\dots,b-2,b-1\}$. Now only the last mass remains
     \Ddot{x}_b = -\frac{k_b}{m_b}x_b - \frac{c_b}{m_b}\dot{x}_b + \frac{u_b}{m_b} - \frac{F_s^{NL}(x_b)}{m_b}
 \end{equation}
 
-Let us now define the state vector $x$ from equation \eqref{eqn:standard-system} as
+Let us now define the state vector $x$ as in Equation \eqref{eqn:standard-system} as
 \begin{equation}\label{eqn:msd-x}
     x =
     \begin{bmatrix}

@@ -1,9 +1,8 @@
 \section{State estimation}\label{ch:state-estimation}
-This chapter first discussed the motivation for full state estimation. It also introduces the concept of observability and how it relates to state estimation. A standard 'single-observer' will be derived for linear systems and it will be expanded to also observe system with a non-linearity.
-
+In this chapter the motivation for full state estimation is discussed. Secondly the concept of observability is discussed, a concept which will turn out to be very relevant to all observers that are to be used later. Starting with the single observer, that is constructed in this chapter. \textcolor{red}{update if stuff on eigenvalues is written}
 
 \subsection{Motivation for full state estimation}
-Let us first discuss why there is a need for state estimation, consider the continious linear time invariant system
+Let us first discuss why there is a need for state estimation, consider the continuous linear time invariant system
 \begin{equation}\label{eqn:standard-noiseless-system}
     \dot{x}(t) = Ax(t) + Bu(t), \quad y(t) = Cx(t) + Du(t).
 \end{equation}
@@ -14,7 +13,7 @@ The solution to this system can be written as
         y(t) &= Ce^{tA}x_{0} + \int_{0}^{t}Ce^{(t-\tau)A}Bu(\tau)d\tau + Du(t).
     \end{split}
 \end{equation*}
-where $x_0 = x(0)$ \cite[Eqn. 6.4]{Hespanha2018LinearTheory}. When there is no input, i.e. $u(t)=0$ for $t \geq 0$, system \eqref{eqn:standard-noiseless-system} reduces to
+where $x_0 = x(0)$ \cite[Equation. 6.4]{Hespanha2018LinearTheory}. When there is no input, $u(t)=0$ for $t \geq 0$, system \eqref{eqn:standard-noiseless-system} reduces to
 \begin{equation*}
     \dot{x}(t) = Ax(t), \quad y(t) = Cx(t)
 \end{equation*}
@@ -49,11 +48,11 @@ where each $J_i$ is a Jordan block that has the form
 \end{equation}
 The size of each Jordan block $J_i$ is determined by the algebraic and geometric multiplicities of the eigenvalues of matrix $A$. The algebraic multiplicity of an eigenvalue indicates the number of times an eigenvalue appears. Or in other words, the number of duplicate eigenvalues. The geometric multiplicity indicates the number of independent eigenvalues associated with a certain eigenvalue.  The number of Jordan blocks for each eigenvalue is equal to the geometric multiplicity of that eigenvalue. An eigenvalue with an algebraic multiplicity of $3$ and a geometric multiplicity of $2$ corresponds to one $1 \times 1$ and one $2 \times 2$ Jordan block \cite[Section 7.1] {Hespanha2018LinearTheory}.
 
-Substituting equation \eqref{eqn:jordan-block} into \eqref{eqn:jordan-matrix} gives the full Jordan matrix. This can be substituted into equation \eqref{eqn:jordan-form-exponential} shows that if all eigenvalues of $A$ have strictly negative real parts, $x \rightarrow 0$ as $t \rightarrow \infty$. A matrix that satisfies these requirements is also knows as a stability matrix or a stable matrix. 
+Substituting equation \eqref{eqn:jordan-block} into \eqref{eqn:jordan-matrix} gives the full Jordan matrix. Which in turn can be substituted into equation \eqref{eqn:jordan-form-exponential}. Using the Equations as in \cite[Section 7.3]{Hespanha2018LinearTheory} shows that if all eigenvalues of $A$ have strictly negative real parts, $x \rightarrow 0$ as $t \rightarrow \infty$. A matrix that satisfies these requirements is also knows as a stability matrix or a stable matrix. 
 
 \begin{example}\label{ex:stability-example}
     Let us take a closer look at the stability of the system presented in Example \ref{ex:system} and Equation \eqref{eqn:example-system}. The eigenvalues and eigenvectors of the matrix $A$ are as in Table \ref{tab:eigen-example-system}. $\lambda_1=\lambda_3$ and $\lambda_2=\lambda_4$ so the algebraic multiplicity of both eigenvalues is $2$. $\mathbf{v}_1=-\mathbf{v}_3$ and $\mathbf{v}_2=-\mathbf{v}_4$ so the geometric multiplicity of both eigenvalues is 1, since the eigenvectors are dependent on each other.
-    \begin{table}[ht]
+    \begin{table}[H]
         \centering
         \begin{tabular}{|c|c|c|c|c|}
            \toprule
@@ -96,8 +95,8 @@ Substituting equation \eqref{eqn:jordan-block} into \eqref{eqn:jordan-matrix} gi
     \end{equation*}
     Let us choose the following initial conditions $x(0)=x_0=\begin{bmatrix}
         0.3 & -0.1 & 0.5 & 0.2 
-    \end{bmatrix}^T$ and calculate the right-hand side of Equation \eqref{eqn:jordan-form-exponential} for a number of values of $0\leq t \leq 5$, the results are plotted in Figure \ref{fig:system-response}.
-    \begin{figure}[ht]
+    \end{bmatrix}^T$ and calculate the right-hand side of Equation \eqref{eqn:jordan-form-exponential} for a number of values of $0\leq t \leq 5$, the results are plotted in Figure \ref{fig:system-response}. The calculations and plot have been made with Matlab, the script can be found in Appendix \ref{ap:matlab-code-ch3}.
+    \begin{figure}[H]
         \centering
         \includegraphics[width=0.9\linewidth]{report/Figures/system-response.png}
         \caption{Time response of a double mass-spring-damper system calculated using Equation \eqref{eqn:jordan-form-exponential}.}
@@ -109,9 +108,9 @@ If the matrix $A$ is not stable, but stability properties are still desired. The
 \begin{equation}\label{eqn:feedback-control-law}
     u = Kx \implies x = Ax + BKx \implies \dot{x} = (A+BK)x
 \end{equation}
-can be used to stabilize the system, if and only if the system \eqref{eqn:standard-noiseless-system} is stabilizable \cite[Th. 14.5]{Hespanha2018LinearTheory}. As can be seen in the equation, the control law \eqref{eqn:feedback-control-law} requires measuring the full state $x$, which can be very costly or not possible to measure. Figure \ref{fig:feedback-diagram} shows a simple feed back controlled system, where it can also be seen that $y$ feeds into the controller and can thus only stabilize the system when $y=x$. So we will now work towards creating a state estimate $\hat{x} \rightarrow x$ as $t \rightarrow \infty$.
+can be used to stabilize the system, if and only if the system \eqref{eqn:standard-noiseless-system} is stabilizable \cite[Theorem 14.5]{Hespanha2018LinearTheory}. As can be seen in Equation \eqref{eqn:feedback-control-law}, the control law requires measuring the full state $x$, which can be very costly or not possible to measure \cite{yappa}. Figure \ref{fig:feedback-diagram} shows a simple feedback controlled system, where it can also be seen that $y$ feeds into the controller and can thus only stabilize the system when $y=x$. So we will now work towards creating a state estimate $\hat{x} \rightarrow x$ as $t \rightarrow \infty$.
 
-\begin{figure}[ht]
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}[
         block/.style={rectangle, draw=black!60, very thick, minimum size=7mm},
@@ -188,7 +187,7 @@ Isolating $x$ results in
 \begin{equation}\label{eqn:state-estimation-w-observability-matrix}
     x = \mathcal{O}^{-1}(\mathbf{y}-\mathcal{K}\mathbf{u}).
 \end{equation}
-As can be seen in \eqref{eqn:state-estimation-w-observability-matrix} observability matrix $\mathcal{O}$ is required to be invertible to reconstruct $x$ from the derivatives of $y$ and $u$. If a system's $A$ and $C$ matrix fulfil this requirement, the system can be described as \textit{observable}. The invertibility requirement is equivalent to the statement that the matrix $\mathcal{O}$ needs to be full rank \cite[Section 2.9]{Lay2016LinearApplications}, this theorem that can also be found in \cite[Corollary 3.8]{Antsaklis2006LinearSystems}. The implication of this is that it is only possible to reconstruct the state $x$ if the pair $(A,C)$ is observable. 
+As can be seen in \eqref{eqn:state-estimation-w-observability-matrix} observability matrix $\mathcal{O}$ is required to be invertible to reconstruct $x$ from the time derivatives of $y$ and $u$. If a system's $A$ and $C$ matrix fulfil this requirement, the system can be described as \textit{observable}. The invertibility requirement is equivalent to the statement that the matrix $\mathcal{O}$ needs to be full rank \cite[Section 2.9]{Lay2016LinearApplications}, this theorem that can also be found in \cite[Corollary 3.8]{Antsaklis2006LinearSystems}. The implication of this is that it is only possible to reconstruct the state $x$ if the pair $(A,C)$ is observable. 
 
 \begin{example}\label{ex:single-ouptut-observability}
     Let us work out an example on the system presented in Example \ref{ex:system} where only the position of the first mass is measured. This leads to the following system matrices:
@@ -245,7 +244,7 @@ Example \ref{ex:single-ouptut-observability} considers a system with only one ou
 \end{bmatrix}_{n_xn_y \times n_x}.
 \end{equation*}
 The same rank condition still holds, the system is fully observable as long as the $\mathcal{O}$ matrix is full rank. This implies that certain combinations of sensors that do not suffice on their own can make a system fully observable \cite[Section 3.4 D 2]{Antsaklis2006LinearSystems}.
-
+\textcolor{red}{how does observability matrix lead to the observer}
 \subsection{Single observer}
 Let us now reconstruct the full state of system \eqref{eqn:standard-noiseless-system} from  $y$ and $u$ by defining the state estimate as in \cite[Section 16.5]{Hespanha2018LinearTheory}
 \begin{equation}\label{eqn:stable-simple-state-estimator}
@@ -259,7 +258,7 @@ which we differentiate and substitute equations \eqref{eqn:standard-noiseless-sy
 \begin{equation*}
     \dot{e} = \dot{\hat{x}} - \dot{x} = A\hat{x} + Bu - Ax - Bu = Ae.
 \end{equation*}
-We can now conclude that $e \rightarrow 0$ as $t \rightarrow \infty$ if the matrix $A$ is a stability matrix. Let us now define a state estimator that provides an asymptotically correct state estimate even when $A$ is not a stability matrix as in \cite[Section 16.5]{Hespanha2018LinearTheory}:
+We can now conclude that $e \rightarrow 0$ as $t \rightarrow \infty$ if the matrix $A$ is a stability matrix. Let us now define a state estimator that provides an asymptotically correct state estimate even when $A$ is not a stability matrix as in \cite[Section 16.5]{Hespanha2018LinearTheory}
 \begin{equation}\label{eqn:unstable-simple-state-estimator}
     \dot{\hat{x}} = A\hat{x} + Bu + L(\hat{y} - y), \quad \hat{y} = C\hat{x} + Du.
 \end{equation}
@@ -346,6 +345,7 @@ Since we have full control over $L$, we will now discuss methods to place eigenv
     \end{equation}  
 where the pair $(A_o,C_o)$ is observable. A similarity transformation leaves the eigenvalues unchanged \cite[Section 5.2]{Lay2016LinearApplications}. The lower triangular structure of the matrix implies that the eigenvalues of $A_u$ remain the same, which leads to a contradiction: not all the eigenvalues of $A+LC$ have been influenced. Thus, if the pair $(A,C)$ is observable there exists an $L$ that can influence all eigenvalues of $A+LC$.
 \end{proof}
+\textcolor{red}{remove proof}
 
 An analytical method to place the eigenvalues at arbitrary locations in a MIMO system is presented in \cite[Section 4.2 B]{Antsaklis2006LinearSystems}, where the system is first transformed into \textit{observer form} by a similarity transformation. After this transformation the deriving the matrix $L$ is convenient. Another option is numerically deriving $L$. Matlab provides the function \texttt{place}, based on the algorithm presented in \cite{Kautsky1985RobustFeedback}.
 
