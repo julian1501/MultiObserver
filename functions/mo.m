@@ -101,6 +101,7 @@ classdef mo
         % Number of outputs of each J-observer (often
         % numOuptus-numAttackedOutputs)
         numOutputsObservers
+        numIndOutputsObservers
         % Outputs of each J-observer
         Ci
         % Indices of each J-observer
@@ -120,7 +121,7 @@ classdef mo
     end
 
     methods
-        function obj = mo(sys,Attack,numOutputs,numOutputsObserver)
+        function obj = mo(sys,Attack,numOutputs,numOutputsObserver,aggregate_grouping)
             %UNTITLED6 Construct an instance of this class
             %   Detailed explanation goes here
             obj.sys = sys;
@@ -130,19 +131,17 @@ classdef mo
             obj.Attack = Attack;
             % Check whether numoutputs > 2*numAttackedOutputs
             if ~ (numOutputs > 2* Attack.numAttacks)
-               error('The number of outputs is not larger then twice the number of attacked outputs %3.0f <= %3.0f',numOutputs,numAttackedOutputs); 
+               warning('The number of outputs is not larger then twice the number of attacked outputs %3.0f <= %3.0f',numOutputs,Attack.numAttacks); 
             end
             obj.numOutputs = numOutputs;
-
             
             obj.numOutputsObservers = numOutputsObserver;
-            obj.numObservers = nchoosek(numOutputs,numOutputsObserver);
     
             obj.COutputs = CNSetup(obj);
-            [Ci,CiIndices,attack3D] = CsetSetup(obj.COutputs,Attack,obj);
-
+            [Ci,CiIndices,attack3D] = CsetSetup(obj.COutputs,Attack,aggregate_grouping,obj);
+ 
             obj.numObservers = size(Ci,3);
-            obj.numOutputsObservers = size(Ci,1);
+            obj.numIndOutputsObservers = size(Ci,1);
     
             obj.Ci = Ci;
             obj.CiIndices = CiIndices;

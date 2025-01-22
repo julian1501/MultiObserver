@@ -1,4 +1,4 @@
-function [Cset,CsetIndices,setAttack] = CsetSetup(CN,Attack,obj)
+function [Cset,CsetIndices,setAttack] = CsetSetup(CN,Attack,aggregate_grouping,obj)
 % CsetSetup Function
 %
 % The 'CsetSetup' function creates a 3D array ('Cset') that specifies
@@ -105,13 +105,11 @@ function [Cset,CsetIndices,setAttack] = CsetSetup(CN,Attack,obj)
             % each row contains all sensors measuring the same mass
             % position
             sameSensors = reshape(outputList,obj.sys.numMass,[],1);
-            numSensorCopies = size(sameSensors,2);
-            sensorGroups = combinations(sameSensors,'loose');
+            sensorGroups = combinations(sameSensors,aggregate_grouping);
             groupSize = size(sensorGroups,2);
             numSensorGroups = size(sensorGroups,1);
             % make large groups out of the sensorGroups  obj.numOutputsObservers/numSensorCopies
-            newObsvSize = max(min(numSensorCopies - Attack.numAttacks,obj.numOutputsObservers/obj.sys.numMass),1);
-            CgroupIndices = nchoosek(1:1:numSensorGroups,newObsvSize);
+            CgroupIndices = nchoosek(1:1:numSensorGroups,obj.numOutputsObservers);
             CsetSize = groupSize*size(CgroupIndices,2);
             CsetIndices = zeros(size(CgroupIndices,1),CsetSize);
             
@@ -124,7 +122,7 @@ function [Cset,CsetIndices,setAttack] = CsetSetup(CN,Attack,obj)
                 % check for duplicates
                 if size(unique(CsetIndices(g,:)),2) < CsetSize
                     % not unique
-                    CsetIndices(g,:) = zeros(1,CsetSize);
+%                     CsetIndices(g,:) = zeros(1,CsetSize);
                 end
                 
 

@@ -73,7 +73,7 @@ classdef attack
             obj.numOutputs = numOutputs;
             obj.numAttacks = numAttacks;
             if ~ (numOutputs > 2* numAttacks)
-               error('The number of outputs is not larger then twice the number of attacked outputs %3.0f <= %3.0f',numOutputs,numAttackedOutputs); 
+               warning('The number of outputs is not larger then twice the number of attacked outputs %3.0f <= %3.0f',numOutputs,numAttacks); 
             end
             
             if size(attackedOutputs) == [0,0]
@@ -93,7 +93,7 @@ classdef attack
             obj.attackList = attackList;
         end
 
-        function [corruptA,corruptB,uncorrupt] = selectAB(obj)
+        function [corruptA,uncorrupt] = selectAB(obj)
             % [corruptA,corruptB,uncorrupt] = selectAB(CMOdict) selects two sets
             % (A,B)
             % sized M out of the set 1:1:numOutputs.
@@ -109,10 +109,7 @@ classdef attack
             outputSet = 1:1:obj.numOutputs;
             
             % Select the first M outputs to be in set A
-            [corruptA, remainingA] = selectRandomSubset(outputSet,M);
-            % Out of the remainder of the set select M outputs to be in B, the rest
-            % of the signals will remain uncorrupted
-            [corruptB, uncorrupt] = selectRandomSubset(remainingA,M);
+            [corruptA, uncorrupt] = selectRandomSubset(outputSet,M);
             
         end
     end

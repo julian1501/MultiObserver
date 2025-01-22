@@ -33,13 +33,13 @@ classdef noise
             % create the correct vector for a 2d cmo    
             
             % loop over J observers
-            JmoNoise = zeros(Jmo.numOutputsObservers,1,Jmo.numObservers);
+            JmoNoise = zeros(Jmo.numIndOutputsObservers,1,Jmo.numObservers);
             for o = 1:1:Jmo.numObservers
                 ids = Jmo.CiIndices(o,:);
                 JmoNoise(:,:,o) = obj.interpNoise(ids',t);
             end
 
-            PmoNoise = zeros(Pmo.numOutputsObservers,1,Pmo.numObservers);
+            PmoNoise = zeros(Pmo.numIndOutputsObservers,1,Pmo.numObservers);
             for o = 1:1:Pmo.numObservers
                 ids = Pmo.CiIndices(o,:);
                 PmoNoise(:,:,o) = obj.interpNoise(ids',t);
@@ -50,7 +50,7 @@ classdef noise
                     MONoise = [reshape(JmoNoise,[],1,1); reshape(PmoNoise,[],1,1)];
 
                 case "3D"
-                    paddingSize1 = Jmo.numOutputsObservers-Pmo.numOutputsObservers;
+                    paddingSize1 = Jmo.numIndOutputsObservers-Pmo.numIndOutputsObservers;
                     padding = zeros(paddingSize1,1,Pmo.numObservers);
                     PmoNoisePadded = cat(1,PmoNoise,padding);
                     MONoise = cat(3,JmoNoise,PmoNoisePadded);

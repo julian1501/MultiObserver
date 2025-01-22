@@ -138,12 +138,14 @@ function [bestStateEstimate, jBestEstimate] = sbeCPU(x,tsteps,PsubsetOfJIndices,
             for p = 1:1:numOfPsubsetsInJ
                 % select the index of p that will be checked
                 pIndex = pSubsetofjIndices(p);
-                % select the solution of p that corresponds to this index
-                xp = xP3D(:,:,pIndex);
-                % calculate and store the difference between solj and solp
-                dif = norm(xj-xp);
-                difflist(p,:) = dif;
-                
+                if pIndex ~= 0
+                    % select the solution of p that corresponds to this index
+                    xp = xP3D(:,:,pIndex);
+                    % calculate and store the difference between solj and solp
+                    dif = norm(xj-xp);
+                    difflist(p,:) = dif;
+                end
+
             end
         
             % we now select Pi j as the maximum of this list

@@ -15,29 +15,43 @@ else
     numAttackedOutputs = int32(str2double(inputs{3}));
 end
 attackedOutputs = str2num(inputs{4});
+% correct number of attakced outputs
+if ~isempty(attackedOutputs) 
+    numAttackedOutputs = size(attackedOutputs,2);
+end
+
 if strcmp(inputs{5},'max')
+    numOutputsJObservers = numOutputs-numAttackedOutputs;
+else
+    numOutputsJObservers = int32(str2double(inputs{5}));
+end
+if strcmp(inputs{6},'max')
     numOutputsPObservers = numOutputs-2*numAttackedOutputs;
 else
-    numOutputsPObservers = int32(str2double(inputs{5}));
+    numOutputsPObservers = int32(str2double(inputs{6}));
 end
-eigenvalueOptions = str2num(inputs{6});
 tspan = str2num(inputs{7});
 x0Options = str2num(inputs{8})';
 whichMO = str2num(inputs{9});
 linear = int32(str2double(inputs{10}));
-noiseVariance = str2double(inputs{11});
+aggregate_grouping = inputs{11};
+noiseVariance = str2double(inputs{12});
 
 
 %% CALCULATIONS
 % display information in the command window
-fprintf('The number of outputs is %3.0f: \n',numOutputs)
-fprintf('The maximum allowable number of compromised outputs %3.0f: \n',numAttackedOutputs)
-numOutputsJObservers = numOutputs-numAttackedOutputs;
+fprintf('The number of senors is %3.0f: \n',numOutputs)
+fprintf('The number of attacked sensors %3.0f: \n',numAttackedOutputs)
+
+try numJObservers = nchoosek(numOutputs,numOutputsJObservers);
+    catch ME
+        numJObservers = numOutputs;
+end
+numPObservers = nchoosek(numOutputs,numOutputsPObservers);
+
 fprintf('The size of each J observer is: %3.0f \n',numOutputsJObservers)
 fprintf('The size of each P observer is: %3.0f \n',numOutputsPObservers)
-numJObservers = nchoosek(numOutputs,numOutputsJObservers);
 fprintf('The number of J observers is: %3.0f \n',numJObservers)
-numPObservers = nchoosek(numOutputs,numOutputsPObservers);
 fprintf('The number of P observers is: %3.0f \n',numPObservers)
 
 % system definition
@@ -61,8 +75,8 @@ Attack = attack(numOutputs,numAttackedOutputs,attackedOutputs);
 Noise = noise(numOutputs,tspan,noiseVariance);
 
 % setup the J and P observers
-Pmo = mo(sys,Attack,numOutputs,numOutputsPObservers);
-Jmo = mo(sys,Attack,numOutputs,numOutputsJObservers);
+Pmo = mo(sys,Attack,numOutputs,numOutputsPObservers,aggregate_grouping);
+Jmo = mo(sys,Attack,numOutputs,numOutputsJObservers,aggregate_grouping);
 
 % find which P observers are subobservers of J
 sys.COutputs = Jmo.COutputs;
@@ -118,7 +132,7 @@ if whichMO(3) == 1
     SSMOest = flatten(pagemtimes(SSMO.T,SSMOz));
     % create waitbar
     wb = waitbar(0,'Selection is currently at time: 0','Name','Selecting best estimates SSMO');
-    SSMObestEst = sbeCPU([state; SSMOest],size(t,2),PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys,wb);
+    [SSMObestEst,jBE] = sbeCPU([state; SSMOest],size(t,2),PsubsetOfJIndices,numOfPsubsetsInJ,Jmo,Pmo,sys,wb);
     SSMOerr = state - SSMObestEst;
     close(wb)
 end

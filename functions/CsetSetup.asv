@@ -105,13 +105,12 @@ function [Cset,CsetIndices,setAttack] = CsetSetup(CN,Attack,obj)
             % each row contains all sensors measuring the same mass
             % position
             sameSensors = reshape(outputList,obj.sys.numMass,[],1);
-            sensorGroups = combinations(sameSensors,'strict');
+            numSensorCopies = size(sameSensors,2);
+            sensorGroups = combinations(sameSensors,'loose');
             groupSize = size(sensorGroups,2);
             numSensorGroups = size(sensorGroups,1);
-            numVirtualSensors = size(sameSensors,2);
-
             % make large groups out of the sensorGroups  obj.numOutputsObservers/numSensorCopies
-            newObsvSize = max(obj.numOutputsObservers/numVirtualSensors,1);
+            newObsvSize = max(min(numSensorCopies - Attack.numAttacks,obj.numOutputsObservers/obj.sys.numMass),1);
             CgroupIndices = nchoosek(1:1:numSensorGroups,newObsvSize);
             CsetSize = groupSize*size(CgroupIndices,2);
             CsetIndices = zeros(size(CgroupIndices,1),CsetSize);
@@ -138,7 +137,7 @@ function [Cset,CsetIndices,setAttack] = CsetSetup(CN,Attack,obj)
     end
 
     % Loop over the combinations and add them to the empty CJ
-    obj.numObserves = nchoosek(numVirtualSensors)
+    obj.numObservers = size(CsetIndices,1);
     Cset = zeros(size(CsetIndices,2),numStates,obj.numObservers);
     setAttack = zeros(size(CsetIndices,2),1,obj.numObservers);
     for j = 1:1:size(CsetIndices,1)

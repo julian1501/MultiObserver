@@ -79,7 +79,7 @@ function [numOfPsubsetsInJ, PsubsetOfJIndices] = findIndices(Jmo,Pmo)
 % - nchoosek.m: MATLAB function for combinations.
 % - isSubsetOf.m: Custom subset-checking function.
 
-%     PsubsetOfJIndices = zeros(Jmo.numObservers,1);
+    PsubsetOfJIndices = zeros(Jmo.numObservers,1);
 
     for j = 1:1:Jmo.numObservers
         CjIndices = Jmo.CiIndices(j,:);
@@ -93,6 +93,12 @@ function [numOfPsubsetsInJ, PsubsetOfJIndices] = findIndices(Jmo,Pmo)
             if isPSubset
                 newRow(1,end+1) = p;
             end
+        end
+        % append with zeros if necessary
+        if size(PsubsetOfJIndices,2) < size(newRow,2)
+            PsubsetOfJIndices = [PsubsetOfJIndices zeros(size(PsubsetOfJIndices,1),size(newRow,2)-size(PsubsetOfJIndices,2))];
+        elseif size(PsubsetOfJIndices,2) > size(newRow,2)
+            newRow = [newRow zeros(1,size(PsubsetOfJIndices,2)-size(newRow,2))];
         end
         PsubsetOfJIndices(j,:) = newRow;
     end

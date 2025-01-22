@@ -129,11 +129,11 @@ classdef cmo3d
 
             % Pad the right side of LP with zeros to match the cross sectional size of
             % LJ
-            padding = zeros(Jmo.numOutputsObservers-Pmo.numOutputsObservers,Jmo.nx,Pmo.numObservers);
+            padding = zeros(Jmo.numIndOutputsObservers-Pmo.numIndOutputsObservers,Jmo.nx,Pmo.numObservers);
             obj.C = cat(3,Jmo.Ci,cat(1,Pmo.Ci,padding));
-            padding = zeros(Jmo.nx,Jmo.numOutputsObservers-Pmo.numOutputsObservers,Pmo.numObservers);
+            padding = zeros(Jmo.nx,Jmo.numIndOutputsObservers-Pmo.numIndOutputsObservers,Pmo.numObservers);
             PmoLPadded = cat(2,Pmo.Li,padding);
-            padding = zeros(Jmo.numOutputsObservers-Pmo.numOutputsObservers,1,Pmo.numObservers);
+            padding = zeros(Jmo.numIndOutputsObservers-Pmo.numIndOutputsObservers,1,Pmo.numObservers);
             PAttackPadded = cat(1,Pmo.attack3d,padding);
             
             
