@@ -67,7 +67,7 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
 % mo, 3dcmo, ssmo
     
     fig = tiledlayout('flow');
-    sgtitle({[char(sys.Name),' observed by a ' char(MO.Name) ' with ', num2str(MO.numOutputs),' sensors.'],...
+    sgtitle({[char(sys.Name),' observed by a ' char(MO.Name) ' with ', num2str(MO.numOutputs),' outputs.'],...
         [ 'Number of attacks = ',num2str(MO.Attack.numAttacks)]});
         %,',N_J=',num2str(Jmo.numOutputsObservers),' and N_P=',num2str(Pmo.numOutputsObservers)]});
     
@@ -148,7 +148,7 @@ function MOplot(t,x,err,estimate,sys,MO,Jmo,Pmo)
     end
     
     % select the correct plots to add to legend
-    if MO.Attack.numAttacks == 0
+    if MO.Attack.numAttacks == 0 || size(leg,2) == 3
         lgd = legend([leg(end-2:end)],'System response','MO estimate','Error');
     elseif MO.Attack.numAttacks > 0
         lgd = legend([leg(1:2) leg(end-2:end)],'J-observers','P-observers','System response','MO estimate','Error');

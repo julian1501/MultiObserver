@@ -14,26 +14,14 @@ function dx = multiObserverODE(wb,tmax,sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,N
 %
 % Inputs:
 % -------
-% - 'sys': System model structure containing:
-%    - 'nx': Number of states.
-%    - 'A': State transition matrix.
-%    - 'COutputs': Output matrix.
-%    - 'E': Coupling matrix for nonlinear components.
-%    - 'NLsize': Size of nonlinear dynamics (if any).
-%    - 'Linear': Logical flag indicating if the system is linear.
+% - 'sys': System model structure
 % - 't': Current time (scalar).
 % - 'x': State vector, containing:
 %    - 'xsys': System states.
 %    - States for 'CMO2D', 'CMO3D', and 'SSMO' observers (if active).
-% - 'Attack': Attack model structure containing:
-%    - 'attackList': Vector specifying attack signals.
+% - 'Attack': Attack model structure containing
 % - 'CMO2D': Configuration for the 2D observer (optional).
-% - 'CMO3D': Configuration for the 3D observer, containing:
-%    - 'numObservers': Number of 3D observers.
-%    - 'ApLC': Observer dynamics matrix.
-%    - 'LC', 'L': Gain matrices.
-%    - 'E': Coupling matrix for nonlinear components.
-%    - 'attack': Attack signals for 3D observer.
+% - 'CMO3D': Configuration for the 3D observer, containing
 % - 'SSMO': Configuration for the SSMO observer (optional).
 % - 'whichMO': Boolean array specifying active observers:
 %    - 'whichMO(1)': Use 'CMO2D' (1 = active, 0 = inactive).
@@ -129,7 +117,7 @@ function dx = multiObserverODE(wb,tmax,sys,t,x,Attack,CMO2D,CMO3D,SSMO,whichMO,N
     
     % Calculations for the SSMO
     if whichMO(3) == 1
-        v = Noise.interpval("all",t);
+        v = Noise.interpNoise("all",t);
         xssmo = x(xIds.xssmoStart:xIds.xssmoEnd);
         dxssmo = SSMO.A*xssmo + SSMO.B*([NLspring(sys,y+a+v) ;y+v] + [zeros(sys.NLsize,1) ;a]); 
     else

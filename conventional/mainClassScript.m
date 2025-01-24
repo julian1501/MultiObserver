@@ -158,7 +158,8 @@ if sum(whichMO) > 1
     end
 end
 
-
+% Only the last run plot stays open, run the code block by clicking the
+% left blue bar in order to plot a specific multi observer.
 %% 2D CMO plot
 if Plot && whichMO(1) == 1
       MOplot(t,[state; CMO2Dest],CMO2Derr,CMO2DbestEst,sys,CMO2D,Jmo,Pmo);
