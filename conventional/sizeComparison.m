@@ -28,7 +28,7 @@ for i = 1:1:lim
 
         NS = NJ+NP;
         
-        size2d(i,j) = n(i)*NS + (n(i)^2)*(NS^2) + 2*k*NS;
+        size2d(i,j) = n(i)*NS + (n(i)^2)*(NS^2) + n(i)*k*NS + k;
         size3d(i,j) = n(i)*NS + (n(i)^2)*NS + (n(i)^2)*NS;
         sizessmo(i,j) = n(i)*NS + (n(i)^2)*(N(j)^2) + (n(i)^2)*N(j) + (n(i)^2)*N(j)*NS;
     end

@@ -113,6 +113,9 @@ classdef ssmo
             %UNTITLED Construct an instance of this class
             %   Detailed explanation goes here
             % Define Ap and Bp for each observer
+            if sys.Linear == 0
+                warning("The SSMO uses aggregate sensors in this git commit, this is not supposed to work. Revert to a commit before the aggregate sensors to replicate results from the report.")
+            end
             obj.sys = sys;
             obj.Name = 'SSMO';
             obj.Attack = Jmo.Attack;

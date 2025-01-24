@@ -6,13 +6,14 @@ function [Cset,CsetIndices,setAttack] = CsetSetup(CN,Attack,aggregate_grouping,o
 % individual observer. It also generates 'CsetIndices', a matrix that 
 % records the indices of rows from 'CN' used in each subset, and 
 % 'setAttack', which maps attack signals to the selected outputs in each 
-% subset. 
+% subset. The behavior varies depending on whether the system is linear or 
+% nonlinear.
 %
 % This documentation was written by ChatGPT.
 %
 % Syntax:
 % -------
-% '[Cset, CsetIndices, setAttack] = CsetSetup(CN, Attack, obj)'
+% '[Cset, CsetIndices, setAttack] = CsetSetup(CN, Attack, aggregate_grouping, obj)'
 %
 % Inputs:
 % -------
@@ -20,8 +21,10 @@ function [Cset,CsetIndices,setAttack] = CsetSetup(CN,Attack,aggregate_grouping,o
 %   observer outputs.
 % - 'Attack' (attack object): The attack object containing attack details, 
 %   particularly 'attackList'.
+% - 'aggregate_grouping' (integer): The grouping parameter used in nonlinear systems 
+%   to form strict sensor groups.
 % - 'obj' (mo object): The system object, including details such as 
-%   'sys.nx', 'numOutputs', and 'numObservers'.
+%   'sys.nx', 'sys.numMass', 'numOutputs', and 'numObservers'.
 %
 % Outputs:
 % --------
@@ -35,45 +38,33 @@ function [Cset,CsetIndices,setAttack] = CsetSetup(CN,Attack,aggregate_grouping,o
 %
 % Behavior:
 % ---------
-% 1. The function determines all combinations of outputs (rows) from 'CN' 
-%    that can form subsets of a specified size ('numOutputsObservers').
-% 2. It constructs 'Cset' by populating each slice with the rows of 'CN' 
-%    corresponding to a specific combination.
-% 3. 'CsetIndices' stores the row indices of 'CN' used in each subset.
-% 4. 'setAttack' maps attack signals from 'Attack.attackList' to the rows 
-%    of 'Cset' based on 'CsetIndices'.
+% For Linear Systems ('obj.sys.Linear = 1'):
+% 1. The function computes all combinations of outputs (rows) from 'CN' 
+%    that can form subsets of a specified size ('obj.numOutputsObservers').
+% 2. 'CsetIndices' stores the row indices of 'CN' used in each subset.
+% 3. 'Cset' and 'setAttack' are populated based on these combinations.
 %
-% Example Scenarios:
-% ------------------
-% Inputs:
-% - 'CN = [1 0 0 0; 0 1 0 0; 0 0 1 0; 0 0 0 1];'
-% - 'Attack.attackList = [1; 0; 1; 0];'
-% - 'obj.numOutputs = 4; obj.numOutputsObservers = 3; obj.numObservers = 4;'
-%
-% Outputs:
-% Cset(:,:,1) = [1 0 0 0; 0 1 0 0; 0 0 1 0];
-% Cset(:,:,2) = [1 0 0 0; 0 1 0 0; 0 0 0 1];
-% Cset(:,:,3) = [1 0 0 0; 0 0 1 0; 0 0 0 1];
-% Cset(:,:,4) = [0 1 0 0; 0 0 1 0; 0 0 0 1];
-%
-% CsetIndices = [1 2 3; 1 2 4; 1 3 4; 2 3 4];
-%
-% setAttack(:,:,1) = [1; 0; 1];
-% setAttack(:,:,2) = [1; 0; 0];
-% setAttack(:,:,3) = [1; 1; 0];
-% setAttack(:,:,4) = [0; 1; 0];
+% For Nonlinear Systems ('obj.sys.Linear = 0'):
+% 1. Sensor groups are created by aggregating related sensors (e.g., those 
+%    measuring the same mass position).
+% 2. Larger groups are formed based on 'aggregate_grouping', ensuring all 
+%    outputs per observer are unique.
+% 3. 'CsetIndices' is constructed to avoid duplicate rows within each subset.
+% 4. Rows with duplicates are removed, and valid subsets are retained for 
+%    further processing.
+% 5. 'Cset' and 'setAttack' are built from these valid subsets.
 %
 % Notes:
 % ------
-% - 'nchoosek' is used to compute all combinations of row indices.
+% - 'nchoosek' is used for linear systems to compute all combinations.
+% - Nonlinear systems rely on 'aggregate_grouping' and strict sensor pairings.
 % - The function assumes 'Attack.attackList' and 'CN' have compatible 
 %   dimensions.
-% - Observers are constructed iteratively, with each observer 
-%   corresponding to a combination of rows from 'CN'.
 %
 % Dependencies:
 % -------------
 % - 'obj.sys.nx': The number of states in the system.
+% - 'obj.sys.numMass': The number of masses in the system (for nonlinear systems).
 % - 'obj.numOutputs': The total number of outputs available.
 % - 'obj.numObservers': The total number of observers.
 % - 'obj.numOutputsObservers': The number of outputs per observer.
