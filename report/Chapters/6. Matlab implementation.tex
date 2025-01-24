@@ -2,22 +2,27 @@
 Both CMOs and the SSMO as defined in Subsections \ref{subsec:CMO-architecture} and \ref{subsec:ssmo-architecture} have been implemented in Matlab. In this chapter the implementations will be discussed and the MOs will be applied on the mass-spring-damper system as described in Chapter \ref{ch:system-definition}. The implementation uses classes for the system, attack, shared multi-observers and the specific multi-observers. All of these will be discussed in this chapter, the code itself can be found in Appendix \ref{ap:matlab-code}.
 
 \subsection{Class explanation}
-The system class (\texttt{msd}) defines the system matrices for a mass-spring-damper as in Chapter \ref{ch:system-definition}. The class can creates the state-space system consisting of matrices \eqref{eqn:msd-A}\eqref{eqn:msd-B}\eqref{eqn:msd-E}\eqref{eqn:msd-C}. The class can create both linear and nonlinear systems and works for any number of masses in series.
+The system class (\texttt{msd}) defines the system matrices for a mass-spring-damper as in Chapter \ref{ch:system-definition}. The class can create the state-space system consisting of the matrices in Equations \eqref{eqn:msd-A},\eqref{eqn:msd-B},\eqref{eqn:msd-E} and \eqref{eqn:msd-C}. The class can create both linear and nonlinear systems and works for any number of masses in series.
 
 The \texttt{attack} class defines an attack on the system, the outputs that are to be attacked can be specified. If no outputs are specified, a random selection is made. A list with ones indicating an attack and zeros indicating no attack is made, later on this one is substituted by the attack signal. The specific attack signal can be changed within the \texttt{attackFunction} function.
 
-All MOs are based on a common set of $J$-observers and $P$-observers as defined in Subsection \ref{subsec:state-estimates}. Since all MOs observe the same system, these observers can be defined once and used by all MOs. A separate \texttt{mo} object needs to be generated for both the $J$ and $P$-observers. The \texttt{mo} defines observers for each combination as defined in \eqref{eqn:observer-sets}, based on a given number of outputs for each observer (size of each combination). The class generates an $L$ matrix that places the eigenvalues of $A + LC$ at specified locations. Usually, the size of $C$ does not match the number of outputs $N_O$. The \texttt{mo} class automatically creates a set of outputs based on the provided $C$ where the number of rows matches $N_O$.
+All MOs are based on a common set of $J$-observers and $P$-observers as defined in Subsection \ref{subsec:state-estimates}. Since all MOs observe the same system, these observers can be defined once and used by all MOs. A separate \texttt{mo} object needs to be generated for both the $J$ and $P$-observers. The \texttt{mo} defines observers for each combination as defined in Equation \eqref{eqn:observer-sets}, based on a given number of outputs for each observer (size of each combination). The class generates an $L$ matrix that places the eigenvalues of $A + LC$ at specified locations. Usually, the size of $C$ does not match the number of outputs $N_O$. The \texttt{mo} class automatically creates a set of outputs based on the provided $C$ where the number of rows matches $N_O$.
 
-The \texttt{cmo2d} class defines the 2D CMO based on the two \texttt{mo} objects for the $J$ and $P$-observers and the system.  It constructs the system matrices as in \eqref{eqn:2D-CMO} and defines the 2D attack vector for use on the 2D CMO.
+The \texttt{cmo2d} class defines the 2D-CMO based on the two \texttt{mo} objects for the $J$ and $P$-observers and the system.  It constructs the system matrices as in Equations  \eqref{eqn:2D-CMO-A-x} and \eqref{eqn:2D-CMO-F-eta} and defines the 2D attack vector for use on the 2D CMO.
 
-The \texttt{cmo3d} class defines the 3D CMO based on the two \texttt{mo} objects. It generates the system matrices \eqref{eqn:x3d},\eqref{eqn:A-tilde-3D},\eqref{eqn:F-3d}\eqref{eqn:L-3d} and \eqref{eqn:eta-3d} and uses the \texttt{attack} object to create a 3D attack vector that stores the ones and zeros for each specific observer.
+The \texttt{cmo3d} class defines the 3D-CMO based on the two \texttt{mo} objects. It generates the system matrices as in Equations \eqref{eqn:x3d},\eqref{eqn:A-tilde-3D},\eqref{eqn:F-3d}\eqref{eqn:L-3d} and \eqref{eqn:eta-3d} and uses the \texttt{attack} object to create a 3D attack vector that stores the ones and zeros for each specific observer.
 
-The \texttt{ssmo} class defines the SSMO based on the \texttt{mo} objects. It generates the shared system matrices \eqref{eqn:controllable-canonical-form} and all transformation matrices \eqref{eqn:ssmo-transformation}. 
+The \texttt{ssmo} class defines the SSMO based on the \texttt{mo} objects. It generates the shared system matrices as in Equation \eqref{eqn:controllable-canonical-form} and all transformation matrices as in Equation \eqref{eqn:ssmo-transformation}. 
 
-\subsection{Running a simulation}
-All MOs can be simulated under the same conditions and the results can be compared. The file \texttt{mainClassScript.m} in Appendix \ref{ap:matlab-code}, generates all MOs and solves the ODEs as in equation \eqref{eqn:standard-system}, \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer}. Figure \ref{fig:unattacked-system-plot} displays the solution of this ODE for the system as in Example \ref{ex:system}. The observer quickly approaches the system state and the error decays to zero.
+\subsection{Attacking the system}
+All MOs can be simulated under the same conditions and the results can be compared. The file mainClassScript.m in Appendix \ref{ap:matlab-code}, generates all MOs and solves the ODEs as in Equations \eqref{eqn:standard-system}, \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer}. Figure \ref{fig:unattacked-system-plot} displays the solution of this ODE for the system as in Example \ref{ex:system}. The observer quickly approaches the system state and the error decays to zero. 
 
-\newpage
+Let us now introduce the attack as in Figure \ref{fig:attack-diagram}, so outputs $2$ and $5$ are under attack. The attack signal $\tau_i=t,i=2,5$ is injected into both outputs ($t$ is simply the time value). Figure \ref{fig:attacked-system-plot} shows the result of such an attack, all but one of the red dashed $J$-estimates diverge from the actual state (the one that converges overlaps with the light blue line). The MO is able to correctly select the correct state estimate from the observer that uses the outputs $1,3$ and $4$ to construct its state estimate. The blue dashed lines show the $P$-estimators, each constructed with a single output. In this case three of them converge and the other two diverge. 
+
+Let us now break the condition as in Equation \eqref{eqn:MO-size-requirement} and attack more than half of the sensors. Figure \ref{fig:too-much-attacks-linear} shows the results, the MO gives completely unreliable estimates.
+
+We now add some noise to the sensors, Figure \ref{fig:noisy-attacked-system} shows the results. The $J$ and $P$-observers are not shown in the plot to better visualize the final estimate, which still tracks the state quite well. As can be seen in the top right plot showing the velocity of the first mass, the MO can choose the wrong estimate because of the noise. The selection procedure is misled by the noise, the correct $J$-estimate varies from its $P$-estimates because of the noise. It can happen that the noise causes a larger $\pi_j$ as in Equation \eqref{eqn:pi-j} than the attack signal. This results in an attacked estimator being selected as the final estimate in Equation \eqref{eqn:final-estimate}.\\
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{report/Figures/symplot_5o0a.png}
@@ -25,18 +30,23 @@ All MOs can be simulated under the same conditions and the results can be compar
     \label{fig:unattacked-system-plot}
 \end{figure}
 
-Let us now introduce the attack as in Figure \ref{fig:attack-diagram}, so outputs $2$ and $5$ are under attack. The attack signal $\tau_j=t,j=2,5$ is injected into both outputs. Figure \ref{fig:attacked-system-plot} shows the result of such an attack, all but one of the red dashed $J$-estimates diverge from the actual state (the one that converges overlaps with the light blue line). The MO is able to correctly select the correct state estimate from the observer that uses the outputs $1,3$ and $4$ to construct its state estimate. The blue dashed lines show the $P$-estimators, each constructed with a single output. In this case three of them converge and the other two diverge. 
-\newpage
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{report/Figures/symplot_5o2a}
-    \caption{An attacked noiseless double mass-spring-damper system and a multi-observer. Outputs 2 and 5 are under attack with attack signal $\tau=t$.} 
+    \caption{An attacked, noiseless, double mass-spring-damper system, observed by a SSMO. Outputs 2 and 5 are under attack with attack signal $\tau=t$.} 
     \label{fig:attacked-system-plot}
 \end{figure}
 
-\textcolor{red}{todo
-\begin{itemize}
-    \item noise
-    \item simulate different attacks
-\end{itemize}
-}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{report/Figures/symplot_5o3a.png}
+    \caption{An attacked, noiseless, double mass-spring-damper system observed by a 3D-CMO. Outputs 1,2 and 5 are under attack with attack signal $\tau=\sin(t)$}
+    \label{fig:too-much-attacks-linear}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{report/Figures/symplot_5o2a_noise.png}
+    \caption{An attacked, noisy double mass-spring-damper system, observed by a 3D-CMO. Outputs 2 and 5 are under attack with attack signal $\tau=\sin(t)$.}
+    \label{fig:noisy-attacked-system}
+\end{figure}
