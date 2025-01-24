@@ -1,5 +1,5 @@
 \section{Conventional multi-observer}\label{ch:cmo}
-In this section the CMO will be introduced and two implementations will be discussed. Let us first further elaborate on the what the CMO should achieve. Consider the case where a 'single'-observer \eqref{eqn:unstable-simple-state-estimator} is employed to construct the state estimate of system \eqref{eqn:standard-system}, where $w=0$ and $v=0$ (no noise). When an attacker gains control over some of the outputs $y_i$ and attacks it with the attack signal $\tau_i$. Performing the same analysis on the derivative of error \eqref{eqn:estimate-error} leads to
+In this section the CMO will be introduced and two implementations will be discussed, it is named \textit{conventional} to differentiate it from the state-sharing variant discussed in Chapter \ref{ch:ssmo}. Let us first further elaborate on the what the CMO should achieve. Consider the case where a 'single'-observer \eqref{eqn:unstable-simple-state-estimator} is employed to construct the state estimate of system \eqref{eqn:standard-system}, where $w=0$ and $v=0$ (no noise). When an attacker gains control over some of the outputs $y_i$ and attacks it with the attack signal $\tau_i$. Performing the same analysis on the derivative of error \eqref{eqn:estimate-error} leads to
 \begin{equation*}
     \begin{split}
         \dot{e} = \dot{\hat{x}} - \dot{x} &= A\hat{x} + Bu + L(C\hat{x} - Cx - \tau) - Ax - Bu \\
@@ -27,7 +27,7 @@ Let us define
         \mathcal{J} \subset \{1,2,\dots,N_O\}, \quad \mathcal{P} \subset \{1,2,\dots,N_O\}
     \end{split}
 \end{equation}
- as all sets with  $J=N_O-N_M$ and  $P=1$ elements respectively. In theory $P$ can also be taken as any value smaller than $J$, we restrict ourselves to systems that are fully observable trough any single output $y_i = C_ix$. The cardinalities of $\mathcal{J}$ and $\mathcal{P}$ are 
+ as all subsets of $\mathcal{N}$ with $J=N_O-N_M$ and  $P=1$ elements respectively. In theory $P$ can also be taken as any value smaller than $J$, we restrict ourselves to systems that are fully observable trough any single output $y_i = C_ix$. The cardinalities of $\mathcal{J}$ and $\mathcal{P}$ are 
 \begin{equation}\label{eqn:multi-observer-sizes}
     N_J = \cJ=\binom{N_O}{J}=\binom{N_O}{N_O-N_M}, \quad N_P = \cP = \binom{N_O}{P} = N_O.
 \end{equation}
@@ -40,8 +40,6 @@ We now define the $j=1,2,\dots,N_J$ $J$\textit{-observers} as
     \end{split}
 \end{equation*}
 where $j$ is a single combination out of all outputs and $L_j$ is an output injection gain that can be chosen in such a way to place the eigenvalues at a desired location if and only if the pair $(A,C_j)$ is observable. 
-
-For example when $N_O=5$ and $N_M=2$, a possible $j$ is $\{1,3,4\}$ or $\{2,3,5\}$. 
 \begin{example}
     Consider the system as in Equation \eqref{eqn:standard-system} where $N_O=5$ and $N_M=2$. These values indicate that $J=5-2=3$, which leads to the following possible $J$-observers 
     \begin{table}[H]
@@ -60,16 +58,7 @@ For example when $N_O=5$ and $N_M=2$, a possible $j$ is $\{1,3,4\}$ or $\{2,3,5\
         \caption{Possible values of $\mcJ_j$ for an observer with $N_O=5$ and $N_M=2$.}
         \label{tab:my_label}
     \end{table}
-    Let us take $j=4$, this would lead to the following state estimate
-    \begin{equation*}
-        \hat{x}^{\mcJ}_{4} =
-        \begin{bmatrix}
-            \hat{x}^{\mcJ}_{1} \\
-            \hat{x}^{\mcJ}_{3} \\
-            \hat{x}^{\mcJ}_{4} \\
-        \end{bmatrix}
-    \end{equation*}
-    and the output matrix
+    Let us take $j=4$, this would lead to the following output matrix
     \begin{equation*}
         C^{\mcJ}_{4} = 
         \begin{bmatrix}
@@ -91,30 +80,30 @@ Doing the same for the the $p=1,2,\dots,N_P$ $P$\textit{-observers} leads to
 \begin{equation}\label{eqn:cmo-single-P-observer}
     \dot{\hat{x}}_p^{\mcP} = (A + L_p^{\mcP}C_p^{\mcP})\hat{x}_p^{\mcP} - L_p^{\mcP}C_p^{\mcP}x + Bu - L_p^{\mcP}(v_p^{\mcP} + \tau_p^{\mcP}).
 \end{equation}
-Where $C_p$ and $C_i$ are the rows. All observers in \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer} form a \textit{multi-observer}. Note that for a system with $N_M$ the largest possible number so that $N_O > 2N_M$, there is exactly one possible combination with $J$ elements out of all $N_J$ possible combinations that does not contain any of the $N_M$ attacked outputs. We now need to derive a method to select this one attack free observer from all observers. That is where the $P$-observers become relevant.
+All observers in \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer} form a multi-observer. Note that for a system with $N_M$ the largest possible number so that $N_O > 2N_M$, there is exactly one possible combination with $J$ elements out of all $N_J$ possible combinations that does not contain any of the $N_M$ attacked outputs. We now need to derive a method to select this one attack free observer from all observers. That is where the $P$-observers become relevant.
 
 \subsection{Final estimate selection procedure}
 \label{subsec:estimate-selection}
-Now that all state estimates are constructed, a 'final' estimate $\hat{x}$ needs to be selected from all $\hat{x}_j^{\mcJ}$ First, a comparison will be made between all $J$-observers and the $P$-observers that are \textit{sub-observers}, implying that all outputs used to construct the state estimate $\hat{x}_p^{\mcP}$ are also used in the state estimate $\hat{x}_j^{\mcJ}$. For example, when $N_O=4$ $N_M=1$ one of the $J$-observer uses $j=\{1,2,4\}$ as outputs. The $P$-estimates would be constructed with $p \in \{1,2,4\}$. Let us define 
-\begin{equation*}
+Now that all state estimates are constructed, a 'final' estimate $\hat{x}$ needs to be selected from all $\hat{x}_j^{\mcJ}$ First, a comparison will be made between all $J$-observers and the $P$-observers that are \textit{sub-observers}, implying that all outputs used to construct the state estimate $\hat{x}_p^{\mcP}$ are also used in the state estimate $\hat{x}_j^{\mcJ}$. For example, when $N_O=4$ $N_M=1$ one of the $J$-observer uses $\mcJ_2=\{1,2,4\}$ as outputs. The $P$-estimates would be constructed with $\mcP_p \in \{1,2,4\}$. Let us define 
+\begin{equation}\label{eqn:pi-j}
    \pi_{j} = \max_{p \subset j} |\hat{x}^{\mcJ}_{j} - \hat{x}^{\mcP}_{p}|
-\end{equation*}
-so the largest difference between the $j$-estimate and its $p$-estimates, where the $p$-observers are all a sub-observers of the $j$-observer. We now collect all $\pi_j$ in
+\end{equation}
+which is the largest difference between a single $J$-estimate and its $P$-estimates, where the $p$-observers are all sub-observers of the $j$-observer. We now collect all $\pi_j$ in
 \begin{equation*}
    \pi_{\mathcal{J}} = \max_{\mathcal{P} \subset \mathcal{J}} |\hat{x}^{\mathcal{J}} - \hat{x}^{\mathcal{P}}|
 \end{equation*}
 
 where $\hat{x}^{\mathcal{J}}$ are all state estimates from \eqref{eqn:cmo-single-J-observer} and $\hat{x}^{\mathcal{P}}$ are all sub-observers of each $j \in \mcJ$. Let us now choose the smallest $\pi_J$
-\begin{equation}
+\begin{equation*}
     \sigma = {\arg \min}(\pi_{\mathcal{J}}), \quad \sigma \subset \{1,2,\dots,N_J\}.
-\end{equation}
+\end{equation*}
 We can now select the final state estimate as
-\begin{equation}
+\begin{equation}\label{eqn:final-estimate}
     \hat{x} = \hat{x}^{\mcJ}_{\sigma}.
 \end{equation}
 This selection procedure selects the observer which has the smallest difference between itself and its sub-observers. Figure \ref{fig:cmo-diagram} shows a schematic representation of a CMO.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}[
         node distance=1.5cm,
@@ -194,27 +183,33 @@ and
             B & 0 & \cdots & 0 & 0 & \cdots & -L_{N_P}^{\mcP} \\
         \end{bmatrix}
 \end{equation}
-The implementation of the $\tilde{A}_{2D}$ matrix was inspired by \cite[Equation 16.10]{Hespanha2018LinearTheory}. Where instead of calculating the error $e$, state estimates $\hat{x}$ are calculated. This will not provide the benefits of the \textit{separation theorem} \cite[Theorem 16.12]{Hespanha2018LinearTheory} when feedback control is applied. The $\tilde
-{A}_{2D}$ matrix stores  all $J$- and $P$-estimates: the top section stores the $J$-observers and on the bottom the $P$-observers. Multiplying this ${A}_{2D}$ matrix by $\tilde{x}_{2D}$ leads to the state estimators presented in \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer} without inputs, noise and attacks. The vector $\eta$ stacks the input and sum of sensor noise and attack signal on top of each other and the matrix $F_{2D}$ stores all factors that need to be multiplied with $\eta$ to arrive at \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer}. For convenience we define
+The implementation of the $\tilde{A}_{2D}$ matrix was inspired by \cite[Equation 16.10]{Hespanha2018LinearTheory}. Where instead of calculating the error $e$, state estimates $\hat{x}$ are calculated. This will not provide the benefits of the \textit{separation theorem} \cite[Theorem 16.12]{Hespanha2018LinearTheory} when feedback control is applied. It could be beneficial to change the structure of the CMO in order to take into account the separation theorem. The $\tilde {A}_{2D}$ matrix stores  all $J$- and $P$-estimates: the top section stores the $J$-observers and on the bottom the $P$-observers. Multiplying this ${A}_{2D}$ matrix by $\tilde{x}_{2D}$ leads to the state estimators presented in \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer} without inputs, noise and attacks. The vector $\eta_{2D}$ stacks the input and sum of sensor noise and attack signal on top of each other and the matrix $F_{2D}$ stores all factors that need to be multiplied with $\eta_{2D}$ to arrive at \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer}. We will now derive the number of elements used in the 2D-CMO, where the number of elements is the 'number of numbers' that need to be stored in all matrices need to realize the MO. For convenience we define
 \begin{equation*}
     N_S = N_J + N_P,
 \end{equation*}
-the total number of observers.
-\begin{table}[h]
+the total number of observers. The sizes of $F_{2D}$ and $\eta_{2D}$ are not taken as in Equation \eqref{eqn:2D-CMO-F-eta}, since the noise and attack signal would not be required in a real-world implementation. The matrices used in the dimenions used in Table \ref{tab:2D-CMO-dimensions} are
+\begin{equation*}
+    \eta_{2D} = u, \quad 
+    F_{2D} = 
+    \begin{bmatrix}
+        B^{T} & B^{T} & \cdots & B^{T} \\
+    \end{bmatrix}^{T}_{n_xN_S \times n_u}
+\end{equation*}
+
+\begin{table}[H]
     \centering
     \begin{tabular}{|c|c|c|}
        \toprule
        Matrix  & Dimensions & Number of elements \\ \midrule
        $\Tilde{x}_{2D}$  & $n_xN_S \times 1$ & $n_xN_S$ \\
        $\Tilde{A}_{2D}$ & $n_xN_S \times n_xN_S$ & $n_x^2N_S^2$ \\
-       $F_{2D}$ & $n_u \times N_S$ & $n_uN_S$ \\
-       $u_{2D}$ & $n_u \times N_S$ & $n_uN_S$ \\
+       $F_{2D}$ & $n_xN_S \times n_u$ & $n_xn_uN_S$ \\
+       $\eta_{2D}$ & $n_u \times 1$ & $n_u$ \\
        \bottomrule
     \end{tabular}
     \caption{2D-CMO system matrix dimensions}
     \label{tab:2D-CMO-dimensions}
 \end{table}
-
 
 \subsubsection{3D conventional multi-observer}\label{subsec:3DCMO-architecture}
 Now the second implementation of the CMO will be discussed. The goal of the 3D-CMO is to reduce the number of zeros as compared to the matrix $\Tilde{A}_{2D}$ as in Equation \eqref{eqn:2D-CMO-A-x}. In order to do so we store all block matrices behind each other. Let us start by defining 
@@ -229,7 +224,7 @@ Now the second implementation of the CMO will be discussed. The goal of the 3D-C
         
             \matrix (mxP) [draw,matrix of math nodes]
                 {
-                \hat{x}_{\cP}^{\mcP} \\
+                \hat{x}_{N_P}^{\mcP} \\
                 };
         
             \matrix (dots2) [draw,matrix of math nodes] at ($(mxP.south west)+(displacement)$)
@@ -315,14 +310,16 @@ Now the second implementation of the CMO will be discussed. The goal of the 3D-C
         \end{equation}
     \end{minipage}
 \end{center}
-$\tilde{x}_{3D}$ is similar to $\tilde{x}_{2D}$ \eqref{eqn:2D-CMO-A-x}, where the state $x$ and all its state estimates are stored below each other. Let us now define some basic notation, similar to Matlab notation, regarding three-dimensional arrays. We will define a \textit{page} of a 3D array as a single 2D slice from that array, these slices can be taken from any 2 dimensions present in the 3D array. Let us define $G \in \mathbb{R}^{2 \times 3 \times 4}$, slicing the first page along the third dimension will be denoted as $G(:,:,1)$ and the third page along the first dimension as $G(2,:,:)$. The slices that can be seen in equation \eqref{eqn:A-tilde-3D} are sliced along the third dimension. \\
+$\tilde{x}_{3D}$ is similar to $\tilde{x}_{2D}$ \eqref{eqn:2D-CMO-A-x}, where the state $x$ and all its state estimates are stored below each other. Let us now define some basic notation, similar to Matlab notation, regarding three-dimensional arrays. We will define a \textit{page} of a 3D array as a single 2D slice from that array, these slices can be along any dimension in the 3D array. Let us define $G \in \mathbb{R}^{2 \times 3 \times 4}$, slicing the third page along the third dimension will be denoted as $G(:,:,3)$ and the second page along the first dimension as $G(2,:,:)$. The slices that can be seen in equation \eqref{eqn:A-tilde-3D} are sliced along the third dimension. \\
+
+\newpage
 \begin{example}
 Let us define
-    \begin{center}
+\begin{center}
     \begin{minipage}[t]{0.4\textwidth}
         \centering
         % Second tikzpicture
-        \begin{equation*}\label{eqn:A-tilde-3D}
+        \begin{equation*}
             \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=2.2cm,minimum height=7mm}]
             
             % Define the displacement as a coordinate
@@ -360,7 +357,7 @@ Let us define
             \draw[dashed](s1.north west)--(s4.north west);
             \draw[dashed](s1.south east)--(s4.south east);
         
-            \node at ($(-5,-1.75)$) {$G=$};
+            \node at ($(-5,-1.5)$) {$G=$};
             
             \end{tikzpicture}
         \end{equation*}
@@ -371,12 +368,72 @@ The sliced page
     G\text{(:,:,3)} =
     \begin{bmatrix}
         2 & 7 & 3 \\ 2 & 9 & 7 \\
-    \end{bmatrix}.
+    \end{bmatrix}
 \end{equation*}
+and
+\begin{center}
+    \begin{minipage}[t]{0.4\textwidth}
+        \centering
+        % Second tikzpicture
+        \begin{equation*}
+            \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=2.2cm,minimum height=7mm}]
+            
+            % Define the displacement as a coordinate
+            \coordinate (displacement) at (1.8,0.3);
+        
+            \matrix (s4) [draw,matrix of math nodes]
+                {
+                \begin{matrix}
+                    5 & 2 & 7 \\
+                \end{matrix} \\
+                };
+        
+            \matrix (s3) [draw,matrix of math nodes] at ($(s4.south west)+(displacement)$)
+                {
+                \begin{matrix}
+                    2 & 9 & 7 \\
+                \end{matrix} \\
+                };
+        
+            \matrix (s2) [draw,matrix of math nodes] at ($(s3.south west)+(displacement)$)
+                {
+                \begin{matrix}
+                    9 & 2 & 5 \\
+                \end{matrix} \\
+                };
+        
+            \matrix (s1) [draw,matrix of math nodes] at ($(s2.south west)+(displacement)$)
+                {
+                \begin{matrix}
+                    7 & 1 & 6 \\
+                \end{matrix} \\
+                };
+            
+            \draw[dashed](s1.north east)--(s4.north east);
+            \draw[dashed](s1.north west)--(s4.north west);
+            \draw[dashed](s1.south east)--(s4.south east);
+        
+            \node at ($(-4,-.8)$) {$G\text{(2,:,:)}=$};
+            
+            \end{tikzpicture}
+        \end{equation*}
+    \end{minipage}
+\end{center}
 \end{example}
 
-$\tilde{A}_{3D}$ stores all elements on the diagonal of $\tilde{A}_{2D}$ \eqref{eqn:2D-CMO-A-x} on a separate page of a 3D array. Let us now define the operation \textit{page multiplication}, this operation can be performed on two 3D arrays that have (at least) one equal dimension and pages sliced along this equal dimension result in two matrices that can be multiplied. Or one 3D matrix and a 2D matrix where slicing the 3D matrix along the desired dimension results in slices that can be multiplied with the 2D matrix. This operation is analogous with the Matlab function \texttt{pagemtimes} \cite{2022MATLABR2022b}. In this report a page multiplication of two  matrices $A$ and $B$ along the third dimension will be denoted as $ \pamu(A,B,3)$. \\
-Another operation is required for the summands that are equal for each observer, $Bu$ and $E\phi(y)$. The multiplication only has to be performed once and the resultant matrix $M$ should be repeated along the third dimension $n$ times. This operation is analogous to the Matlab function \texttt{repmat}(M,1,1,n) \cite{2022MATLABR2022b}. In this report this function will be denoted as \texttt{rep}(M,n), where the ones indicating the number of repetitions are omitted. Let us now define
+$\tilde{A}_{3D}$ stores all elements on the diagonal of $\tilde{A}_{2D}$ \eqref{eqn:2D-CMO-A-x} on a separate page of a 3D matrix. Let us now define the operation \textit{page multiplication}, this operation can be performed on two 3D arrays that have (at least) one equal dimension and pages sliced along this equal dimension result in two matrices that can be multiplied. In this report a page multiplication of two  matrices $A$ and $B$ along the third dimension will be denoted as $\pamu(A,B,3)$.
+\begin{equation}\label{eqn:page-multiplication}
+    \pamu(A,B,3) \implies C\text{(:,:,i)} =  A\text{(:,:,i)}B\text{(:,:,i)}, \quad i=1,2,\dots,n_3
+\end{equation}
+where
+\begin{equation*}
+    A \in \mathbb{R}^{n_{a_1} \times n_{a_2} \times n_3}, \quad B \in \mathbb{R}^{n_{b_1} \times n_{b_2} \times n_3}, \quad C \in \mathbb{R}^{n_{a_1} \times n_{b_2} \times n_3}, \quad n_{a_2} = n_{b_1}.
+\end{equation*}
+This operation is analogous with the Matlab function \texttt{pagemtimes} \cite{2022MATLABR2022b}. Another operation is required for the summands that are equal for each observer, $Bu$. The multiplication only has to be performed once and the resultant matrix $M$ should be repeated along the third dimension $n$ times. Let us define page multiplication as follows
+\begin{equation}\label{eqn:page-repetition}
+    \texttt{rep}\text{(}M\text{,n,3)} \implies K\text{(:,:,i)} = M, \quad i=1,2,\dots,n
+\end{equation}
+This operation is analogous to the Matlab function \texttt{repmat}(M,1,1,n) \cite{2022MATLABR2022b}. Let us now define
 
 \begin{center}
     \begin{minipage}[t]{0.4\textwidth}
@@ -529,12 +586,10 @@ and
 \end{center}
 
 We can now construct all observers \eqref{eqn:cmo-single-J-observer} and \eqref{eqn:cmo-single-P-observer} with the 3D matrices \eqref{eqn:x3d},\eqref{eqn:A-tilde-3D},\eqref{eqn:F-3d},\eqref{eqn:L-3d} and \eqref{eqn:eta-3d}
-
 \begin{equation*}
-    \dot{\tilde{x}}_{3D} = \pamu(\tilde{A}_{3D},\tilde{x}_{3D},3) - \pamu(F_{3D},x,3) - \pamu(L_{3D},\eta_{3D},3) + \texttt{rep}(Bu,N_S).
+    \dot{\tilde{x}}_{3D} = \pamu(\tilde{A}_{3D},\tilde{x}_{3D},3) - \pamu(F_{3D},x,3) - \pamu(L_{3D},\eta_{3D},3) + \texttt{rep}(Bu,N_S)
 \end{equation*}
-
-Let us now look at the sizes of all matrices that are required for state estimation. The matrices $L_{3D}$ and $\eta_{3D}$ are not taken into account, since they are only used to model the state estimators and would not be required in a physical implementation.
+with page multiplication and repetition as in Equations \eqref{eqn:page-multiplication} and \eqref{eqn:page-repetition} respectively. Let us now look at the sizes of all matrices that are required for state estimation. The matrices $L_{3D}$ and $\eta_{3D}$ are not taken into account, since real-world implementation.
 \begin{table}[h]
     \centering
     \begin{tabular}{|c|c|c|}
@@ -552,7 +607,7 @@ Let us now look at the sizes of all matrices that are required for state estimat
 
 
 \subsection{Number of observers}
-From the combinatoric nature of equation \eqref{eqn:multi-observer-sizes} it can be seen that the number of observers required to provide the secure state-estimate grows rapidly with the number of outputs $N_O$. Let us look more closely at $\cJ$ when $N_M$ is the largest integer so that $N_O>2N_M$ holds and thus equation \eqref{eqn:multi-observer-sizes} holds.
+From the combinatoric nature of Equation \eqref{eqn:multi-observer-sizes} it can be seen that the number of observers required to provide the secure state-estimate grows rapidly with the number of outputs $N_O$. Let us look more closely at $N_J$ when $N_M$ is the largest integer so that $N_O>2N_M$ holds and thus Equation \eqref{eqn:multi-observer-sizes} holds.
 \begin{equation*}
     \begin{split}
         N_J &= \binom{N_O}{N_O-N_M}  = \frac{N_O!}{(N_O-M)!N_M!} = \binom{N_O}{N_M} \\
@@ -574,7 +629,7 @@ This requires taking a factorial of a non-integer, which is not defined. We ther
 \begin{equation}\label{eqn:stirlings-formula}
     n! \sim \sqrt{2\pi n} \left( \frac{n}{e} \right)^n,
 \end{equation}
-where the $\sim$ implies that the ratio between the two sides of the equation approaches $1$ as $N_O \rightarrow \infty$. A table comparing the values of the combination and Stirling's approximation can be found in Appendix \ref{ap:matlab-code}. Let us now substitute \eqref{eqn:stirlings-formula} into \eqref{eqn:simplified-NS}
+where the $\sim$ implies that the ratio between the two sides of the equation approaches $1$ as $N_O \rightarrow \infty$. A table comparing the values of the combination and Stirling's approximation can be found in Appendix \ref{ap:matlab-code}. Let us now substitute Equation \eqref{eqn:stirlings-formula} into Equation \eqref{eqn:simplified-NS}
 \begin{equation*}
     \begin{split}
         N_S \approx  \frac{\sqrt{2 \pi N_O}( \frac{N_O}{e} )^{N_O}}{\left( \sqrt{\pi N_O}(\frac{1}{2} \frac{N_O}{e} )^{\frac{1}{2}N_O} \right)^2} &= \frac{\sqrt{2 \pi N_O}}{\pi N_O} \frac{( \frac{N_O}{e} )^{N_O}}{(\frac{1}{2} \frac{N_O}{e} )^{N_O}} = \sqrt{\frac{2}{\pi N_O}} \frac{( \frac{N_O}{e} )^{N_O}}{(\frac{1}{2})^{N_O} (\frac{N_O}{e} )^{N_O}} \\
@@ -584,4 +639,4 @@ which can be further simplified into
 \begin{equation}\label{eqn:NS-approximation}
     N_S \approx \sqrt{\frac{2}{\pi N_O}}2^{N_O}
 \end{equation}
-From equation \eqref{eqn:NS-approximation} we can conclude that the amount of observers required for secure state estimation scales with approximately $2^{N_O}$ when $N_P=1$, which is not favourable.
+From Equation \eqref{eqn:NS-approximation} we can conclude that the amount of observers required for secure state estimation scales with approximately $N_O^{-\frac{1}{2}}2^{N_O}$ when $N_P=1$, which is not favourable.

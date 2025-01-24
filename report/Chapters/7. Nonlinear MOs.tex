@@ -1,34 +1,34 @@
 \section{Nonlinear multi-observers}\label{ch:nonlinear-mos}
-In this chapter the issues with MOs applied on nonlinear systems will be discussed. We will employ an MO on system \eqref{eqn:standard-system} which will be repeated here for clarity
+In this chapter the issues with MOs applied on nonlinear systems will be discussed. We will employ an MO on system \eqref{eqn:standard-system}, which will be repeated here for readability
 \begin{equation*}
     \begin{split}
-        \dot{x}(t) &= Ax(t) + Bu(t) + E\phi(x) \\
+        \dot{x}(t) &= Ax(t) + Bu(t) + E\phi(H_xx) \\
         y_i(t) &= C_ix(t) + Du(t) + v_i(t) + \tau_i(t) \quad i \in \mathcal{N} = \{1,2,\dots,N_O\}.
     \end{split}
 \end{equation*}
-First the observers will be extended with the aim of correctly observing the state of system \eqref{eqn:standard-system} when less then half of the sensors are under attack (the same boundary condition as discussed in Chapter \ref{ch:cmo}).
+The observers will be extended with the aim of correctly observing the state of system \eqref{eqn:standard-system} when less then half of the sensors are under attack (the same boundary condition as discussed in Chapter \ref{ch:cmo}).
 
 \subsection{Extending the state-estimates}
-Let us extend the MO to also observe nonlinear systems as a single observer in Equation \eqref{eqn:nonlinear-single-observer}. First $H_x$ \eqref{eqn:Hx} has to be adapted to facilitate a nonlinearity $\phi$ as an input
+Let us extend the MO to also observe nonlinear systems as a single observer in Equation \eqref{eqn:nonlinear-single-observer}. First $H_x$ as in Equation \eqref{eqn:Hx} has to be adapted to facilitate a nonlinearity $\phi$ with $y$ as an input
 \begin{equation}\label{eqn:Hy}
     H_y = 
     \begin{bmatrix}
-        1 & 0 & 0 & \cdots & 0 \\
-        -1 & 1 & 0 & \cdots & 0 \\
-        -1 & -1 & 1 & \cdots & 0 \\
-        \vdots & \vdots & \vdots & \ddots & \vdots \\
-        -1 & -1 & -1 & \cdots & 1 
-    \end{bmatrix}_{n_y \times n_y}.
+        1 & 0 & 0 & \cdots & 0 & \cdots & 0 \\
+        -1 & 1 & 0 & \cdots & 0 & \cdots & 0 \\
+        -1 & -1 & 1 & \cdots & 0 & \cdots & 0 \\
+        \vdots & \vdots & \vdots & \ddots & \vdots &  & \vdots \\
+        -1 & -1 & -1 & \cdots & 1 & \cdots & 0 \\
+    \end{bmatrix}_{n_\phi \times n_y}.
 \end{equation}
 The multiplication $H_yy$ now gives all relative positions
 \begin{equation*}
     H_yy =
     \begin{bmatrix}
-        1 & 0 & 0 & \cdots & 0 \\
-        -1 & 1 & 0 & \cdots & 0 \\
-        -1 & -1 & 1 & \cdots & 0 \\
-        \vdots & \vdots & \vdots & \ddots & \vdots \\
-        -1 & -1 & -1 & \cdots & 1 
+        1 & 0 & 0 & \cdots & 0 & \cdots & 0 \\
+        -1 & 1 & 0 & \cdots & 0 & \cdots & 0 \\
+        -1 & -1 & 1 & \cdots & 0 & \cdots & 0 \\
+        \vdots & \vdots & \vdots & \ddots & \vdots &  & \vdots \\
+        -1 & -1 & -1 & \cdots & 1 & \cdots & 0 \\
     \end{bmatrix}
     \begin{bmatrix}
         y_1 \\ y_2 \\ y_3 \\ \vdots \\ y_{n_y} \\
@@ -39,17 +39,17 @@ The multiplication $H_yy$ now gives all relative positions
         y_2 - y_1 \\
         y_3 - y_2 - y_3 \\
         \vdots \\
-        y_{n_y} - y_{n_y-1} - \cdots - y_2 - y_1 \\
+        y_{n_\phi} - y_{n_\phi-1} - \cdots - y_2 - y_1 \\
     \end{bmatrix}.
 \end{equation*}
-Let us extend the observers as in Equations \eqref{eqn:cmo-single-J-observer}
+Let us extend the observers as in Equation \eqref{eqn:cmo-single-J-observer}
 \begin{equation}\label{eqn:nonlinear-mo}
     \begin{split}
         \dot{\hat{x}}_{j}^{\mcJ} &= (A + L_{j}^{\mcJ}C_{j}^{\mcJ})\hat{x}^{\mcJ}_{j} - L_{j}^JC_{j}^{\mcJ}x + Bu + E\phi(H_{y}y) - L_{j}^{\mcJ}(v_{j}^{\mcJ} + \tau_{j}^{\mcJ}) \\
         \dot{\hat{x}}_{p}^{\mcP} &= (A + L_{p}^{\mcP}C_{p}^{\mcP})\hat{x}^{\mcP}_{p} - L_{p}^JC_{p}^{\mcP}x + Bu + E\phi(H_{y}y) - L_{p}^{\mcP}(v_{p}^{\mcP} + \tau_{p}^{\mcP}),
     \end{split}
 \end{equation}
-where $j=1,2,\dots,N_J$ and $p=1,2,\dots,N_P$. The resulting observer in Equation \ref{eqn:nonlinear-mo} is analogous to the observer in \cite[Equation 5]{Chong2023MemoryAlgorithms}. In this case the nonlinearity is output dependent, the full $y$ is used as input and not the subset that corresponds to the the specific $p$ or $j$. This has some implications in the SSE context, where some $y_i$ are corrupted. If the $y_i$ that happens to be used by the nonlinearity $\phi(H_yy)$ is attacked, all state estimates become corrupted.
+where $j=1,2,\dots,N_J$ and $p=1,2,\dots,N_P$. The resulting observer in Equation \eqref{eqn:nonlinear-mo} is analogous to the observer in \cite[Equation 5]{Chong2023MemoryAlgorithms}. In this case the nonlinearity is output dependent, the full $y$ is used as input and not the subset that corresponds to the the specific $p$ or $j$. This has some implications in the SSE context, where some $y_i$ are corrupted. If the $y_i$ that happens to be used by the nonlinearity $\phi(H_yy)$ is attacked, all state estimates become corrupted.
 
 \begin{example}\label{ex:nonlinear-issue}
     Let us work through an example to clarify this issue, consider system \eqref{eqn:example-system} as defined in Example \ref{ex:system}, where we change $C$ to have $N_O=6$ outputs
@@ -64,7 +64,7 @@ where $j=1,2,\dots,N_J$ and $p=1,2,\dots,N_P$. The resulting observer in Equatio
             1 & 0 & 1 & 0 \\
         \end{bmatrix}.
     \end{equation}
-    This means there are 3 copies of each sensor. The nonlinear spring as in Equation \eqref{eqn:nonlinear-spring} uses the spring constants and positions of each individual mass as input. Since we now have three copies of each position sensor we can select any combination of two sensors measuring a different position. Let us select the first two sensors, $y_1$ and $y_2$ by slicing the $H_y$ matrix \eqref{eqn:Hy}
+    This means there are 3 copies of each sensor. The nonlinear spring as in Equation \eqref{eqn:nonlinear-spring} uses the spring constants and positions of each individual mass as input. Since we now have three copies of each position sensor we can select any combination of two sensors measuring a different position. Let us select the first two sensors, $y_1$ and $y_2$ by slicing the $H_y$ matrix in Equation \eqref{eqn:Hy}
     \begin{equation*}
         H_y = 
         \begin{bmatrix}
@@ -111,16 +111,41 @@ Both Figures \ref{fig:nonlinear-functional} and \ref{fig:nonlinear-not-functiona
 \subsection{Investigating the nonlinear issue}\label{subsec:investigating-nonlinear-issue}
 As discussed in Example \ref{ex:nonlinear-issue} the issue arises because the observers' nonlinear extension does not employ any intelligent logic in choosing which outputs are used to calculate the nonlinear contribution. The nonlinearity $\phi(H_yy)$ should either 'know' which $y_i$ are corrupted and avoid them, which is contradictory with the demands of SSE. Or it should be able to provide a correct state estimate even with an unknown subset of sensors under attack. Let us now discuss the implications and difficulties of this issue for both the 3D-CMO and the SSMO, we will not consider the 2D-CMO in this section. 
 
-Let us start with the SSMO, the shared state is calculated as in Equation \eqref{eqn:ssmo-z} which we repeat for readability
+Let us start with the SSMO, the nonlinear extension to the SSMO is presented in \cite{Chong2023MemoryAlgorithms} and is as follows
+\begin{equation*}
+    \begin{split}
+        \dot{\hat{x}}_{j}^{\mcJ} &= \A_{j}^{\mcJ}\hat{x}_{j}^{\mcJ} + \B_{j}^{\mcJ}\eta_{j}^{\mcJ}, \quad
+        \B_{j}^{\mcJ} =
+        \begin{bmatrix}
+            E & B & -\Tilde{L}_{j}^{\mcJ} \\
+        \end{bmatrix}, \quad \eta_j =
+        \begin{bmatrix}
+            \phi(H_yy) \\
+            u \\
+            C_{j}^{\mcJ}x_{j}^{\mcJ} + v_{j}^{\mcJ} + \tau_{j}^{\mcJ}
+        \end{bmatrix} \\ 
+        \dot{\hat{x}}_{p}^{\mcP} &= \A_{p}^{\mcP}\hat{x}_{p}^{\mcP} + \B_{p}^{\mcP}\eta_{p}^{\mcP}, \quad
+        \B_{p}^{\mcP} =
+        \begin{bmatrix}
+            E & B & -\Tilde{L}_{p}^{\mcP} \\
+        \end{bmatrix}, \quad \eta_p =
+        \begin{bmatrix}
+            \phi(H_yy) \\
+            u \\
+            C_{p}^{\mcP}x_{p}^{\mcP} + v_{p}^{\mcP} + \tau_{p}^{\mcP}
+        \end{bmatrix}.
+    \end{split}
+\end{equation*}
+The derivation of the shared matrices in Equation \eqref{eqn:ssmo-standard-system-form} remains the same as in Appendix \ref{ap:ssmo-transformation-matrix}. We repeat Equation \eqref{eqn:ssmo-standard-system-form} here for readability
 \begin{equation*}
     \dot{z} = \mathbf{A}z + \mathbf{B}\eta, \quad \eta = 
     \begin{bmatrix}
-        u \\ y
+        \phi(H_yy) \\ u \\ y
     \end{bmatrix}.
 \end{equation*}
 The nonlinearity no longer appears in this structure, since it is taken into account during construction of the shared $\mathbf{B}$ matrix. The input to the nonlinear function $\phi(H_yy)$ is also 'hidden' behind the shared state. We cannot try different combinations of sensors $y_i$ because we only calculate a single state $z$, which uses a single external input $\eta$ with the full output $y$.
 
-We now continue with the 3D-CMO, which has more control over each individual state estimate $\hat{x}^{\mcJ/\mcP}_{j/p}$. Since every observer is calculated separately, a different nonlinear contribution can be used for every observer.
+We now continue with the 3D-CMO, which has more control over each individual state estimate $\hat{x}^{\mcJ}_{j}$ and $\hat{x}^\mcP_p$. Since every observer is calculated separately, a different nonlinear contribution can be used for every observer.
 \begin{equation}\label{eqn:ext-NL-observer}
     \begin{split}
         \dot{\hat{x}}_{j}^{\mcJ} &= (A + L_{j}^{\mcJ}C_{j}^{\mcJ})\hat{x}^{\mcJ}_{j} - L_{j}^JC_{j}^{\mcJ}x + Bu + E\phi(H^{\mcJ}_yy^{\mcJ}_{j}) - L_{j}^{\mcJ}(v_{j}^{\mcJ} + \tau_{j}^{\mcJ}) \\
@@ -144,9 +169,9 @@ where
         -1 & -1 & 1 & \cdots & 0 & \cdots & 0 \\
         \vdots & \vdots & \vdots & \ddots & \vdots &  & \vdots \\
         -1 & -1 & -1 & \cdots & 1 & \cdots & 0 \\
-    \end{bmatrix}_{P \times n_y}
+    \end{bmatrix}_{n_\phi \times P}
 \end{equation*}
-The nonlinear contribution $E\phi(H^{\mcJ/\mcP}_yy^{\mcJ/\mcP}_{j/p})$ uses the subset $j$ or $p$ as input to the function $\phi(H_yy)$. Let us work out two examples that clarify some of the implications this extended 3D-CMO has. We start with an example that investigates a system where $\phi(H_yy)$ is dependent only on one measured state variable.
+The nonlinear contributions $E\phi(H^{\mcJ}_yy^{\mcJ}_{j})$ and $E\phi(H^{\mcP}_yy^{\mcP}_{p})$ use the subset $j$ or $p$ as input to the function $\phi(H_yy)$. Let us work out two examples that clarify some of the implications this extended 3D-CMO has. We start with an example that investigates a system where the nonlinearity is dependent only on one measured state variable.
 
 \begin{example}\label{ex:single-mass-nonlinear-example}
     Consider the system as in Equation \eqref{eqn:standard-system} with system matrices
@@ -169,7 +194,7 @@ The nonlinear contribution $E\phi(H^{\mcJ/\mcP}_yy^{\mcJ/\mcP}_{j/p})$ uses the 
             0 \\ -1 \\
         \end{bmatrix},   
     \end{equation*}
-    as derived from the general mass-spring-damper described in Chapter \ref{ch:system-definition}.  The nonlinearity looks like
+    as derived from the general mass-spring-damper described in Chapter \ref{ch:system-definition}.  The nonlinearity is
     \begin{equation*}
         \begin{split}
             \phi(H^{\mcJ}_{y}y^{\mcJ}_{y}) &= F^{NL}_s(y^{\mcJ}_{1}) \\
@@ -217,14 +242,18 @@ Let us now investigate a scenario where the nonlinearity $\phi(y)$ depends on mu
             1 & 0 & 0 & 0 \\
         \end{bmatrix}.
     \end{equation*}
-    The $H$ matrices are again sliced from \eqref{eqn:Hy} as
+    The size of the $P$-observers is increased to $P=2$ and the $H$ matrices are again sliced from \eqref{eqn:Hy} as
     \begin{equation*}
         H^{\mcJ}_y =
         \begin{bmatrix}
             1 & 0 & 0 \\
             -1 & 1 & 0 \\
         \end{bmatrix}, \quad
-        H^{\mcP}_y = 1     
+        H^{\mcP}_y = 
+        \begin{bmatrix}
+            1 & 0 \\
+            -1 & 1 
+        \end{bmatrix}
     \end{equation*}
     which leads to
     \begin{equation*}
@@ -245,7 +274,7 @@ Let us now investigate a scenario where the nonlinearity $\phi(y)$ depends on mu
         \caption{Double nonlinear mass-spring-damper with outputs 2 and 4 under attack.}
         \label{fig:extended_nonlinear_not_functional}
     \end{figure}
-    Let us now expand the number of outputs to $N_O=6$, and use the exact same system as in Equations \eqref{eqn:NL-ex-C-6out},\eqref{eqn:NL-ex-E-6out} and \eqref{eqn:NL-ex-phi-6out} as in Example \ref{ex:nonlinear-issue}. We now use the observer as in Equation \eqref{eqn:ext-NL-observer} and attack the system with the attack signal $\tau_k=t,k \in \mathcal{M},\mathcal{M}=\{4,6\}$ \textcolor{red}{ugly}.
+    Let us now expand the number of outputs to $N_O=6$, and use the exact same system as in Equations \eqref{eqn:NL-ex-C-6out},\eqref{eqn:NL-ex-E-6out} and \eqref{eqn:NL-ex-phi-6out} as in Example \ref{ex:nonlinear-issue}. We now use the observer as in Equation \eqref{eqn:ext-NL-observer} and attack the system with the attack signal $\tau_k=t,k \in \mathcal{M},\mathcal{M}=\{4,6\}$.
     \begin{figure}[H]
         \centering
         \includegraphics[width=\linewidth]{report/Figures/extended-nonlinear-functional.png}
@@ -254,7 +283,7 @@ Let us now investigate a scenario where the nonlinearity $\phi(y)$ depends on mu
     \end{figure}
     The state estimates in Figure \ref{fig:extended-nonlinear-functional} look to be tracking the true state much better. The MO now functions correctly because the state estimate using $j=\{1,2,3,5\}$ has the uncorrupted outputs $1$ and $2$ as input to $\phi(y)$ as in Equation \eqref{eqn:NL-ex-phi-6out}.
 \end{example}
-The attacked outputs in Example \ref{ex:ext-NL-double-mass} have, of course, been carefully chosen to provide the correct results. Had we attacked outputs $2$ and $4$ in the $N_O=6$ case, no correct state estimate could have been provided. This happens because the nonlinearity $\phi(y)$ in the example takes the first two entries of $y^{\mcJ/\mcP}_{j/p}$ irrespective of what the sensor measures. So if outputs $2$ and $4$ are attacked, even the fully uncorrupted set of outputs $j=\{1,3,5,6\}$ does not provide a correct state estimate. Because $\phi(y)$ is only considers outputs $1$ and $3$ in this state estimate. If the list would have been ordered as $\{1,6,3,5\}$ the observer would provide a correct estimate. However, the selection procedure would not work. During the final estimate selection procedure as described in subsection \ref{subsec:estimate-selection}. All estimates constructed with $p \in j$ are compared against the estimate constructed with $j$. We now encounter the same obstacle as before: for all subsets $|p| < |j|, p \subset j$, some do not contain any sensor measuring the position of the second mass. Those estimates will suffer the same fate as the $J$-observers discussed before and provide a wrong state estimate. Even though its 'parent' estimate is correct.
+The attacked outputs in Example \ref{ex:ext-NL-double-mass} have, of course, been carefully chosen to provide the correct results. Had we attacked outputs $2$ and $4$ in the $N_O=6$ case, no correct state estimate could have been provided. This happens because the nonlinearity $\phi(y)$ in the example takes the first two entries of $y^{\mcJ}_{j}$ or $y^{\mcP}_{p}$, irrespective of what the sensor measures. So if outputs $2$ and $4$ are attacked, even the fully uncorrupted set of outputs $j=\{1,3,5,6\}$ does not provide a correct state estimate. Because $\phi(y)$ is only considers outputs $1$ and $3$ in this state estimate, where output 3 is also a measurement of the position of the first mass. If the list would have been ordered as $\{1,6,3,5\}$ the observer would provide a correct estimate. However, the selection procedure would still not work. During the final estimate selection procedure as described in subsection \ref{subsec:estimate-selection}. All estimates constructed with $p \in j$ are compared against the estimate constructed with $j$. We now encounter the same obstacle as before: for all subsets $|p| < |j|, p \subset j$, some do not contain any sensor measuring the position of the second mass. Those estimates will suffer the same fate as the $J$-observers discussed before and provide a wrong state estimate. Even though its 'parent' estimate is correct.
 
 \subsection{Addressing the nonlinear issue}
 Let us develop a new approach in order to tackle this issue. Consider system \eqref{eqn:standard-system} with outputs
@@ -262,13 +291,13 @@ Let us develop a new approach in order to tackle this issue. Consider system \eq
     y_i, i \in \{1,2,\dots,N_O\}.
 \end{equation*}
 We now define \textit{aggregate sensors} that combine multiple $y_i$ as
-\begin{equation}
+\begin{equation*}
     \nu_g = 
     \begin{bmatrix}
         y_{g_1} \\ y_{g_2} \\ \vdots \\ y_{g_{|g|}} \\
     \end{bmatrix}
     , \quad g \subset \{1,2,\dots,N_O\} \quad \text{and} \quad 1 < n_g < N_O,
-\end{equation}
+\end{equation*}
 where $n_g=|g|$. As discovered in subsection \ref{subsec:investigating-nonlinear-issue}, the order in which sensors appear should be standardized between all aggregate sensors $\nu_g$. For simplicity, the same order as in which variables are required in the nonlinearity will be used.
 
 \begin{example}\label{ex:aggregate-sensors}
@@ -419,7 +448,7 @@ We now aim to compare LAMOs (loose aggregate multi-observers) to SAMOs in terms 
 
 \begin{example}\label{ex:LAMO-attack}
     Let us illustrate this difference using an example. Consider the same system as in Example \ref{ex:SAMO-probability}, we now create loose aggregate sensors instead of strict aggregate sensors
-    \begin{equation}
+    \begin{equation*}
         \nu_1 = 
         \begin{bmatrix}
             y_1 \\ y_2
@@ -444,7 +473,7 @@ We now aim to compare LAMOs (loose aggregate multi-observers) to SAMOs in terms 
         \begin{bmatrix}
             y_9 \\ y_{10}
         \end{bmatrix}.
-    \end{equation}
+    \end{equation*}
     The 25 aggregate sensors imply that $N_O=25$ and thus, according to the robustness condition in Equation \eqref{eqn:robust-to-an-attack-SAMO}, would require at least $13$ aggregate sensors to be attacked. Every single sensor $y_i,i=1,2,\dots,10$ appears in 5 aggregate sensors $\nu_k,k=1,2,\dots,25$. This implies that the MO is not robust against an attack that corrupts 3 sensors measuring the same variable, for example, $y_1, y_3$ and $y_5$. Since such an attack corrupts $15$ aggregate sensors.
 \end{example}
 So the assumption $N_A=N_M$ does not hold for a LAMO, and thus the size of a LAMO should be decided in another way. In order choose a good number of aggregate sensors for each $J$-observer, the sizes of LAMOs should be worked out. Let us consider a system with $N_S$ sensors and $n_{\phi}$ nonlinearities, this implies that there are $N_S/n_{\phi}$ sensors measuring each nonlinear variable. Since we use all combinations between sensors measuring a different variable, there are
@@ -456,10 +485,10 @@ aggregate sensors. Let us still consider the worst case attack, all but one sens
     N_A = \frac{N_S}{n_{\phi}} N_M.
 \end{equation}
 This is a worst case estimation, an attack on sensors $1$ and $2$ would only attack $N_A=9$ aggregate sensors. We now apply Equation \eqref{eqn:AMO-observer-sizes} as before to find $J_{agg}$, the number of aggregate sensors in each $J$-observer. The robustness requirement in Equation \eqref{eqn:robust-to-an-attack-SAMO} limits the number of attacks the system can handle. The system discussed in Example \ref{ex:LAMO-attack} can handle at most $N_A=12$ aggregate sensors simultaneously under attack. Consider a LAMO with $2$ outputs under attack, resulting in $N_A=10$. This leads to $J_{agg}=15$, which leads to in $\binom{25}{15}=3,268,760$ $J$-observers and $25$ $P$-observers. In general we can say that a LAMO requires
-\begin{equation}
+\begin{equation*}
     N_J = \binom{N_O}{J_{agg}}, \quad N_P = N_O
-\end{equation}
-observers. Let us now compare robustness scores between SAMOs and LAMOs, Table \ref{tab:SAMO-robustness-score} displays the robustness scores for SAMOs and Table \ref{tab:LAMO-robustness-score} displays the robustness scores for LAMOs. 
+\end{equation*}
+observers. Let us now compare robustness scores as in Equation \eqref{eqn:robustness-score} between SAMOs and LAMOs, Table \ref{tab:SAMO-robustness-score} displays the robustness scores for SAMOs and Table \ref{tab:LAMO-robustness-score} displays the robustness scores for LAMOs. 
 
 \begin{table}[H]
     \centering
@@ -503,6 +532,7 @@ observers. Let us now compare robustness scores between SAMOs and LAMOs, Table \
 Tables \ref{tab:SAMO-robustness-score} and \ref{tab:LAMO-robustness-score} clearly show that both sensor grouping methods are fully robust against the same attacks. The SAMO is partially robust against more attacks, although the LAMO does outperforms or equals the performance of the SAMO in the cases where it is partially robust.
 
 \subsection{Beyond assurances}
+In this subsection we will explore the behaviour of nonlinear MOs beyond the limit of $N_A > 2N_A$ as in Equation \eqref{eqn:robust-to-an-attack-SAMO}. Let us start with 
 \begin{example}\label{ex:LAMO-unrobust-attack}
     Consider a LAMO as in Example \ref{ex:LAMO-attack}, with $N_S=10$ and $n_{\phi}=2$. This leads to $N_O=(10/2)^2=25$ and $N_A = (10/2)\cdot 4=20$ which implies that $J_{agg}=25-20=5$ as per Equation \eqref{eqn:AMO-observer-sizes}. The attack has $\mathcal{M}=\{1,3,5,7\}$ where the attack signal is $\tau_i=t,i\in\mathcal{M}$. 
     Figure \ref{fig:LAMO-attack} shows this scenario, where the final estimate converges towards the state. The state estimate around $t=0.25$ does seem to be unstable: the selection procedure seems to easily select an attacked $J$-observer. After $t=0.5$ the LAMO seems to stabilize and stick to a correct state estimate.
@@ -513,3 +543,4 @@ Tables \ref{tab:SAMO-robustness-score} and \ref{tab:LAMO-robustness-score} clear
         \label{fig:LAMO-attack}
     \end{figure}
 \end{example}
+This is strange behaviour, since the condition in Equation \eqref{eqn:robust-to-an-attack-SAMO} is clearly violated ($N_O=25$ and $N_A=20$). The selection procedure still decides on the correct state estimate after switching around rapidly at the start. This could be caused by large numerical inaccuracies in the attacked observers, since their values grow very large. Another possibility is that the loose sensor pairing allows the SAMO to function better under a large number of attacks.

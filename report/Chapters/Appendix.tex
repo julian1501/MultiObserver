@@ -34,28 +34,28 @@
 
 \newpage
 \section{SSMO transformation matrix}\label{ap:ssmo-transformation-matrix}
-Let us now show that the transformation matrix $T_o=R_pR_q$,
+Let us now show that the transformation matrix $T=R_pR_q$,
 \begin{equation*}
     \begin{split}
          R_p &=
         \begin{bmatrix}
-            \B_o & \A_o\B_o & \A^{2}_o\B_o & \cdots & \A^{n-1}_o\B_o \\
+            \B & \A\B & \A^{2}\B & \cdots & \A^{n-1}\B \\
         \end{bmatrix} \\
         R_q &=
         \begin{bmatrix}
             I_l & q_1I_l & q_2I_l & \cdots & q_{n-1}I_l \\
-            0_l & I_l & q_1I_l & \cdots & q_{n-2}I_l \\
+            0 & I_l & q_1I_l & \cdots & q_{n-2}I_l \\
             \vdots & \ddots & \ddots & \ddots & \vdots \\
-            0_l & \cdots & 0_l & I_l & q_1I_l \\
-            0_l & \cdots & 0_l & 0_l & I_l \\
+            0 & \cdots & 0 & I_l & q_1I_l \\
+            0 & \cdots & 0 & 0 & I_l \\
         \end{bmatrix}.
     \end{split}
 \end{equation*}
 transforms the system \eqref{eqn:ssmo-standard-system-form} into controllable canonical form as in Equation \eqref{eqn:controllable-canonical-form}, with the transformation
 \begin{equation}\label{eqn:A-transformation}
     \begin{split}
-        T_o\mathbf{A} &= \A_oT_o \\
-        R_pR_q\mathbf{A} &= \A_oR_pR_q. \\
+        T\mathbf{A} &= \A T \\
+        R_pR_q\mathbf{A} &= \A R_pR_q. \\
     \end{split}
 \end{equation}
  Let us start by expanding
@@ -64,100 +64,100 @@ transforms the system \eqref{eqn:ssmo-standard-system-form} into controllable ca
         R_q\mathbf{A} &=  
         \begin{bmatrix}
             I_l & q_1I_l & q_2I_l & \cdots & q_{n-1}I_l \\
-            0_l & I_l & q_1I_l & \cdots & q_{n-2}I_l \\
+            0 & I_l & q_1I_l & \cdots & q_{n-2}I_l \\
             \vdots & \ddots & \ddots & \ddots & \vdots \\
-            0_l & \cdots & 0_l & I_l & q_1I_l \\
-            0_l & \cdots & 0_l & 0_l & I_l \\
+            0 & \cdots & 0 & I_l & q_1I_l \\
+            0 & \cdots & 0 & 0 & I_l \\
         \end{bmatrix}
         \begin{bmatrix}
             -q_1I_l & -q_2I_l & \cdots & -q_{n-1}I_l & -q_nI_l \\
-            I_l & 0_l & \cdots & 0_l & 0_l \\
-            0_l & I_l & \cdots & 0_l & 0_l \\
+            I_l & 0 & \cdots & 0 & 0 \\
+            0 & I_l & \cdots & 0 & 0 \\
             \vdots & \vdots & \ddots & \vdots & \vdots \\
-            0_l & 0_l & \cdots & I_l & 0_l \\
+            0 & 0 & \cdots & I_l & 0 \\
         \end{bmatrix} \\
         &= 
         \begin{bmatrix}
-            0_l & 0_l & 0_l & \cdots & 0_l & 0_l & 0_l \\
-            I_l & q_1I_l & q_2I_l & \cdots & q_{n-3}I_l & q_{n-2}I_l & 0_l \\ 
-            0_l & I_l & q_1I_l & \cdots & q_{n-4}I_l & q_{n-3}I_l & 0_l \\ 
+            0 & 0 & 0 & \cdots & 0 & 0 & 0 \\
+            I_l & q_1I_l & q_2I_l & \cdots & q_{n-3}I_l & q_{n-2}I_l & 0 \\ 
+            0 & I_l & q_1I_l & \cdots & q_{n-4}I_l & q_{n-3}I_l & 0 \\ 
             \vdots & \vdots & \vdots & \ddots & \vdots & \vdots & \vdots \\
-            0_l & 0_l & 0_l & \cdots & q_1I_l & q_2I_l & 0_l \\
-            0_l & 0_l & 0_l & \cdots & I_l & q_1I_l & 0_l \\
-            0_l & 0_l & 0_l & \cdots & 0_l & I_l & 0_l \\
+            0 & 0 & 0 & \cdots & q_1I_l & q_2I_l & 0 \\
+            0 & 0 & 0 & \cdots & I_l & q_1I_l & 0 \\
+            0 & 0 & 0 & \cdots & 0 & I_l & 0 \\
         \end{bmatrix}.
     \end{split} 
 \end{equation*}
-We now premultiply this by $R_o$
+We now premultiply this by $R$
 \begin{equation*}
     \begin{split}
         R_pR_q\mathbf{A} &= 
         \begin{bmatrix}
-            \B_o & \A_o\B_o & \A^{2}_o\B_o & \cdots & \A^{n-1}_o\B_o \\
+            \B & \A\B & \A^{2}\B & \cdots & \A^{n-1}\B \\
         \end{bmatrix}
         \begin{bmatrix}
-            0_l & 0_l & 0_l & \cdots & 0_l & 0_l \\
-            I_l & q_1I_l & q_2I_l & \cdots & q_{n-2}I_l & 0_l \\ 
-            0_l & I_l & q_1I_l & \cdots & q_{n-3}I_l & 0_l \\ 
+            0 & 0 & 0 & \cdots & 0 & 0 \\
+            I_l & q_1I_l & q_2I_l & \cdots & q_{n-2}I_l & 0 \\ 
+            0 & I_l & q_1I_l & \cdots & q_{n-3}I_l & 0 \\ 
             \vdots & \ddots & \ddots & \ddots & \vdots & \vdots \\
-            0_l & 0_l & 0_l & \ddots & q_1I_l & 0_l \\
-            0_l & 0_l & 0_l & \cdots & I_l & 0_l \\
+            0 & 0 & 0 & \ddots & q_1I_l & 0 \\
+            0 & 0 & 0 & \cdots & I_l & 0 \\
         \end{bmatrix} \\
         &= 
         \begin{bmatrix}
-            \A_o\B_o \\ q_1\A_o\B_o + \A^2_o\B_o \\ q_2\A_o\B_o + q_1\A^2_o\B_o + \A^3_o\B_o \\ \cdots \\ q_{n-2}\A_o\B_o + q_{n-3}\A^2_o\B_o + \cdots + q_1\A^{n-2}_o\B_o + \A^{n-1}_o\B_o \\ 0 \\      
+            \A\B \\ q_1\A\B + \A^2\B \\ q_2\A\B + q_1\A^2\B + \A^3\B \\ \cdots \\ q_{n-2}\A\B + q_{n-3}\A^2\B + \cdots + q_1\A^{n-2}\B + \A^{n-1}\B \\ 0 \\      
         \end{bmatrix}^T
     \end{split}
 \end{equation*}
 Where by the Cayley-Hamilton theorem we can rewrite penultimate column as
 \begin{equation*}
     \begin{bmatrix}
-            \A_o\B_o \\ q_1\A_o\B_o + \A^2_o\B_o \\ q_2\A_o\B_o + q_1\A^2_o\B_o + \A^3_o\B_o \\ \vdots \\ -\A^n_o\B_o \\ 0 \\      
+            \A\B \\ q_1\A\B + \A^2\B \\ q_2\A\B + q_1\A^2\B + \A^3\B \\ \vdots \\ -\A^n\B \\ 0 \\      
         \end{bmatrix}^T
 \end{equation*}
 
 We now expand
 \begin{equation*}
     \begin{split}
-        \A_oR_pR_q &= 
+        \A R_pR_q &= 
         \begin{bmatrix}
-            \A_o\B_o & \A^2_o\B_o & \A^{3}_o\B_o & \cdots & \A^{n}_o\B_o \\
+            \A\B & \A^2\B & \A^{3}\B & \cdots & \A^{n}\B \\
         \end{bmatrix}
         \begin{bmatrix}
             I_l & q_1I_l & q_2I_l & \cdots & q_{n-1}I_l \\
-            0_l & I_l & q_1I_l & \cdots & q_{n-2}I_l \\
+            0 & I_l & q_1I_l & \cdots & q_{n-2}I_l \\
             \vdots & \ddots & \ddots & \ddots & \vdots \\
-            0_l & \cdots & 0_l & I_l & q_1I_l \\
-            0_l & \cdots & 0_l & 0_l & I_l \\
+            0 & \cdots & 0 & I_l & q_1I_l \\
+            0 & \cdots & 0 & 0 & I_l \\
         \end{bmatrix} \\
         &=
         \begin{bmatrix}
-            \A_o\B_o \\ 
-            q_1\A_o\B_o + \A^2_o\B_o \\ 
-            q_2\A_o\B_o + q_1\A^2\B_o + \A^3_o\B_o \\ \vdots \\ 
-            q_{n-1}\A_o\B_o + q_{n-2}\A^2_o\B_o + \cdots + \A^{n-1}_o\B_o \\
-            q_{n-1}\A_o\B_o + q_{n-2}\A^2_o\B_o + \cdots + \A^{n-1}_o\B_o + \A^n_o\B_o \\
+            \A \B \\ 
+            q_1 \A \B + \A^2 \B \\ 
+            q_2 \A \B + q_1 \A^2 \B + \A^3 \B \\ \vdots \\ 
+            q_{n-1} \A \B + q_{n-2} \A^2 \B + \cdots + \A^{n-1} \B \\
+            q_{n-1} \A \B + q_{n-2} \A^2 \B + \cdots + \A^{n-1} \B + \A^n \B \\
         \end{bmatrix}^T,
     \end{split}
 \end{equation*}
 where the bottom two rows can be simplified by using the Cayley-Hamilton theorem
 \begin{equation*}
     \begin{split}
-        \A_oR_pR_q &= 
+        \A R_pR_q &= 
         \begin{bmatrix}
-            \A_o\B_o \\ 
-            q_1\A_o\B_o + \A^2_o\B_o \\ 
-            q_2\A_o\B_o + q_1\A^2\B_o + \A^3_o\B_o \\ \vdots \\ 
-            \A^{n}_o\B_o \\
+            \A\B \\ 
+            q_1\A\B + \A^2\B \\ 
+            q_2\A\B + q_1\A^2\B + \A^3\B \\ \vdots \\ 
+            \A^{n}\B \\
             0 \\
         \end{bmatrix}^T,
     \end{split}
 \end{equation*}
-which is equal to $R_oR_q\A_o$. We can now conclude that the matrix $T_o=R_oR_q$ satisfies \eqref{eqn:A-transformation}. Now we will show the same for
+which is equal to $RR_q\A$. We can now conclude that the matrix $T=RR_q$ satisfies \eqref{eqn:A-transformation}. Now we will show the same for
 \begin{equation}\label{eqn:B-transformation}
     \begin{split}
-        T_o\mathbf{B} &= \B_o \\
-        R_pR_q\mathbf{B} &= \B_o.
+        T\mathbf{B} &= \B \\
+        R_pR_q\mathbf{B} &= \B.
     \end{split}
 \end{equation}
 Let us expand
@@ -165,25 +165,25 @@ Let us expand
     \begin{split}
         R_pR_q\mathbf{B} &=
         \begin{bmatrix}
-            \B_o & \A_o\B_o & \A^{2}_o\B_o & \cdots & \A^{n-1}_o\B_o \\
+            \B & \A\B & \A^{2}\B & \cdots & \A^{n-1}\B \\
         \end{bmatrix}
         \begin{bmatrix}
             I_l & q_1I_l & q_2I_l & \cdots & q_{n-1}I_l \\
-            0_l & I_l & q_1I_l & \cdots & q_{n-2}I_l \\
+            0 & I_l & q_1I_l & \cdots & q_{n-2}I_l \\
             \vdots & \ddots & \ddots & \ddots & \vdots \\
-            0_l & \cdots & 0_l & I_l & q_1I_l \\
-            0_l & \cdots & 0_l & 0_l & I_l \\
+            0 & \cdots & 0 & I_l & q_1I_l \\
+            0 & \cdots & 0 & 0 & I_l \\
         \end{bmatrix}
         \begin{bmatrix}
-            I_l \\ 0_l \\ \vdots \\ 0_l \\ 0_l \\
+            I_l \\ 0 \\ \vdots \\ 0 \\ 0 \\
         \end{bmatrix} \\
         &=
         \begin{bmatrix}
-            \B_o & \A_o\B_o & \A^{2}_o\B_o & \cdots & \A^{n-1}_o\B_o \\
+            \B & \A\B & \A^{2}\B & \cdots & \A^{n-1}\B \\
         \end{bmatrix}
         \begin{bmatrix}
-            I_l \\ 0_l \\ \vdots \\ 0_l \\ 0_l \\
-        \end{bmatrix} = \B_o \\
+            I_l \\ 0 \\ \vdots \\ 0 \\ 0 \\
+        \end{bmatrix} = \B \\
     \end{split}
 \end{equation*}
 which shows that \eqref{eqn:B-transformation} holds.
@@ -198,7 +198,7 @@ which shows that \eqref{eqn:B-transformation} holds.
 
 \newpage
 \section{Matlab code Chapter \ref{ch:matlab-implementation}}\label{ap:matlab-code}
-Firstly, the main scripts is shown. This is the script than should be executed to run the model. Secondly, all classes are shown and finally all functions are shown. The documentation that sits between the function definitions and the start of the code are made by inputting the full function into ChatGPT-4 and with the prompt: "Can you provide documentation for this function? $<$code in between these brackets$>$" All output has been checked and corrected by the author in this report, so that the documentation accurately describes the code.
+Firstly, the main scripts is shown. This is the script than should be executed to run the model. Secondly, all classes are shown and finally all functions are shown. The documentation that sits between the function definitions and the start of the code are made by inputting the full function into ChatGPT-4 and with the prompt: "Can you provide documentation for this function? $<$code in between these brackets$>$" All output has been checked and corrected by the author in this report, so that the documentation accurately describes the code. All code can also be found in the github repo: https://github.com/julian1501/MultiObserver.
 \lstinputlisting[style=Matlab-editor,caption=mainClassScript.m]{conventional/mainClassScript.m}
 Now all classes follow alphabetically
 \lstinputlisting[style=Matlab-editor,caption=attack.m]{functions/attack.m}

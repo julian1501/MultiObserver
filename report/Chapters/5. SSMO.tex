@@ -1,32 +1,43 @@
 \section{State-sharing multi-observer}\label{ch:ssmo}
-In this chapter, the state-sharing multi-observer (SSMO) will be discussed, aiming to reduce the required memory to store the CMO. The SSMO described in this chapter will provide the estimates as described in \autoref{subsec:state-estimates} and will employ the same selection procedure as described in \autoref{subsec:estimate-selection}.
+In this chapter, the state-sharing multi-observer (SSMO) will be discussed, aiming to reduce the required memory to store the CMO. The SSMO described in this chapter will provide the estimates as described in Subsection \ref{subsec:state-estimates} and will employ the same selection procedure as described in Subsection \ref{subsec:estimate-selection}.
 
 \subsection{Constructing the state-estimates}
 The SSMO follows the definition as in \cite{Chong2023MemoryAlgorithms}. Consider the observers
 \begin{equation}\label{eqn:ssmo-observer}
     \begin{split}
-        \dot{\hat{x}}_{j/p} &= \A_o\hat{x}_{j/p} - L_{j/p}C_{j/p}x + Bu -L_{j/p}(v_{j/p} + \tau_{j/p}), \quad \A_{j/p}=A+L_{j/p}C_{j/p} \\
+        \dot{\hat{x}}^{\mcJ}_{j} &= \A_j^{\mcJ}\hat{x}^{\mcJ}_{j} - L_{j}^{\mcJ}C_{j}^{\mcJ}x + Bu -L_{j}^{\mcJ}(v_{j}^{\mcJ} + \tau_{j}^{\mcJ}), \quad \A_{j}^{\mcJ}=A+L_{j}^{\mcJ}C_{j}^{\mcJ} \\
+        \dot{\hat{x}}_{p}^{\mcP} &= \A_p^{\mcP}\hat{x}_{p}^{\mcP} - L_{p}^{\mcP}C_{p}^{\mcP}x + Bu -L_{p}^{\mcP}(v_{p}^{\mcP} + \tau_{p}^{\mcP}), \quad \A_{p}^{\mcP}=A+L_{p}^{\mcP}C_{p}^{\mcP} \\
     \end{split}
 \end{equation}
-where $j=1,2,\dots,N_J$, $p=1,2,\dots,N_P$ and $j/p$ indicates that the equation holds for both $J$ and $P$-observers. All $L_{j/p}$ must be selected in such a way that all $\A_{j/p}$ share the same characteristic polynomial
+where $j=1,2,\dots,N_J$, $p=1,2,\dots,N_P$ with $N_J$ and $N_P$ as in Equation \eqref{eqn:multi-observer-sizes}. All $L$ must be selected in such a way that all $\A$ share the same characteristic polynomial
 \begin{equation}\label{eqn:ssmo-char-poly}
     \det(sI-\A) = p(s) = s^n + q_1s^{n-1} + \dots + q_{n-1}s + q_n
 \end{equation}
-and thus all have equal eigenvalues. Let us now define a matrix $\Tilde{L}_{j/p}$ such that $\Tilde{L}_{j/p}y=L_{j/p}y_{j/p}$. This can be achieved by padding $L_o$ with zero vectors $z \in \mathbb{R}^{n \times 1}$ \cite{Chong2023MemoryAlgorithms}. Let us now rewrite the observer \eqref{eqn:ssmo-observer} into the following form \textcolor{red}{remove nonlinearity}
+and thus all have equal eigenvalues. Let us now define a matrix $\Tilde{L}$ such that $\Tilde{L}y=Ly_{j}$ for all $J$-observers or $\Tilde{L}y=Ly_{p}$ for all $P$-observers. This can be achieved by padding $L$ with zero vectors $z \in \mathbb{R}^{n_x \times 1}$ \cite{Chong2023MemoryAlgorithms}. Let us now rewrite the observer \eqref{eqn:ssmo-observer} into the following form
 \begin{equation}\label{eqn:ssmo-standard-system-form}
-    \dot{\hat{x}}_{j/p} = \A_{j/p}\hat{x}_{j/p} + \B_{j/p}\eta_{j/p}, \quad
-    \B_{j/p} =
-    \begin{bmatrix}
-        E & B & -\Tilde{L}_{j/p} \\
-    \end{bmatrix}, \quad \eta_o =
-    \begin{bmatrix}
-        \phi(y) \\
-        u \\
-        C_{j/p}x_{j/p} + v_{j/p} + \tau_{j/p}
-    \end{bmatrix}.
+    \begin{split}
+        \dot{\hat{x}}_{j}^{\mcJ} &= \A_{j}^{\mcJ}\hat{x}_{j}^{\mcJ} + \B_{j}^{\mcJ}\eta_{j}^{\mcJ}, \quad
+        \B_{j}^{\mcJ} =
+        \begin{bmatrix}
+            B & -\Tilde{L}_{j}^{\mcJ} \\
+        \end{bmatrix}, \quad \eta_j =
+        \begin{bmatrix}
+            u \\
+            C_{j}^{\mcJ}x_{j}^{\mcJ} + v_{j}^{\mcJ} + \tau_{j}^{\mcJ}
+        \end{bmatrix} \\ 
+        \dot{\hat{x}}_{p}^{\mcP} &= \A_{p}^{\mcP}\hat{x}_{p}^{\mcP} + \B_{p}^{\mcP}\eta_{p}^{\mcP}, \quad
+        \B_{p}^{\mcP} =
+        \begin{bmatrix}
+            B & -\Tilde{L}_{p}^{\mcP} \\
+        \end{bmatrix}, \quad \eta_p =
+        \begin{bmatrix}
+            u \\
+            C_{p}^{\mcP}x_{p}^{\mcP} + v_{p}^{\mcP} + \tau_{p}^{\mcP}
+        \end{bmatrix}.
+    \end{split}
 \end{equation}
 
-Let us now derive transformation matrices $T_{j/p}$ that transform all $\A_{j/p}$ and $\B_{j/p}$ as in \eqref{eqn:ssmo-standard-system-form} into controllable canonical form as in \cite[Sec. 4.3.2]{Hespanha2018LinearTheory}
+Let us now derive transformation matrices $T^{\mcJ}_{j}$ and $T_p^{\mcP}$ that transform all $\A^{\mcJ}_{j},\B^{\mcJ}_{j},\A^{\mcP}_{p}$ and $\B^{\mcP}_{p}$ as in \eqref{eqn:ssmo-standard-system-form} into controllable canonical form as in \cite[Sec. 4.3.2]{Hespanha2018LinearTheory}
 \begin{equation}\label{eqn:controllable-canonical-form}
     \mathbf{A} =
     \begin{bmatrix}
@@ -44,10 +55,15 @@ Let us now derive transformation matrices $T_{j/p}$ that transform all $\A_{j/p}
 where $l=N$. The transformation matrices for each observer are,
 \begin{equation}\label{eqn:ssmo-transformation}
     \begin{split}
-        T_{j/p} &= R_oR_q\\
-        R_o &=
+        T_{j}^{\mcJ} &= R_j^{\mcJ}R_q \\
+        T_{p}^{\mcP} &= R_p^{\mcP}R_q \\
+        R_j^{\mcJ} &= 
         \begin{bmatrix}
-            \B_{j/p} & \A_{j/p}\B_{j/p} & \A^{2}_{j/p}\B_{j/p} & \cdots & \A^{n-1}_{j/p}\B_{j/p} \\
+            \B^{\mcJ}_{j} & \A^{\mcJ}_{j}\B^{\mcJ}_{j} & {(\A^{\mcJ}_{j})}^{2}\B^{\mcJ}_{j} & \cdots & {(\A^{\mcJ}_{j})}^{n-1}\B^{\mcJ}_{j} \\
+        \end{bmatrix} \\
+        R_p^{\mcP} &= 
+        \begin{bmatrix}
+            \B^{\mcP}_{p} & \A^{\mcP}_{p}\B^{\mcP}_{p} & {(\A^{\mcP}_{p})}^{2}\B^{\mcP}_{p} & \cdots & {(\A^{\mcP}_{p})}^{n-2}\B^{\mcP}_{p} \\
         \end{bmatrix} \\
         R_q &=
         \begin{bmatrix}
@@ -59,19 +75,19 @@ where $l=N$. The transformation matrices for each observer are,
         \end{bmatrix}.
     \end{split}
 \end{equation}
-The calculation showing that this transformation holds can be found in \autoref{ap:ssmo-transformation-matrix}. It should be noted that $\mathbf{A}$ and $\mathbf{B}$ are independent of $o$ and since all observers \eqref{eqn:ssmo-observer} share the same characteristic polynomial \eqref{eqn:ssmo-char-poly}, $\mathbf{A}$ and $\mathbf{B}$ are the same for all observers. This means that only one copy of the matrices needs to be stored and all state estimates $\hat{x}$ can be recovered using the transformation matrices $T^{\mcJ/\mcP}_{j/p}$
+The calculation showing that this transformation holds can be found in \autoref{ap:ssmo-transformation-matrix}. It should be noted that $\mathbf{A}$ and $\mathbf{B}$ are independent of $j$ and $p$. Since all observers \eqref{eqn:ssmo-observer} share the same characteristic polynomial \eqref{eqn:ssmo-char-poly}, $\mathbf{A}$ and $\mathbf{B}$ are the same for all observers. This means that only one copy of the matrices needs to be stored and all state estimates $\hat{x}$ can be recovered using the transformation matrices $T^{\mcJ}_{j}$ and $T^{\mcP}_{p}$
 
 \begin{equation*}
-    \hat{x}_{j/p} = T_{j/p} z,
+    \hat{x}_{j}^{\mcJ} = T_{j}^{\mcJ} z, \quad \hat{x}_{p}^{\mcP} = T_{p}^{\mcP} z
 \end{equation*}
-where $z$ is the shared state which is governed by the differential equation
+where $z$ is the shared state which is governed by the equation
 \begin{equation}\label{eqn:ssmo-z}
     \dot{z} = \mathbf{A}z + \mathbf{B}\eta, \quad \eta = 
     \begin{bmatrix}
         u \\ Cx + v + \tau
     \end{bmatrix}.
 \end{equation}
-An important requirement is that all state estimates $\hat{x}^{\mcJ/\mcP}_{j/p}(0)$ share the same initial condition, for simplicity it will be set to $0$.
+An important requirement is that all state estimates $\hat{x}^{\mcJ}_{j}$ and $\hat{x}^{\mcP}_p$ share the same initial condition $\hat{x}^{\mcJ}_{j}(0)=\hat{x}^{\mcP}_p(0)$ for all $j=1,2,\dots,N_J$ and $p=1,2,\dots,N_P$, for simplicity it will be chosen as $0$.
 
 \begin{figure}[h]
     \centering
@@ -113,7 +129,7 @@ An important requirement is that all state estimates $\hat{x}^{\mcJ/\mcP}_{j/p}(
 \end{figure}
 
 \subsection{Observer architecture}\label{subsec:ssmo-architecture}
-Let us now discuss the way an SSMO is actually implemented. The calculation of $z$ is straightforward, Equation \eqref{eqn:ssmo-z} is used. the state estimates $\hat{x}^{\mcJ/\mcP}_{j/p}$ are calculated with the transformation matrices as follows
+Let us now discuss the way an SSMO is actually implemented. The calculation of $z$ is straightforward, Equation \eqref{eqn:ssmo-z} is used. the state estimates $\hat{x}^{\mcJ}_{p}$ and $\hat{x}^{\mcP}_p$ are calculated with the transformation matrices as follows
 
 \begin{equation*}
     \tilde{x}_{SSMO} = \texttt{pm}(T,z,3),
@@ -171,7 +187,7 @@ where
     \begin{minipage}[t]{0.4\textwidth}
     \centering
     % Second tikzpicture
-        \begin{equation}\label{eqn:T-ssmo}
+        \begin{equation*}\label{eqn:T-ssmo}
             \begin{tikzpicture}[every node/.style={anchor=north east,fill=white,minimum width=2cm,minimum height=7mm}]
             
             % Define the displacement as a coordinate
@@ -215,12 +231,12 @@ where
             \node at ($(-4,-1.8)$) {$T=$};
             
             \end{tikzpicture}
-        \end{equation}
+        \end{equation*}
     \end{minipage}
 \end{center}
-The structure of the storage matrix $\tilde{x}_{SSMO}$ is the same as $\tilde{x}_{3D}$ in \eqref{eqn:A-tilde-3D}. The selection of the final estimate follows the same procedure as described in Section \ref{subsec:estimate-selection}.
+The structure of the storage matrix $\tilde{x}_{SSMO}$ is the same as $\tilde{x}_{3D}$ in Equation \eqref{eqn:A-tilde-3D}. The selection of the final estimate follows the same procedure as described in Section \ref{subsec:estimate-selection}.
 
-\begin{table}[ht]
+\begin{table}[H]
     \centering
     \begin{tabular}{|c|c|c|}
         \toprule
@@ -243,35 +259,29 @@ Let us now compare the sizes of the 2D-CMO, 3D-CMO and SSMO as presented in Tabl
         \toprule
         Multi-Observer & Total number of Elements \\
         \midrule
-        2D-CMO & $n_xN_S + n_x^2N_S^2 + 2n_uN_S$ \\
+        2D-CMO & $n_xN_S + n_x^2N_S^2 + n_xn_uN_S + n_u$ \\
         3D-CMO & $n_xN_S + 2n_x^2N_S$ \\
         SSMO   & $n_xN_S + n_x^2N_O^2 + n_x^2N_O + n_x^2N_ON_S$ \\
         \bottomrule
     \end{tabular}
     \caption{Total number of elements in each MO implementation}
-    \label{tab:my_label}
+    \label{tab:all-sizes}
 \end{table}
 
-We now use the for $N_S$ as in equation \eqref{eqn:NS-approximation} to compare number of Gigabytes required to store the MO. This value is derived from the number of elements, each element requires 8 bytes to be stored in for example a python float or a Matlab double. The comparison is made for different combinations of the number of state variables $n_x$ and number of total system outputs $N_O$. Both of these values are ranged from $1$ to $50$ and the storage size for each combination is compared.
+We now use the for $N_S$ as in equation \eqref{eqn:NS-approximation} to compare number of Gigabytes required to store the MO. This value is derived from the number of elements, each element requires 8 bytes to be stored in for example a python float or a Matlab double. The comparison is made for different combinations of the number of state variables $n_x$ and number of total system outputs $N_O$. Both of these values are taken as $n \in \{1,2,\dots,50\}$ and the storage size for all $50^2=2500$ combinations are compared.
 
-Figure \ref{fig:MO-storage}, where the colour indicates the total size of the MO, shows the result of this comparison. The 2D CMO performs very poorly, as to be expected due to the $N_S^2$ term appearing in it's $A$ matrix (see \autoref{tab:2D-CMO-dimensions}). The 3D CMO and the SSMO perform similarly. The size of all MOs increases much more with an increasing $N_O$ as compared to a growing $n_x$, which is not strange considering $N_O$ influences the number of combinations that need to be made from all sensors.
-
-
+Figure \ref{fig:MO-storage}, where the colour indicates the total size of the MO, shows the result of this comparison. The 2D-CMO performs very poorly, as to be expected due to the $N_S^2$ term appearing in it's $A$ matrix (see \autoref{tab:2D-CMO-dimensions}). The 3D-CMO and the SSMO perform similarly. The size of all MOs increases much more with an increasing $N_O$ as compared to a growing $n_x$, which is not strange considering $N_O$ influences the number of combinations that need to be made from all sensors.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{report/Figures/sizeComparison60.png}
     \caption{Storage requirements for different MOs}
     \label{fig:MO-storage}
 \end{figure}
-
-
 In Figure \ref{fig:ssmo-vs-3dcmo} the SSMO size is divided by the 3D CMO size, the plot shows the ratio between the two MOs. The figure clearly shows that the 3D CMO uses less memory than the SSMO under every circumstance. The difference becomes more pronounced for larger values of $N_O$. This can be attributed to the size of the $T$ matrix in Equation \ref{eqn:T-ssmo}, where its size $n_x^2N_ON_S$ can be viewed as $n_x^3N_S$ on the diagonal in Figure \eqref{fig:ssmo-vs-3dcmo}.
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.4\linewidth]{report/Figures/ssmo_vs_3dcmo.png}
     \caption{Ratio between the required memory for an SSMO and 3D CMO respectively}
     \label{fig:ssmo-vs-3dcmo}
 \end{figure}
-
-It should also be noted that none of the MOs can be implemented in scenarios with a large $N_O$, since the required memory is enormous. Even the super computer Frontier with 9.6 Petabytes ($10^6$ Gigabytes) of random access memory would not be able to run such an MO \cite{2024FrontierDocumentation}.
+It should also be noted that none of the MOs can be implemented in scenarios with a large $N_O$, since the required memory is significantly too large. Even the super computer Frontier with 9.6 Petabytes ($10^6$ Gigabytes) of random access memory would not be able to run such an MO \cite{2024FrontierDocumentation}. The calculations and plots shown in this subsection have been made with the Matlab script in Appendix \ref{ap:matlab-code-ch6}. The values in Figures \ref{fig:MO-storage} and \ref{fig:ssmo-vs-3dcmo} are all calculated with $P=1$, different values of $P$ could cause vastly different results if $P$ is chosen to be large. The relative size difference between the different MOs should stay similar.
